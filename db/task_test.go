@@ -38,16 +38,15 @@ func TestCreateTask(t *testing.T) {
 
 }
 
-
 func TestGetTask(t *testing.T) {
 	task1 := generateRandomTask(t)
 
-	require.NotEmpty(t,task1)
+	require.NotEmpty(t, task1)
 
 	task2, err := testQueries.GetTask(context.Background(), task1.Id)
 
-	require.NoError(t,err)
-	require.NotEmpty(t,task2)
+	require.NoError(t, err)
+	require.NotEmpty(t, task2)
 	require.Equal(t, task1.Name, task2.Name)
 	require.Equal(t, task1.Budget, task2.Budget)
 	require.Equal(t, task1.CreatedBy, task2.CreatedBy)
@@ -62,4 +61,15 @@ func TestDeleteTask(t *testing.T) {
 	err := testQueries.DeleteTask(context.Background(), task1.Id)
 	require.NoError(t, err)
 
+}
+
+func TestUpdateTask(t *testing.T) {
+	task1 := generateRandomTask(t)
+	require.NotEmpty(t, task1)
+	g := &task1
+	g.Done = true
+	require.Equal(t, task1.Done, true)
+	task2, err := testQueries.UpdateTask(context.Background(), task1)
+	require.NoError(t, err)
+	require.NotEmpty(t, task2)
 }

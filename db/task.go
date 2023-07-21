@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
+	"fmt"
+	"reflect"
+
 	"github.com/kamalbowselvam/chaintask/models"
 )
-
 
 const createTask = `
 INSERT INTO tasks (
@@ -18,9 +20,9 @@ INSERT INTO tasks (
 RETURNING id, name, budget, created_by, created_on, updated_by, updated_on, done;`
 
 type CreateTaskParams struct {
-	Name    string `json:"owner"`
-	Budget  float64 `json:"balance"`
-	CreatedBy string `json:"created_by"`
+	Name      string  `json:"owner"`
+	Budget    float64 `json:"balance"`
+	CreatedBy string  `json:"created_by"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (models.Task, error) {
@@ -69,7 +71,33 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (models.Task, error) {
 	return t, err
 }
 
+const updateTask = `
+ UPDATE tasks set $1 = $2 where id = $3
+`
 
+func (q *Queries) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
+	// Create a helper function for preparing failure results.
+	fail := func(err error) (models.Task, error) {
+		return models.Task{}, fmt.Errorf("Could not create Task: %v", err)
+	}
+	// Get a Tx for making transaction requests.
+	tx, err := q.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fail(err)
+	}
+	// Defer a rollback in case anything fails.
+	defer tx.Rollback()
+	var id = task.Id
+	reflectedTask := reflect.ValueOf(task)
+	for i := 0; i < reflectedTask.NumField(); i++ {
+		if reflect.Indirect(reflectedTask).FieldByName(reflectedTask.Type().Field(i).Name) != nil {
+			tx.ExecContext(ctx, updateTask, reflectedTask.Type().Field(i).Name, reflect.Indirect(reflectedTask).FieldByName(reflectedTask.Type().Field(i).Name), id)
+		}
+	}
 
-
-
+	// Commit the transaction.
+	if err = tx.Commit(); err != nil {
+		return fail(err)
+	}
+	return q.GetTask(ctx, id)
+}
