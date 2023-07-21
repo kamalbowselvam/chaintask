@@ -1,36 +1,28 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"time"
-
-	"github.com/kamalbowselvam/chaintask/models"
+	_ "github.com/lib/pq"
 )
 
-func main(){
-
+func main() {
 
 	fmt.Println("Hello World Task")
 
-	task := &models.Task{
-		ID: "1",
-		Name: "Kamal",
-		Budget: 1000.0,
-		CreatedAt:  time.Now(),
-		CreatedBy: "Kamal",
-		ValidateBy: "Menelik" ,   
-		ValidateOn:  time.Now() ,
-		UpdatedOn:   time.Now() ,
-		UpdatedBy:   time.Now() ,
+	var db *sql.DB
+	var err error
+
+	connstr := "postgresql://root:secret@localhost:5433/chain_task?sslmode=disable"
+
+	db, err = sql.Open("postgres",connstr)
+	if err != nil {
+		panic(err)
 	}
 
-
-
-	fmt.Println(task.Name)
-
-
-
-	return 
+	if err = db.Ping(); err != nil {
+		panic(err)
+	}
+	return
 
 }
-

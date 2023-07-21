@@ -3,13 +3,12 @@ package models
 import "time"
 
 type Task struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	Budget     float64   `json:"budget"`
-	CreatedAt  time.Time `json:"createdAt"`
-	CreatedBy  string    `json:"createdBy"`
-	ValidateBy string    `json:"vaidatedBy"`
-	ValidateOn time.Time `json:"validatedOn"`
-	UpdatedOn  time.Time `json:"updatedOn"`
-	UpdatedBy  time.Time `json:"updatedBy"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	Budget    float64   `json:"budget"`
+	CreatedOn time.Time `json:"createdOn"`
+	CreatedBy string    `json:"createdBy"`
+	UpdatedOn time.Time `json:"updatedOn"`
+	UpdatedBy string    `json:"updatedBy"`
+	Done      bool      `json:"done"`
 }
