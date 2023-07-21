@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Task struct {
-	Id        string    `json:"id"`
+	Id        int64    `json:"id"`
 	Name      string    `json:"name"`
 	Budget    float64   `json:"budget"`
 	CreatedOn time.Time `json:"createdOn"`

@@ -2,24 +2,24 @@ package db
 
 import (
 	"context"
-	"log"
 	"testing"
+	"time"
 
+	"github.com/kamalbowselvam/chaintask/models"
+	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateTask(t *testing.T) {
+func generateRandomTask(t *testing.T) models.Task {
 
+	name := util.RandomName()
 	arg := CreateTaskParams{
-		Name:      "Kamal",
-		Budget:    10000,
-		CreatedBy: "Kamal",
+		Name:      name,
+		Budget:    util.RandomBudget(),
+		CreatedBy: name,
 	}
 
 	task, err := testQueries.CreateTask(context.Background(), arg)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 	require.NoError(t, err)
 	require.NotEmpty(t, task)
 	require.Equal(t, arg.Name, task.Name)
@@ -28,5 +28,38 @@ func TestCreateTask(t *testing.T) {
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
+
+	return task
+
+}
+
+func TestCreateTask(t *testing.T) {
+	generateRandomTask(t)
+
+}
+
+
+func TestGetTask(t *testing.T) {
+	task1 := generateRandomTask(t)
+
+	require.NotEmpty(t,task1)
+
+	task2, err := testQueries.GetTask(context.Background(), task1.Id)
+
+	require.NoError(t,err)
+	require.NotEmpty(t,task2)
+	require.Equal(t, task1.Name, task2.Name)
+	require.Equal(t, task1.Budget, task2.Budget)
+	require.Equal(t, task1.CreatedBy, task2.CreatedBy)
+	require.WithinDuration(t, task1.CreatedOn, task2.CreatedOn, time.Second)
+
+}
+
+func TestDeleteTask(t *testing.T) {
+	task1 := generateRandomTask(t)
+	require.NotEmpty(t, task1)
+
+	err := testQueries.DeleteTask(context.Background(), task1.Id)
+	require.NoError(t, err)
 
 }

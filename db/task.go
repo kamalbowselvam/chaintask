@@ -38,3 +38,38 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (models.
 	)
 	return i, err
 }
+
+const deleteAccount = `
+DELETE FROM tasks WHERE id = $1
+`
+
+func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAccount, id)
+	return err
+}
+
+const getTask = `
+SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetTask(ctx context.Context, id int64) (models.Task, error) {
+	row := q.db.QueryRowContext(ctx, getTask, id)
+	var t models.Task
+	err := row.Scan(
+		&t.Id,
+		&t.Name,
+		&t.Budget,
+		&t.CreatedOn,
+		&t.CreatedBy,
+		&t.UpdatedOn,
+		&t.UpdatedBy,
+		&t.Done,
+	)
+	return t, err
+}
+
+
+
+
+
