@@ -90,7 +90,7 @@ func (q *Queries) UpdateTask(ctx context.Context, task models.Task) (models.Task
 	var id = task.Id
 	reflectedTask := reflect.ValueOf(task)
 	for i := 0; i < reflectedTask.NumField(); i++ {
-		if reflect.Indirect(reflectedTask).FieldByName(reflectedTask.Type().Field(i).Name) != nil {
+		if !reflect.Indirect(reflectedTask).FieldByName(reflectedTask.Type().Field(i).Name).IsNil() {
 			tx.ExecContext(ctx, updateTask, reflectedTask.Type().Field(i).Name, reflect.Indirect(reflectedTask).FieldByName(reflectedTask.Type().Field(i).Name), id)
 		}
 	}
