@@ -3,6 +3,9 @@ DB_URL=postgresql://root:secret@localhost:5433/chain_task?sslmode=disable
 run: 
 	go run main.go
 
+docker:
+	docker build -t chaintask:latest .
+
 network:
 	docker network create task-network
 
