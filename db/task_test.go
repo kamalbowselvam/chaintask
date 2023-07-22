@@ -68,8 +68,11 @@ func TestUpdateTask(t *testing.T) {
 	require.NotEmpty(t, task1)
 	g := &task1
 	g.Done = true
+	g.Name = "test"
 	require.Equal(t, task1.Done, true)
 	task2, err := testQueries.UpdateTask(context.Background(), task1)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
+	require.Equal(t, task2.Name, "test")
+	require.Equal(t, task2.Done, true)
 }
