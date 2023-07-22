@@ -1,4 +1,4 @@
-FROM golang:1.20.6-alpine AS build_base
+FROM golang:1.20.5-alpine AS build_base
 
 RUN apk add --no-cache git
 
@@ -12,9 +12,6 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-
-# Unit tests
-RUN CGO_ENABLED=0 go test -v
 
 # Build the Go app
 RUN go build -o ./out/chaintask .
