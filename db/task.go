@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/kamalbowselvam/chaintask/models"
 	"github.com/lib/pq"
@@ -97,4 +98,36 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]models.Task, 
 		res = append(res, t)
 	}
 	return res, err
+
+const updateTask = `
+ UPDATE tasks set name = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7 where id = $8
+`
+
+func (q *Queries) UpdateTask(ctx context.Context, task models.Task) (models.Task, error) {
+	// Create a helper function for preparing failure results.
+	fail := func(err error) (models.Task, error) {
+		return models.Task{}, fmt.Errorf("could not create Task: %v", err)
+	}
+	// Get a Tx for making transaction requests.
+	tx, err := q.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fail(err)
+	}
+	// Defer a rollback in case anything fails.
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+	var id = task.Id
+	_, err = tx.ExecContext(ctx, updateTask, task.Name, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, id)
+	if err != nil {
+		return fail(err)
+	}
+
+	// Commit the transaction.
+	if err = tx.Commit(); err != nil {
+		return fail(err)
+	}
+	return q.GetTask(ctx, id)
 }
