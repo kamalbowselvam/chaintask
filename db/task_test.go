@@ -63,7 +63,6 @@ func TestDeleteTask(t *testing.T) {
 
 }
 
-
 func TestGetTaskList(t *testing.T) {
 	task1 := generateRandomTask(t)
 	task2 := generateRandomTask(t)
@@ -79,6 +78,7 @@ func TestGetTaskList(t *testing.T) {
 	taskList3, err := testQueries.GetTaskList(context.Background(), []int64{task2.Id + 1000, task3.Id + 1000})
 	require.NoError(t, err)
 	require.Empty(t, taskList3)
+}
 
 func TestUpdateTask(t *testing.T) {
 	task1 := generateRandomTask(t)

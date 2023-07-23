@@ -98,6 +98,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]models.Task, 
 		res = append(res, t)
 	}
 	return res, err
+}
 
 const updateTask = `
  UPDATE tasks set name = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7 where id = $8
