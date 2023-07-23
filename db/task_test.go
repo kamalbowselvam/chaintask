@@ -38,16 +38,15 @@ func TestCreateTask(t *testing.T) {
 
 }
 
-
 func TestGetTask(t *testing.T) {
 	task1 := generateRandomTask(t)
 
-	require.NotEmpty(t,task1)
+	require.NotEmpty(t, task1)
 
 	task2, err := testQueries.GetTask(context.Background(), task1.Id)
 
-	require.NoError(t,err)
-	require.NotEmpty(t,task2)
+	require.NoError(t, err)
+	require.NotEmpty(t, task2)
 	require.Equal(t, task1.Name, task2.Name)
 	require.Equal(t, task1.Budget, task2.Budget)
 	require.Equal(t, task1.CreatedBy, task2.CreatedBy)
@@ -62,4 +61,21 @@ func TestDeleteTask(t *testing.T) {
 	err := testQueries.DeleteTask(context.Background(), task1.Id)
 	require.NoError(t, err)
 
+}
+
+func TestGetTaskList(t *testing.T) {
+	task1 := generateRandomTask(t)
+	task2 := generateRandomTask(t)
+	task3 := generateRandomTask(t)
+	taskList1, err := testQueries.GetTaskList(context.Background(), []int64{task1.Id, task2.Id})
+	require.NoError(t, err)
+	require.NotEmpty(t, taskList1)
+	require.Equal(t, len(taskList1), 2)
+	taskList2, err := testQueries.GetTaskList(context.Background(), []int64{task2.Id, task3.Id})
+	require.NoError(t, err)
+	require.NotEmpty(t, taskList2)
+	require.Equal(t, len(taskList2), 2)
+	taskList3, err := testQueries.GetTaskList(context.Background(), []int64{task2.Id + 1000, task3.Id + 1000})
+	require.NoError(t, err)
+	require.Empty(t, taskList3)
 }
