@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kamalbowselvam/chaintask/models"
+	"github.com/lib/pq"
 )
 
 const createTask = `
@@ -68,6 +69,35 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (models.Task, error) {
 		&t.Done,
 	)
 	return t, err
+}
+
+const getTaskList = `
+SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+WHERE id=any($1)
+`
+
+func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]models.Task, error) {
+	rows, err := q.db.QueryContext(ctx, getTaskList, pq.Array(ids))
+	res := []models.Task{}
+	if err != nil {
+		return res, err
+	}
+	for rows.Next() {
+		// FIXME Maybe that method could be extracted ?
+		var t models.Task
+		err = rows.Scan(
+			&t.Id,
+			&t.Name,
+			&t.Budget,
+			&t.CreatedOn,
+			&t.CreatedBy,
+			&t.UpdatedOn,
+			&t.UpdatedBy,
+			&t.Done,
+		)
+		res = append(res, t)
+	}
+	return res, err
 }
 
 const updateTask = `

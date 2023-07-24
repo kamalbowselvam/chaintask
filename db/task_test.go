@@ -63,6 +63,23 @@ func TestDeleteTask(t *testing.T) {
 
 }
 
+func TestGetTaskList(t *testing.T) {
+	task1 := generateRandomTask(t)
+	task2 := generateRandomTask(t)
+	task3 := generateRandomTask(t)
+	taskList1, err := testQueries.GetTaskList(context.Background(), []int64{task1.Id, task2.Id})
+	require.NoError(t, err)
+	require.NotEmpty(t, taskList1)
+	require.Equal(t, len(taskList1), 2)
+	taskList2, err := testQueries.GetTaskList(context.Background(), []int64{task2.Id, task3.Id})
+	require.NoError(t, err)
+	require.NotEmpty(t, taskList2)
+	require.Equal(t, len(taskList2), 2)
+	taskList3, err := testQueries.GetTaskList(context.Background(), []int64{task2.Id + 1000, task3.Id + 1000})
+	require.NoError(t, err)
+	require.Empty(t, taskList3)
+}
+
 func TestUpdateTask(t *testing.T) {
 	task1 := generateRandomTask(t)
 	require.NotEmpty(t, task1)
@@ -75,4 +92,5 @@ func TestUpdateTask(t *testing.T) {
 	require.NotEmpty(t, task2)
 	require.Equal(t, task2.Name, "test")
 	require.Equal(t, task2.Done, true)
+
 }
