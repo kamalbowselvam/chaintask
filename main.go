@@ -1,8 +1,14 @@
 package main
 
 import (
+	//"database/sql"
 	"database/sql"
 	"fmt"
+
+	"github.com/gin-gonic/gin"
+	"github.com/kamalbowselvam/chaintask/internal/core/service"
+	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
+	"github.com/kamalbowselvam/chaintask/internal/repositories"
 	_ "github.com/lib/pq"
 )
 
@@ -17,12 +23,20 @@ func main() {
 
 	db, err = sql.Open("postgres",connstr)
 	if err != nil {
-		panic(err)
+			panic(err)
 	}
 
 	if err = db.Ping(); err != nil {
 		panic(err)
 	}
-	return
+
+	taskRepository := repositories.NewPersistenceStorage(db)
+	taskService := service.NewTaskService(taskRepository)
+	taskHandler := rest.NewHttpHandler(taskService)
+
+	router := gin.New()
+	router.GET("/tasks/:id", taskHandler.GetTask)
+	router.POST("/tasks/",taskHandler.CreateTask)
+	router.Run(":8080")
 
 }
