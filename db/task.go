@@ -6,8 +6,7 @@ import (
 )
 
 
-const createTask = `
-INSERT INTO tasks (
+const createTask = `INSERT INTO tasks (
   name,
   budget,
   created_by,
@@ -39,17 +38,14 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (models.
 	return i, err
 }
 
-const deleteAccount = `
-DELETE FROM tasks WHERE id = $1
-`
+const deleteAccount = `DELETE FROM tasks WHERE id = $1`
 
 func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAccount, id)
 	return err
 }
 
-const getTask = `
-SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+const getTask = `SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
 WHERE id = $1 LIMIT 1
 `
 
