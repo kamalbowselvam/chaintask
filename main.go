@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/internal/core/service"
 	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
 	"github.com/kamalbowselvam/chaintask/internal/repositories"
+	"github.com/kamalbowselvam/chaintask/server"
 	_ "github.com/lib/pq"
 )
 
@@ -34,9 +34,6 @@ func main() {
 	taskService := service.NewTaskService(taskRepository)
 	taskHandler := rest.NewHttpHandler(taskService)
 
-	router := gin.New()
-	router.GET("/tasks/:id", taskHandler.GetTask)
-	router.POST("/tasks/",taskHandler.CreateTask)
-	router.Run(":8080")
-
+	server := server.NewServer(taskHandler)
+	server.Start(":8080")
 }

@@ -1,18 +1,20 @@
 package rest
 
 import (
+<<<<<<< HEAD
 
 
+=======
+	"log"
+	"strconv"
+>>>>>>> b7b0ed7 (added mocking)
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/internal/core/ports"
 )
 
-
 type HttpHandler struct {
 	taskService ports.TaskService
 }
-
-
 
 func NewHttpHandler(taskService ports.TaskService) *HttpHandler {
 
@@ -21,7 +23,9 @@ func NewHttpHandler(taskService ports.TaskService) *HttpHandler {
 	}
 }
 
+func (h *HttpHandler) GetTask(c *gin.Context) {
 
+<<<<<<< HEAD
 type getTaskRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
@@ -34,28 +38,33 @@ func(h *HttpHandler) GetTask(c *gin.Context){
 	err := c.ShouldBindUri(&req)
 	// id, err := strconv.ParseInt(c.Param("id"),10,64)
 	
+=======
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+
+>>>>>>> b7b0ed7 (added mocking)
 	if err != nil {
 		c.AbortWithStatusJSON(403, gin.H{"message": err.Error()})
   return
 	}
+<<<<<<< HEAD
 	task ,err := h.taskService.GetTask(req.Id)
+=======
+	task, err := h.taskService.GetTask(id)
+>>>>>>> b7b0ed7 (added mocking)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+		c.AbortWithStatusJSON(404, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(200, task)
 }
 
-
 type TaskParams struct {
-	Name      string    `json:"name"`
-	Budget    float64   `json:"budget"`
-	CreatedBy string    `json:"createdBy"`
-
+	Name      string  `json:"name"`
+	Budget    float64 `json:"budget"`
+	CreatedBy string  `json:"createdBy"`
 }
 
-
-func (h *HttpHandler) CreateTask(c *gin.Context){
+func (h *HttpHandler) CreateTask(c *gin.Context) {
 	taskparam := TaskParams{}
 	c.BindJSON(&taskparam)
 
@@ -68,3 +77,4 @@ func (h *HttpHandler) CreateTask(c *gin.Context){
 
 	c.JSON(200, task)
 }
+
