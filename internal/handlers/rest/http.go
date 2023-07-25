@@ -36,6 +36,7 @@ func(h *HttpHandler) GetTask(c *gin.Context){
 	
 	if err != nil {
 		c.AbortWithStatusJSON(403, gin.H{"message": err.Error()})
+  return
 	}
 	task ,err := h.taskService.GetTask(req.Id)
 	if err != nil {
