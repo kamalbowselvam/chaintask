@@ -23,10 +23,6 @@ func NewTaskService(taskRepository ports.TaskRepository) *service {
 
 func (srv *service) GetTask(id int64) (domain.Task, error){
 	task ,err := srv.taskRepository.GetTask(context.Background(),id)
-	if err != nil {
-		//log.Fatal("Could not find the task in repository  ", err.Error())
-		return task, err
-	}
 	return task, err
 }
 
