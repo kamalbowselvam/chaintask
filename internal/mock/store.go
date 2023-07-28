@@ -35,6 +35,21 @@ func (m *MockTaskRepository) EXPECT() *MockTaskRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateUser mocks base method.
+func (m *MockTaskRepository) CreateUser(arg0 context.Context, arg1 domain.User) (domain.UserDetail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
+	ret0, _ := ret[0].(domain.UserDetail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockTaskRepositoryMockRecorder) CreateUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockTaskRepository)(nil).CreateUser), arg0, arg1)
+}
+
 // DeleteTask mocks base method.
 func (m *MockTaskRepository) DeleteTask(arg0 context.Context, arg1 int64) error {
 	m.ctrl.T.Helper()

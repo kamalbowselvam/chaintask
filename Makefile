@@ -29,4 +29,8 @@ test:
 	go test -v -cover -short ./...
 
 
-.PHONY: run network postgres createdb dropdb migrateup migratedown test
+mock:
+	mockgen -package mockdb --build_flags=--mod=mod -destination internal/mock/store.go github.com/kamalbowselvam/chaintask/internal/core/ports TaskRepository
+
+
+.PHONY: run network postgres createdb dropdb migrateup migratedown test mock

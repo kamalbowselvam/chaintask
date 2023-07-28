@@ -1,6 +1,6 @@
 CREATE TABLE "tasks" (
   "id" BIGSERIAL PRIMARY KEY,
-  "name" VARCHAR NOT NULL,
+  "taskname" VARCHAR NOT NULL,
   "budget" FLOAT NOT NULL,
   "created_on" timestamptz NOT NULL DEFAULT (now()),
   "created_by" VARCHAR NOT NULL,

@@ -16,7 +16,7 @@ func createRandomTask(t *testing.T) Task {
 
 	task := NewTask(name,budget,createdBy)
 	require.NotEmpty(t,task)
-	require.Equal(t, task.Name, name)
+	require.Equal(t, task.TaskName, name)
 	require.Equal(t, task.Budget, budget)
 	require.Equal(t, task.CreatedBy, createdBy)
 	require.Equal(t, task.UpdatedBy, createdBy)
@@ -43,7 +43,7 @@ func TestGetTaskName(t *testing.T){
 
 	task := createRandomTask(t)
 	name := task.GetTaskName()
-	require.Equal(t,task.Name, name)
+	require.Equal(t,task.TaskName, name)
 
 }
 

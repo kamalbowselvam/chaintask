@@ -38,21 +38,32 @@ func TestMain(m *testing.M) {
 
 }
 
-func generateRandomTask(t *testing.T, store ports.TaskRepository ) domain.Task {
+func generateRandomUser(t *testing.T, store ports.TaskRepository) domain.UserDetail {
+	username := util.RandomName()
+	hpassword, _ := util.HashPassword(util.RandomString(32))
+	fname := util.RandomName()
+	email := util.RandomEmail()
+	user := domain.NewUser(username, hpassword, fname, email)
+	userdetail, err := store.CreateUser(context.Background(), user)
+	require.NoError(t, err)
+	require.NotEmpty(t, user)
+	return userdetail
 
-	name := util.RandomName()
+}
+
+func generateRandomTask(t *testing.T, store ports.TaskRepository) domain.Task {
+
+	taskname := util.RandomName()
 	budget := util.RandomBudget()
-	createdBy := util.RandomName()
-
-	task := domain.NewTask(name,budget,createdBy)
-
+	userdetail  := generateRandomUser(t,store)
+	task := domain.NewTask(taskname, budget, userdetail.Username)
 
 	task, err := store.SaveTask(context.Background(), task)
 	require.NoError(t, err)
 	require.NotEmpty(t, task)
-	require.Equal(t, name, task.Name)
+	require.Equal(t, taskname, task.TaskName)
 	require.Equal(t, budget, task.Budget)
-	require.Equal(t, createdBy, task.CreatedBy)
+	require.Equal(t, userdetail.Username, task.CreatedBy)
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -60,8 +71,6 @@ func generateRandomTask(t *testing.T, store ports.TaskRepository ) domain.Task {
 	return task
 
 }
-
-
 
 func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
 	task1 := generateRandomTask(t, store)
@@ -71,13 +80,12 @@ func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
 	task2, err := store.GetTask(context.Background(), task1.Id)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
-	require.Equal(t, task1.Name, task2.Name)
+	require.Equal(t, task1.TaskName, task2.TaskName)
 	require.Equal(t, task1.Budget, task2.Budget)
 	require.Equal(t, task1.CreatedBy, task2.CreatedBy)
 	require.WithinDuration(t, task1.CreatedOn, task2.CreatedOn, time.Second)
 
 }
-
 
 func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
 	task1 := generateRandomTask(t, store)
@@ -96,8 +104,6 @@ func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
 	require.Empty(t, taskList3)
 }
 
-
-
 func DeleteTaskHelper(t *testing.T, store ports.TaskRepository) {
 	task1 := generateRandomTask(t, store)
 	require.NotEmpty(t, task1)
@@ -112,13 +118,12 @@ func UpdateTaskHelper(t *testing.T, store ports.TaskRepository) {
 	require.NotEmpty(t, task1)
 	g := &task1
 	g.Done = true
-	g.Name = "test"
+	g.TaskName = "test"
 	require.Equal(t, task1.Done, true)
 	task2, err := store.UpdateTask(context.Background(), task1)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
-	require.Equal(t, task2.Name, "test")
+	require.Equal(t, task2.TaskName, "test")
 	require.Equal(t, task2.Done, true)
 
 }
-

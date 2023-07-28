@@ -20,23 +20,49 @@ func NewPersistenceStorage(db *sql.DB) *PersistenceSotrage {
 	}
 }
 
+
+const createUser = `INSERT INTO users (
+	username, 
+	hashed_password, 
+	full_name, 
+	email 
+) VALUES ( 
+	$1, $2, $3, $4
+) 
+RETURNING username, full_name, email, created_at
+`
+
+func (q *PersistenceSotrage) CreateUser(ctx context.Context, user domain.User) (domain.UserDetail, error){
+	row := q.db.QueryRowContext(ctx, createUser, user.Username, user.HashedPassword, user.FullName, user.Email)
+	var i domain.UserDetail
+
+	err := row.Scan(
+		&i.Username,
+		&i.FullName,
+		&i.Email,
+		&i.CreatedAt,
+	)
+
+	return i, err
+}
+
 const createTask = `INSERT INTO tasks (
-	name,
+	taskname,
 	budget,
 	created_by,
 	updated_by 
   ) VALUES (
 	$1, $2, $3, $4
   )
-  RETURNING id, name, budget, created_by, created_on, updated_by, updated_on, done;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done;`
   
   
 func (q *PersistenceSotrage) SaveTask(ctx context.Context, task domain.Task) (domain.Task, error) {
-	  row := q.db.QueryRowContext(ctx, createTask, task.Name, task.Budget, task.CreatedBy, task.UpdatedBy)
+	  row := q.db.QueryRowContext(ctx, createTask, task.TaskName, task.Budget, task.CreatedBy, task.UpdatedBy)
 	  var i domain.Task
 	  err := row.Scan(
 		  &i.Id,
-		  &i.Name,
+		  &i.TaskName,
 		  &i.Budget,
 		  &i.CreatedBy,
 		  &i.CreatedOn,
@@ -49,7 +75,7 @@ func (q *PersistenceSotrage) SaveTask(ctx context.Context, task domain.Task) (do
 	}
 
 
-const getTask = `SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
 	WHERE id = $1 LIMIT 1
 	`
 	
@@ -58,7 +84,7 @@ func (q *PersistenceSotrage) GetTask(ctx context.Context, id int64) (domain.Task
 		var t domain.Task
 		err := row.Scan(
 			&t.Id,
-			&t.Name,
+			&t.TaskName,
 			&t.Budget,
 			&t.CreatedOn,
 			&t.CreatedBy,
@@ -72,7 +98,7 @@ func (q *PersistenceSotrage) GetTask(ctx context.Context, id int64) (domain.Task
 
 
 const getTaskList = `
-SELECT id, name, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
 WHERE id=any($1)
 `
 
@@ -87,7 +113,7 @@ func (q *PersistenceSotrage) GetTaskList(ctx context.Context, ids []int64) ([]do
 		var t domain.Task
 		err = rows.Scan(
 			&t.Id,
-			&t.Name,
+			&t.TaskName,
 			&t.Budget,
 			&t.CreatedOn,
 			&t.CreatedBy,
@@ -111,7 +137,7 @@ func (q *PersistenceSotrage) DeleteTask(ctx context.Context, id int64) error {
 
 
 const updateTask = `
- UPDATE tasks set name = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7 where id = $8
+ UPDATE tasks set taskname = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7 where id = $8
 `
 
 func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
@@ -131,7 +157,7 @@ func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (
 		}
 	}()
 	var id = task.Id
-	_, err = tx.ExecContext(ctx, updateTask, task.Name, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, id)
+	_, err = tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, id)
 	if err != nil {
 		return fail(err)
 	}

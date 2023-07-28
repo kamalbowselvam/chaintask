@@ -9,6 +9,7 @@ import (
 
 
 type TaskRepository interface {
+	CreateUser(context.Context, domain.User) (domain.UserDetail, error)
 	GetTask(context.Context, int64) (domain.Task, error)
 	SaveTask(context.Context, domain.Task) (domain.Task, error)
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)

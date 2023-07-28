@@ -3,8 +3,8 @@ package domain
 import "time"
 
 type Task struct {
-	Id        int64    `json:"id"`
-	Name      string    `json:"name"`
+	Id        int64     `json:"id"`
+	TaskName  string    `json:"taskname"`
 	Budget    float64   `json:"budget"`
 	CreatedOn time.Time `json:"createdOn"`
 	CreatedBy string    `json:"createdBy"`
@@ -13,24 +13,22 @@ type Task struct {
 	Done      bool      `json:"done"`
 }
 
-
-
 func NewTask(name string, budget float64, user string) Task {
 
-	t :=  Task{
-		Name: name,
-		Budget: budget,
+	t := Task{
+		TaskName:  name,
+		Budget:    budget,
 		CreatedOn: time.Now(),
 		CreatedBy: user,
 		UpdatedOn: time.Now(),
 		UpdatedBy: user,
-		Done: false,
+		Done:      false,
 	}
 	return t
-} 
+}
 
 func (task *Task) GetTaskName() string {
-	return task.Name
+	return task.TaskName
 }
 
 func (task *Task) GetBudget() float64 {

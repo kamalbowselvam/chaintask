@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/kamalbowselvam/chaintask/internal/core/domain"
 )
@@ -11,23 +12,41 @@ import (
 
 type InMemoryStorage struct {
 
-	keyvaluestore map[int64]domain.Task
+	taskstore map[int64]domain.Task
+	userstore map[string]domain.User
 	entries int64 
 }
 
 
 func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
-		keyvaluestore: map[int64]domain.Task{},
+		taskstore: map[int64]domain.Task{},
+		userstore: map[string]domain.User{},
 		entries: 1,
 	}
+}
+
+
+func (repo *InMemoryStorage) CreateUser(ctx context.Context, user domain.User) (domain.UserDetail, error){
+	repo.userstore[user.Username] = user
+	var err error
+
+	var userdetail domain.UserDetail
+
+	userdetail.Username = user.Username
+	userdetail.Email = user.Email
+	userdetail.CreatedAt = time.Now()
+	userdetail.FullName = user.FullName
+
+	return userdetail, err
+
 }
 
 
 
 func (repo *InMemoryStorage) SaveTask(ctx context.Context, task domain.Task) (domain.Task, error){
 	task.Id = repo.entries
-	repo.keyvaluestore[repo.entries] = task
+	repo.taskstore[repo.entries] = task
 	repo.entries += 1
 	var err error
 	return task, err 
@@ -35,7 +54,7 @@ func (repo *InMemoryStorage) SaveTask(ctx context.Context, task domain.Task) (do
 
 
 func (repo *InMemoryStorage) GetTask(ctx context.Context, id int64) (domain.Task,error){
-	task, ok := repo.keyvaluestore[id]
+	task, ok := repo.taskstore[id]
 
 	var err error
 
@@ -54,7 +73,7 @@ func (repo *InMemoryStorage) GetTaskList( ctx context.Context, ids []int64) ([]d
 	var err error
 
 	for i, s := range ids {
-		task, ok := repo.keyvaluestore[s]
+		task, ok := repo.taskstore[s]
 		if !ok {
 			fmt.Println("Key not found")
 		} else {
@@ -68,12 +87,12 @@ func (repo *InMemoryStorage) GetTaskList( ctx context.Context, ids []int64) ([]d
 
 
 func (repo *InMemoryStorage) DeleteTask(ctx context.Context, id int64) error {
-	_, ok := repo.keyvaluestore[id]
+	_, ok := repo.taskstore[id]
 
 	var err error
 
 	if ok{
-		delete(repo.keyvaluestore,id)
+		delete(repo.taskstore,id)
 	} else {
 		err = errors.New("key not found")
 	}
@@ -90,7 +109,7 @@ func (repo *InMemoryStorage) UpdateTask(ctx context.Context, task domain.Task) (
 		err := errors.New("id is nil in the task")
 		return domain.Task{}, err
 	}
-	repo.keyvaluestore[id] = task
+	repo.taskstore[id] = task
 
 	return task, err
 

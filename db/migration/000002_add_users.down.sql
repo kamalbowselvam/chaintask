@@ -1,0 +1,4 @@
+ALTER TABLE IF EXISTS "tasks" DROP CONSTRAINT IF EXISTS "tasks_created_by_fkey";
+ALTER TABLE IF EXISTS "tasks" DROP CONSTRAINT IF EXISTS "tasks_updated_by_fkey";
+
+DROP TABLE IF EXISTS "users";

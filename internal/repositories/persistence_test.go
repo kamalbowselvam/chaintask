@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+func TestCreateUserPersistence(t *testing.T) {
+	generateRandomUser(t, testPersistenceStore)
+
+}
+
 
 func TestCreateTaskPersistence(t *testing.T) {
 	generateRandomTask(t, testPersistenceStore)
