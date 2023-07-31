@@ -3,36 +3,41 @@ package main
 import (
 	//"database/sql"
 	"database/sql"
-	"fmt"
 
-	"github.com/kamalbowselvam/chaintask/internal/core/service"
-	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
-	"github.com/kamalbowselvam/chaintask/internal/repositories"
+	"log"
+
+	"github.com/kamalbowselvam/chaintask/api"
+	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/server"
+	"github.com/kamalbowselvam/chaintask/service"
+	"github.com/kamalbowselvam/chaintask/token"
+	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 
-	fmt.Println("Hello World Task")
-
-	var db *sql.DB
+	var dbconn *sql.DB
 	var err error
 
-	connstr := "postgresql://root:secret@localhost:5433/chain_task?sslmode=disable"
-
-	db, err = sql.Open("postgres",connstr)
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatal("Can't load the configuration file")
+	}
+	
+	dbconn, err = sql.Open(config.DBDriver,config.DBSource)
 	if err != nil {
 			panic(err)
 	}
 
-	if err = db.Ping(); err != nil {
+	if err = dbconn.Ping(); err != nil {
 		panic(err)
 	}
 
-	taskRepository := repositories.NewPersistenceStorage(db)
+	taskRepository := db.NewPersistenceStorage(dbconn)
 	taskService := service.NewTaskService(taskRepository)
-	taskHandler := rest.NewHttpHandler(taskService)
+	tokenMaker, _ := token.NewPasetoMaker(config.TokenSymmetricKey)
+	taskHandler := api.NewHttpHandler(taskService, tokenMaker,config)
 
 	server := server.NewServer(taskHandler)
 	server.Start(":8080")

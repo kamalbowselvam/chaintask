@@ -1,25 +1,29 @@
 package server
 
 import (
+
 	"github.com/gin-gonic/gin"
-	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
+	"github.com/kamalbowselvam/chaintask/api"
 )
 
 // server to serve HTTP request for our booking service
 type Server struct {
-	taskhandler *rest.HttpHandler
+	taskhandler *api.HttpHandler
 	router *gin.Engine
 }
 
 
 
-func NewServer(handler *rest.HttpHandler) *Server {
+func NewServer(handler *api.HttpHandler) *Server {
 
 	server := &Server{taskhandler: handler}
 	router := gin.Default()
 
+	
 	router.GET("/tasks/:id", server.taskhandler.GetTask)
 	router.POST("/tasks/", server.taskhandler.CreateTask)
+	router.POST("/users", server.taskhandler.CreateUser)
+	router.POST("/users/login", server.taskhandler.LoginUser)
 	server.router = router
 	return server
 }

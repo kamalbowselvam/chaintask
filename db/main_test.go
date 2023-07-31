@@ -40,12 +40,15 @@ func TestMain(m *testing.M) {
 }
 
 func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
-	username := util.RandomName()
+	
 	hpassword, _ := util.HashPassword(util.RandomString(32))
-	fname := util.RandomName()
-	email := util.RandomEmail()
-	user := domain.NewUser(username, hpassword, fname, email)
-	user, err := store.CreateUser(context.Background(), user)
+	arg := CreateUserParams{
+		Username : util.RandomName(),
+		HashedPassword: hpassword,
+		FullName:  util.RandomName(),
+		Email:  util.RandomEmail(),
+	}
+	user, err := store.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 	return user
@@ -129,5 +132,23 @@ func UpdateTaskHelper(t *testing.T, store GlobalRepository) {
 	require.NotEmpty(t, task2)
 	require.Equal(t, task2.TaskName, "test")
 	require.Equal(t, task2.Done, true)
+
+}
+
+
+func GetUserHelper(t *testing.T, store GlobalRepository){
+	user1 := generateRandomUser(t, store)
+	require.NotEmpty(t,user1)
+
+	username := user1.Username
+
+	user2, err := store.GetUser(context.Background(),username)
+	require.NoError(t,err)
+	require.NotEmpty(t, user2)
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, user1.FullName, user2.FullName)
+	require.Equal(t, user1.Email, user2.Email)
+	require.Equal(t, user1.HashedPassword, user2.HashedPassword)
+
 
 }

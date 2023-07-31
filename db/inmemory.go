@@ -23,7 +23,21 @@ func NewInMemoryStorage() *InMemoryStorage {
 	}
 }
 
-func (repo *InMemoryStorage) CreateUser(ctx context.Context, user domain.User) (domain.User, error) {
+func (repo *InMemoryStorage) GetUser(ctx context.Context, username string) (domain.User, error){
+
+	var err error
+	return repo.userstore[username], err
+}
+
+func (repo *InMemoryStorage) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
+
+	user := domain.User{
+		Username: arg.Username,
+		HashedPassword: arg.HashedPassword,
+		FullName: arg.FullName,
+		Email: arg.Email,
+		CreatedAt: time.Now(),
+	}
 	repo.userstore[user.Username] = user
 	var err error
 	return user, err

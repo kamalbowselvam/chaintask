@@ -52,7 +52,7 @@ func (mr *MockGlobalRepositoryMockRecorder) CreateTask(arg0, arg1 interface{}) *
 }
 
 // CreateUser mocks base method.
-func (m *MockGlobalRepository) CreateUser(arg0 context.Context, arg1 domain.User) (domain.User, error) {
+func (m *MockGlobalRepository) CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
 	ret0, _ := ret[0].(domain.User)
@@ -108,6 +108,21 @@ func (m *MockGlobalRepository) GetTaskList(arg0 context.Context, arg1 []int64) (
 func (mr *MockGlobalRepositoryMockRecorder) GetTaskList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskList", reflect.TypeOf((*MockGlobalRepository)(nil).GetTaskList), arg0, arg1)
+}
+
+// GetUser mocks base method.
+func (m *MockGlobalRepository) GetUser(arg0 context.Context, arg1 string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser", arg0, arg1)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockGlobalRepositoryMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockGlobalRepository)(nil).GetUser), arg0, arg1)
 }
 
 // UpdateTask mocks base method.

@@ -1,4 +1,4 @@
-package rest
+package api
 
 import (
 	"strconv"
@@ -6,16 +6,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/service"
+	"github.com/kamalbowselvam/chaintask/token"
+	"github.com/kamalbowselvam/chaintask/util"
 )
 
 type HttpHandler struct {
 	taskService service.TaskService
+	tokenMaker token.Maker
+	config util.Config
 }
 
-func NewHttpHandler(taskService service.TaskService) *HttpHandler {
+func NewHttpHandler(taskService service.TaskService,tokenMaker token.Maker, config util.Config) *HttpHandler {
 
 	return &HttpHandler{
 		taskService: taskService,
+		tokenMaker: tokenMaker,
+		config: config,
 	}
 }
 
@@ -24,14 +30,11 @@ type getTaskRequest struct {
 }
 
 func (h *HttpHandler) GetTask(c *gin.Context) {
-
 	var req getTaskRequest
-
 	err := c.ShouldBindUri(&req)
 	// id, err := strconv.ParseInt(c.Param("id"),10,64)
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-
 	task, err := h.taskService.GetTask(id)
 	if err != nil {
 		c.AbortWithStatusJSON(404, gin.H{"message": err.Error()})
@@ -39,7 +42,6 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 	}
 	c.JSON(200, task)
 }
-
 
 
 

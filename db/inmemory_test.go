@@ -25,6 +25,10 @@ func TestDeleteTaskInMemory(t *testing.T){
 	DeleteTaskHelper(t, testInMemoryStore)
 }
 
-func TestUpdateTask(t *testing.T){
+func TestUpdateTaskInMemory(t *testing.T){
 	UpdateTaskHelper(t, testInMemoryStore)
+}
+
+func TestGetUserInMemory(t *testing.T){
+	GetUserHelper(t, testInMemoryStore)
 }

@@ -10,11 +10,11 @@ import (
 
 
 type service struct {
-	taskRepository db.TaskRepository
+	taskRepository db.GlobalRepository
 }
 
 
-func NewTaskService(taskRepository db.TaskRepository) *service {
+func NewTaskService(taskRepository db.GlobalRepository) *service {
 	return &service {
 		taskRepository: taskRepository,
 	}
@@ -38,4 +38,20 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 
 	return task, err
 
+}
+
+
+func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
+
+	user, err := srv.taskRepository.CreateUser(context.Background(), arg)
+
+	return user, err
+
+}
+
+
+func (srv *service) GetUser(ctx context.Context, username string) (domain.User, error){
+	user, err := srv.taskRepository.GetUser(context.Background(), username)
+
+	return user, err
 }

@@ -1,4 +1,4 @@
-package service
+package api
 
 import (
 	"bytes"
@@ -105,8 +105,7 @@ func TestGetTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buidStubs(store)
 
-			taskService := NewTaskService(store)
-			taskHandler := rest.NewHttpHandler(taskService)
+			taskHandler := NewTestHandler(t,store)
 			router := gin.New()
 			router.GET("/tasks/:id", taskHandler.GetTask)
 			recorder := httptest.NewRecorder()
@@ -171,8 +170,8 @@ func TestCreateTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			taskService := NewTaskService(store)
-			taskHandler := rest.NewHttpHandler(taskService)
+			taskHandler := NewTestHandler(t,store)
+
 
 			router := gin.New()
 			router.POST("/tasks/", taskHandler.CreateTask)

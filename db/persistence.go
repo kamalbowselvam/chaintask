@@ -32,8 +32,15 @@ const createUser = `INSERT INTO users (
 RETURNING username, hashed_password, full_name, email, created_at
 `
 
-func (q *PersistenceSotrage) CreateUser(ctx context.Context, user domain.User) (domain.User, error){
-	row := q.db.QueryRowContext(ctx, createUser, user.Username, user.HashedPassword, user.FullName, user.Email)
+type CreateUserParams struct {
+	Username       string `json:"username"`
+	HashedPassword string `json:"hashed_password"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+}
+
+func (q *PersistenceSotrage) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error){
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email)
 	var i domain.User
 
 	err := row.Scan(
@@ -175,4 +182,24 @@ func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (
 		return fail(err)
 	}
 	return q.GetTask(ctx, id)
+}
+
+
+const getUser = `-- name: GetUser :one
+SELECT username, hashed_password, full_name, email, password_changed_at, created_at FROM users
+WHERE username = $1 LIMIT 1
+`
+
+func (q *PersistenceSotrage) GetUser(ctx context.Context, username string) (domain.User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, username)
+	var i domain.User
+	err := row.Scan(
+		&i.Username,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }

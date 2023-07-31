@@ -14,7 +14,8 @@ type GlobalRepository interface {
 }
 
 type UserRepository interface {
-	CreateUser(context.Context, domain.User) (domain.User, error)
+	CreateUser(context.Context, CreateUserParams) (domain.User, error)
+	GetUser(context.Context, string)(domain.User, error)
 }
 
 type TaskRepository interface {
