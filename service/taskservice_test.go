@@ -8,16 +8,54 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/kamalbowselvam/chaintask/internal/core/domain"
-	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
-	mockdb "github.com/kamalbowselvam/chaintask/internal/mock"
+
+	"github.com/kamalbowselvam/chaintask/db"
+	"github.com/kamalbowselvam/chaintask/domain"
+	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
 )
+
+
+
+
+type eqCreateTaskParamsMatcher struct {
+	arg db.CreateTaskParams
+}
+
+func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
+	arg, ok := x.(db.CreateTaskParams)
+	if !ok {
+		return false
+	}
+
+	if e.arg.Budget != arg.Budget {
+		return false
+	}
+
+	if e.arg.CreatedBy != arg.CreatedBy {
+		return false
+	}
+
+	if e.arg.TaskName  != arg.TaskName {
+		return false
+	}
+
+	return reflect.DeepEqual(e.arg, arg)
+}
+
+func (e eqCreateTaskParamsMatcher) String() string {
+	return fmt.Sprintf("matches arg %v", e.arg)
+}
+
+func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
+	return eqCreateTaskParamsMatcher{arg}
+}
 
 func TestGetTaskAPI(t *testing.T) {
 	task := randomTask()
@@ -25,13 +63,13 @@ func TestGetTaskAPI(t *testing.T) {
 	testCases := []struct {
 		name         string
 		taskID       int64
-		buidStubs    func(store *mockdb.MockTaskRepository)
+		buidStubs    func(store *mockdb.MockGlobalRepository)
 		checkReponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			taskID: task.Id,
-			buidStubs: func(store *mockdb.MockTaskRepository) {
+			buidStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), task.Id).
 					Times(1).
@@ -46,7 +84,7 @@ func TestGetTaskAPI(t *testing.T) {
 		{
 			name:   "NotFound",
 			taskID: task.Id,
-			buidStubs: func(store *mockdb.MockTaskRepository) {
+			buidStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), task.Id).
 					Times(1).
@@ -64,7 +102,7 @@ func TestGetTaskAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			store := mockdb.NewMockTaskRepository(ctrl)
+			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buidStubs(store)
 
 			taskService := NewTaskService(store)
@@ -88,19 +126,30 @@ func TestGetTaskAPI(t *testing.T) {
 
 func TestCreateTaskAPI(t *testing.T) {
 	task := randomTask()
-
+	t.Log(task)
 	testCases := []struct {
 		name          string
+		body 		  gin.H
 		gtask         domain.Task
-		buildStubs    func(store *mockdb.MockTaskRepository)
+		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:  "OK",
 			gtask: task,
-			buildStubs: func(store *mockdb.MockTaskRepository) {
+			body: gin.H{
+				"taskname": task.TaskName,
+				"createdBy": task.CreatedBy,
+				"budget": task.Budget,
+			},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName: task.TaskName,
+					Budget: task.Budget,
+					CreatedBy: task.CreatedBy,
+				}
 				store.EXPECT().
-					SaveTask(gomock.Any(), gomock.Any()).
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
 					Times(1).
 					Return(task, nil)
 
@@ -119,7 +168,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
 			defer ctrl.Finish()
-			store := mockdb.NewMockTaskRepository(ctrl)
+			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
 			taskService := NewTaskService(store)
@@ -129,22 +178,10 @@ func TestCreateTaskAPI(t *testing.T) {
 			router.POST("/tasks/", taskHandler.CreateTask)
 			recorder := httptest.NewRecorder()
 
-			body, err := json.Marshal(tc.gtask)
-			//name := tc.gtask.Name
-			//budget := tc.gtask.Budget
-			//createdby := tc.gtask.CreatedBy
-
-			//b := fmt.Sprintf("{\"name\": \"%s\", \"budget\": \"%f\", \"createdBy\": \"%s\"}",name,budget,createdby )
-			//body := []byte(b)
-
+			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
-			//fmt.Println(body)
-			jsonbody := bytes.NewReader(body)
-
-			t.Log(string(body))
 			url := "/tasks/"
-
-			request, err := http.NewRequest(http.MethodPost, url, jsonbody)
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 			router.ServeHTTP(recorder, request)
 

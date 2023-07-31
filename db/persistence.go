@@ -1,11 +1,11 @@
-package repositories
+package db
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/kamalbowselvam/chaintask/internal/core/domain"
+	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/lib/pq"
 )
 
@@ -29,15 +29,16 @@ const createUser = `INSERT INTO users (
 ) VALUES ( 
 	$1, $2, $3, $4
 ) 
-RETURNING username, full_name, email, created_at
+RETURNING username, hashed_password, full_name, email, created_at
 `
 
-func (q *PersistenceSotrage) CreateUser(ctx context.Context, user domain.User) (domain.UserDetail, error){
+func (q *PersistenceSotrage) CreateUser(ctx context.Context, user domain.User) (domain.User, error){
 	row := q.db.QueryRowContext(ctx, createUser, user.Username, user.HashedPassword, user.FullName, user.Email)
-	var i domain.UserDetail
+	var i domain.User
 
 	err := row.Scan(
 		&i.Username,
+		&i.HashedPassword,
 		&i.FullName,
 		&i.Email,
 		&i.CreatedAt,
@@ -56,9 +57,16 @@ const createTask = `INSERT INTO tasks (
   )
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done;`
   
+
+type CreateTaskParams struct {
+	TaskName  string  `json:"taskname"`
+	Budget    float64 `json:"budget"`
+	CreatedBy string  `json:"createdBy"`
+}
+
   
-func (q *PersistenceSotrage) SaveTask(ctx context.Context, task domain.Task) (domain.Task, error) {
-	  row := q.db.QueryRowContext(ctx, createTask, task.TaskName, task.Budget, task.CreatedBy, task.UpdatedBy)
+func (q *PersistenceSotrage) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
+	  row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy)
 	  var i domain.Task
 	  err := row.Scan(
 		  &i.Id,

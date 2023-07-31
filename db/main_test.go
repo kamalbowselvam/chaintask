@@ -1,4 +1,4 @@
-package repositories
+package db
 
 import (
 	"context"
@@ -8,8 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamalbowselvam/chaintask/internal/core/domain"
-	"github.com/kamalbowselvam/chaintask/internal/core/ports"
+	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
@@ -19,9 +18,11 @@ var testPersistenceStore *PersistenceSotrage
 var testInMemoryStore *InMemoryStorage
 var testDB *sql.DB
 
+
+
 func TestMain(m *testing.M) {
 
-	config, err := util.LoadConfig("../..")
+	config, err := util.LoadConfig("../")
 
 	if err != nil {
 		log.Fatal("Failed to load the config file")
@@ -38,32 +39,35 @@ func TestMain(m *testing.M) {
 
 }
 
-func generateRandomUser(t *testing.T, store ports.TaskRepository) domain.UserDetail {
+func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 	username := util.RandomName()
 	hpassword, _ := util.HashPassword(util.RandomString(32))
 	fname := util.RandomName()
 	email := util.RandomEmail()
 	user := domain.NewUser(username, hpassword, fname, email)
-	userdetail, err := store.CreateUser(context.Background(), user)
+	user, err := store.CreateUser(context.Background(), user)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
-	return userdetail
+	return user
 
 }
 
-func generateRandomTask(t *testing.T, store ports.TaskRepository) domain.Task {
+func generateRandomTask(t *testing.T, store GlobalRepository) domain.Task {
 
-	taskname := util.RandomName()
-	budget := util.RandomBudget()
-	userdetail  := generateRandomUser(t,store)
-	task := domain.NewTask(taskname, budget, userdetail.Username)
+	user := generateRandomUser(t, store)
 
-	task, err := store.SaveTask(context.Background(), task)
+	arg :=  CreateTaskParams{
+		TaskName : util.RandomName(),
+		Budget : util.RandomBudget(),
+		CreatedBy  : user.Username,
+	}
+
+	task, err := store.CreateTask(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, task)
-	require.Equal(t, taskname, task.TaskName)
-	require.Equal(t, budget, task.Budget)
-	require.Equal(t, userdetail.Username, task.CreatedBy)
+	require.Equal(t, arg.TaskName, task.TaskName)
+	require.Equal(t, arg.Budget, task.Budget)
+	require.Equal(t, arg.CreatedBy, task.CreatedBy)
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -72,7 +76,7 @@ func generateRandomTask(t *testing.T, store ports.TaskRepository) domain.Task {
 
 }
 
-func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
+func GetTaskHelper(t *testing.T, store GlobalRepository) {
 	task1 := generateRandomTask(t, store)
 
 	require.NotEmpty(t, task1)
@@ -87,7 +91,7 @@ func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
 
 }
 
-func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
+func GetTaskListHelper(t *testing.T, store GlobalRepository) {
 	task1 := generateRandomTask(t, store)
 	task2 := generateRandomTask(t, store)
 	task3 := generateRandomTask(t, store)
@@ -104,7 +108,7 @@ func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
 	require.Empty(t, taskList3)
 }
 
-func DeleteTaskHelper(t *testing.T, store ports.TaskRepository) {
+func DeleteTaskHelper(t *testing.T, store GlobalRepository) {
 	task1 := generateRandomTask(t, store)
 	require.NotEmpty(t, task1)
 
@@ -113,7 +117,7 @@ func DeleteTaskHelper(t *testing.T, store ports.TaskRepository) {
 
 }
 
-func UpdateTaskHelper(t *testing.T, store ports.TaskRepository) {
+func UpdateTaskHelper(t *testing.T, store GlobalRepository) {
 	task1 := generateRandomTask(t, store)
 	require.NotEmpty(t, task1)
 	g := &task1
