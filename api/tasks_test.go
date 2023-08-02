@@ -2,14 +2,16 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
-	"errors"
+	
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -17,6 +19,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
+	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
 )
@@ -58,17 +61,22 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 }
 
 func TestGetTaskAPI(t *testing.T) {
-	task := randomTask()
+	user,_ := randomUser(t)
+	task := randomTask(user.Username)
 
 	testCases := []struct {
 		name         string
 		taskID       int64
+		setupAuth    func(t *testing.T, request *http.Request, tokenMaker token.Maker) 
 		buidStubs    func(store *mockdb.MockGlobalRepository)
 		checkReponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			taskID: task.Id,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buidStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), task.Id).
@@ -84,11 +92,14 @@ func TestGetTaskAPI(t *testing.T) {
 		{
 			name:   "NotFound",
 			taskID: task.Id,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buidStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
-					GetTask(gomock.Any(), task.Id).
+					GetTask(gomock.Any(), gomock.Eq(task.Id)).
 					Times(1).
-					Return(domain.Task{}, errors.New("id not found"))
+					Return(domain.Task{}, sql.ErrNoRows)
 			},
 			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
@@ -107,13 +118,14 @@ func TestGetTaskAPI(t *testing.T) {
 
 			taskHandler := NewTestHandler(t,store)
 			router := gin.New()
-			router.GET("/tasks/:id", taskHandler.GetTask)
+			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
+			authRoutes.GET("/tasks/:id", taskHandler.GetTask)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/tasks/%d", task.Id)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
-
+			tc.setupAuth(t,request,taskHandler.tokenMaker)
 			router.ServeHTTP(recorder, request)
 			tc.checkReponse(t, recorder)
 
@@ -124,7 +136,9 @@ func TestGetTaskAPI(t *testing.T) {
 }
 
 func TestCreateTaskAPI(t *testing.T) {
-	task := randomTask()
+	user,_ := randomUser(t)
+	task := randomTask(user.Username)
+
 	t.Log(task)
 	testCases := []struct {
 		name          string
@@ -190,14 +204,17 @@ func TestCreateTaskAPI(t *testing.T) {
 
 }
 
-func randomTask() domain.Task {
+func randomTask(username string) domain.Task {
 
 	name := util.RandomName()
 	budget := util.RandomBudget()
-	createdBy := util.RandomName()
-	task := domain.NewTask(name, budget, createdBy)
+
 	//task.Id = util.RandomInt(1, 100)
-	return task
+	return domain.Task{
+		TaskName : name,
+		Budget: budget,
+		CreatedBy: username,
+	}
 }
 
 func requiredBodyMatchTask(t *testing.T, body *bytes.Buffer, task domain.Task) {

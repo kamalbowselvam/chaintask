@@ -1,6 +1,9 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +28,11 @@ func NewHttpHandler(taskService service.TaskService,tokenMaker token.Maker, conf
 	}
 }
 
+
+func (h *HttpHandler) GetTokenMaker() *token.Maker {
+	return &h.tokenMaker
+}
+
 type getTaskRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
@@ -36,6 +44,26 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	task, err := h.taskService.GetTask(id)
+
+	authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.ErrorResponse(err))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+
+	}
+
+	if task.CreatedBy != authorizationPayload.Username {
+		err := errors.New("task does not belong to user")
+		c.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
+		return
+	}
+
 	if err != nil {
 		c.AbortWithStatusJSON(404, gin.H{"message": err.Error()})
 		return

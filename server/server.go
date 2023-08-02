@@ -19,11 +19,16 @@ func NewServer(handler *api.HttpHandler) *Server {
 	server := &Server{taskhandler: handler}
 	router := gin.Default()
 
+	tokenMaker := handler.GetTokenMaker()
 	
-	router.GET("/tasks/:id", server.taskhandler.GetTask)
-	router.POST("/tasks/", server.taskhandler.CreateTask)
+	
 	router.POST("/users", server.taskhandler.CreateUser)
 	router.POST("/users/login", server.taskhandler.LoginUser)
+
+	authRoutes := router.Group("/").Use(api.AuthMiddleware(*tokenMaker))
+
+	authRoutes.GET("/tasks/:id", server.taskhandler.GetTask)
+	authRoutes.POST("/tasks/", server.taskhandler.CreateTask)
 	server.router = router
 	return server
 }
