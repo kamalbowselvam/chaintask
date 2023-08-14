@@ -8,10 +8,8 @@ import (
 // server to serve HTTP request for our booking service
 type Server struct {
 	taskhandler *rest.HttpHandler
-	router *gin.Engine
+	router      *gin.Engine
 }
-
-
 
 func NewServer(handler *rest.HttpHandler) *Server {
 
@@ -21,15 +19,16 @@ func NewServer(handler *rest.HttpHandler) *Server {
 	router.GET("/tasks/:id", server.taskhandler.GetTask)
 	router.POST("/tasks/", server.taskhandler.CreateTask)
 	router.POST("/users/", server.taskhandler.CreateUser)
+	router.POST("/token", server.taskhandler.Login)
 	server.router = router
 	return server
 }
 
 func errorResponse(err error) map[string]interface{} {
-	return gin.H{"error":err.Error()}
+	return gin.H{"error": err.Error()}
 
 }
 
-func (server *Server) Start(address string ) error {
-		return server.router.Run(address)
+func (server *Server) Start(address string) error {
+	return server.router.Run(address)
 }

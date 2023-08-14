@@ -13,4 +13,5 @@ type TaskService interface {
 
 type UserService interface {
 	CreateUser(username string, hpassord string, fname string, email string) (domain.UserDetail, error)
+	GetUser(username string) (domain.User, error)
 }

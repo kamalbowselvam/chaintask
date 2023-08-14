@@ -25,9 +25,8 @@ type getTaskRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
 
+func (h *HttpHandler) GetTask(c *gin.Context) {
 
-func(h *HttpHandler) GetTask(c *gin.Context){
-	
 	var req getTaskRequest
 
 	err := c.ShouldBindUri(&req)
@@ -82,4 +81,26 @@ func (h *HttpHandler) CreateUser(c *gin.Context) {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 	}
 	c.JSON(200, user)
+}
+
+type LoginParams struct {
+	UserName string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (h *HttpHandler) Login(c *gin.Context) {
+	loginparams := LoginParams{}
+	c.BindJSON(&loginparams)
+	user, err := h.userService.GetUser(loginparams.UserName)
+	if err != nil {
+		c.AbortWithStatusJSON(401, gin.H{"message": "Unauthorized"})
+	}
+	// FIXME Token Creation Here
+	if util.CheckPassword(loginparams.Password, user.HashedPassword) == nil {
+		token := "token_to_be_created"
+		c.JSON(200, token)
+	} else {
+		c.AbortWithStatusJSON(403, gin.H{"message": "Unauthorized"})
+	}
+
 }

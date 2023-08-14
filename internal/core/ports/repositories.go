@@ -16,8 +16,8 @@ type TaskRepository interface {
 
 type UserRepository interface {
 	CreateUser(context.Context, domain.User) (domain.UserDetail, error)
+	GetUser(context.Context, string) (domain.User, error)
 }
-
 
 type Storage interface {
 	UserRepository

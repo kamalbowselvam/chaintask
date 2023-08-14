@@ -30,3 +30,11 @@ func (srv *userService) CreateUser(username string, hpassord string, fname strin
 	return userdetail, err
 
 }
+
+func (srv *userService) GetUser(username string) (domain.User, error) {
+	user, err := srv.userRepository.GetUser(context.Background(), username)
+	if err != nil {
+		log.Fatalf("Could not find user with %s", username)
+	}
+	return user, err
+}
