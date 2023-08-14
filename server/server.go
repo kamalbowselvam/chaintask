@@ -20,6 +20,7 @@ func NewServer(handler *rest.HttpHandler) *Server {
 
 	router.GET("/tasks/:id", server.taskhandler.GetTask)
 	router.POST("/tasks/", server.taskhandler.CreateTask)
+	router.POST("/users/", server.taskhandler.CreateUser)
 	server.router = router
 	return server
 }
