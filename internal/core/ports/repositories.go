@@ -2,14 +2,11 @@ package ports
 
 import (
 	"context"
+
 	"github.com/kamalbowselvam/chaintask/internal/core/domain"
 )
 
-
-
-
 type TaskRepository interface {
-	CreateUser(context.Context, domain.User) (domain.UserDetail, error)
 	GetTask(context.Context, int64) (domain.Task, error)
 	SaveTask(context.Context, domain.Task) (domain.Task, error)
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)
@@ -17,7 +14,12 @@ type TaskRepository interface {
 	UpdateTask(context.Context, domain.Task) (domain.Task, error)
 }
 
+type UserRepository interface {
+	CreateUser(context.Context, domain.User) (domain.UserDetail, error)
+}
 
 
-
-
+type Storage interface {
+	UserRepository
+	TaskRepository
+}

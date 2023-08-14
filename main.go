@@ -32,7 +32,9 @@ func main() {
 
 	taskRepository := repositories.NewPersistenceStorage(db)
 	taskService := service.NewTaskService(taskRepository)
-	taskHandler := rest.NewHttpHandler(taskService)
+	userRepository := repositories.NewPersistenceStorage(db)
+	userService := service.NewUserService(userRepository)
+	taskHandler := rest.NewHttpHandler(taskService, userService)
 
 	server := server.NewServer(taskHandler)
 	server.Start(":8080")

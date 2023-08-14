@@ -2,21 +2,24 @@ package rest
 
 import (
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/internal/core/ports"
+	"github.com/kamalbowselvam/chaintask/util"
 )
 
 type HttpHandler struct {
 	taskService ports.TaskService
+	userService ports.UserService
 }
 
-func NewHttpHandler(taskService ports.TaskService) *HttpHandler {
+func NewHttpHandler(taskService ports.TaskService, userService ports.UserService) *HttpHandler {
 
 	return &HttpHandler{
 		taskService: taskService,
+		userService: userService,
 	}
 }
-
 
 type getTaskRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
@@ -29,7 +32,6 @@ func(h *HttpHandler) GetTask(c *gin.Context){
 
 	err := c.ShouldBindUri(&req)
 	// id, err := strconv.ParseInt(c.Param("id"),10,64)
-	
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 
@@ -61,3 +63,23 @@ func (h *HttpHandler) CreateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
+type CreateUserParams struct {
+	Name     string `json:"name"`
+	FullName string `json:"fullname"`
+	Password string `json:"password"`
+	Email    string `json:"mail"`
+}
+
+func (h *HttpHandler) CreateUser(c *gin.Context) {
+	taskparam := CreateUserParams{}
+	c.BindJSON(&taskparam)
+	hashed_pass, err := util.HashPassword(taskparam.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": "Could not hash password"})
+	}
+	user, err := h.userService.CreateUser(taskparam.Name, hashed_pass, taskparam.FullName, taskparam.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+	}
+	c.JSON(200, user)
+}

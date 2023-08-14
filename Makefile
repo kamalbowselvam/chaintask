@@ -30,7 +30,7 @@ test:
 
 
 mock:
-	mockgen -package mockdb --build_flags=--mod=mod -destination internal/mock/store.go github.com/kamalbowselvam/chaintask/internal/core/ports TaskRepository
-
+	mockgen -package mockdb --build_flags=--mod=mod -destination internal/mock/taskStore.go github.com/kamalbowselvam/chaintask/internal/core/ports TaskRepository
+	mockgen -package mockdb --build_flags=--mod=mod -destination internal/mock/userStore.go github.com/kamalbowselvam/chaintask/internal/core/ports UserRepository
 
 .PHONY: run network postgres createdb dropdb migrateup migratedown test mock

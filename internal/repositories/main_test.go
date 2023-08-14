@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 
 }
 
-func generateRandomUser(t *testing.T, store ports.TaskRepository) domain.UserDetail {
+func generateRandomUser(t *testing.T, store ports.Storage) domain.UserDetail {
 	username := util.RandomName()
 	hpassword, _ := util.HashPassword(util.RandomString(32))
 	fname := util.RandomName()
@@ -51,7 +51,7 @@ func generateRandomUser(t *testing.T, store ports.TaskRepository) domain.UserDet
 
 }
 
-func generateRandomTask(t *testing.T, store ports.TaskRepository) domain.Task {
+func generateRandomTask(t *testing.T, store ports.Storage) domain.Task {
 
 	taskname := util.RandomName()
 	budget := util.RandomBudget()
@@ -72,7 +72,7 @@ func generateRandomTask(t *testing.T, store ports.TaskRepository) domain.Task {
 
 }
 
-func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
+func GetTaskHelper(t *testing.T, store ports.Storage) {
 	task1 := generateRandomTask(t, store)
 
 	require.NotEmpty(t, task1)
@@ -87,7 +87,7 @@ func GetTaskHelper(t *testing.T, store ports.TaskRepository) {
 
 }
 
-func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
+func GetTaskListHelper(t *testing.T, store ports.Storage) {
 	task1 := generateRandomTask(t, store)
 	task2 := generateRandomTask(t, store)
 	task3 := generateRandomTask(t, store)
@@ -104,7 +104,7 @@ func GetTaskListHelper(t *testing.T, store ports.TaskRepository) {
 	require.Empty(t, taskList3)
 }
 
-func DeleteTaskHelper(t *testing.T, store ports.TaskRepository) {
+func DeleteTaskHelper(t *testing.T, store ports.Storage) {
 	task1 := generateRandomTask(t, store)
 	require.NotEmpty(t, task1)
 
@@ -113,7 +113,7 @@ func DeleteTaskHelper(t *testing.T, store ports.TaskRepository) {
 
 }
 
-func UpdateTaskHelper(t *testing.T, store ports.TaskRepository) {
+func UpdateTaskHelper(t *testing.T, store ports.Storage) {
 	task1 := generateRandomTask(t, store)
 	require.NotEmpty(t, task1)
 	g := &task1

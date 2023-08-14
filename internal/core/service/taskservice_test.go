@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -64,11 +65,13 @@ func TestGetTaskAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			store := mockdb.NewMockTaskRepository(ctrl)
-			tc.buidStubs(store)
+			taskStore := mockdb.NewMockTaskRepository(ctrl)
+			userStore := mockdb.NewMockUserRepository(ctrl)
+			tc.buidStubs(taskStore)
 
-			taskService := NewTaskService(store)
-			taskHandler := rest.NewHttpHandler(taskService)
+			taskService := NewTaskService(taskStore)
+			userService := NewUserService(userStore)
+			taskHandler := rest.NewHttpHandler(taskService, userService)
 			router := gin.New()
 			router.GET("/tasks/:id", taskHandler.GetTask)
 			recorder := httptest.NewRecorder()
@@ -88,16 +91,19 @@ func TestGetTaskAPI(t *testing.T) {
 
 func TestCreateTaskAPI(t *testing.T) {
 	task := randomTask()
-
+	user := randomUserDetail()
 	testCases := []struct {
-		name          string
-		gtask         domain.Task
-		buildStubs    func(store *mockdb.MockTaskRepository)
-		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+		name           string
+		gtask          domain.Task
+		guserdetail    domain.UserDetail
+		buildStubs     func(store *mockdb.MockTaskRepository)
+		buildUserStubs func(store *mockdb.MockUserRepository)
+		checkResponse  func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:  "OK",
-			gtask: task,
+			name:        "OK",
+			gtask:       task,
+			guserdetail: user,
 			buildStubs: func(store *mockdb.MockTaskRepository) {
 				store.EXPECT().
 					SaveTask(gomock.Any(), gomock.Any()).
@@ -107,6 +113,9 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			buildUserStubs: func(store *mockdb.MockUserRepository) {
+				store.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(user, nil)
 			},
 		},
 	}
@@ -119,11 +128,14 @@ func TestCreateTaskAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
 			defer ctrl.Finish()
-			store := mockdb.NewMockTaskRepository(ctrl)
-			tc.buildStubs(store)
+			taskStore := mockdb.NewMockTaskRepository(ctrl)
+			tc.buildStubs(taskStore)
+			userStore := mockdb.NewMockUserRepository(ctrl)
 
-			taskService := NewTaskService(store)
-			taskHandler := rest.NewHttpHandler(taskService)
+			taskService := NewTaskService(taskStore)
+			userService := NewUserService(userStore)
+
+			taskHandler := rest.NewHttpHandler(taskService, userService)
 
 			router := gin.New()
 			router.POST("/tasks/", taskHandler.CreateTask)
@@ -162,6 +174,15 @@ func randomTask() domain.Task {
 	task := domain.NewTask(name, budget, createdBy)
 	//task.Id = util.RandomInt(1, 100)
 	return task
+}
+
+
+func randomUserDetail() domain.UserDetail {
+	name := util.RandomName()
+	fullName := util.RandomString(10)
+	hashed, _ := util.HashPassword(util.RandomString(10))
+	user := domain.NewUserDetail(name, hashed, fullName, time.Now())
+	return user
 }
 
 func requiredBodyMatchTask(t *testing.T, body *bytes.Buffer, task domain.Task) {
