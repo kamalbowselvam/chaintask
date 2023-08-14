@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/kamalbowselvam/chaintask/internal/core/service"
 	"github.com/kamalbowselvam/chaintask/internal/handlers/rest"
 	"github.com/kamalbowselvam/chaintask/internal/repositories"
@@ -20,10 +21,11 @@ func main() {
 	var err error
 
 	connstr := "postgresql://root:secret@localhost:5433/chain_task?sslmode=disable"
+	adapter, _ := pgadapter.NewAdapter(connstr)
 
-	db, err = sql.Open("postgres",connstr)
+	db, err = sql.Open("postgres", connstr)
 	if err != nil {
-			panic(err)
+		panic(err)
 	}
 
 	if err = db.Ping(); err != nil {
@@ -36,6 +38,6 @@ func main() {
 	userService := service.NewUserService(userRepository)
 	taskHandler := rest.NewHttpHandler(taskService, userService)
 
-	server := server.NewServer(taskHandler)
+	server := server.NewServer(taskHandler, adapter)
 	server.Start(":8080")
 }
