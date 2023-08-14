@@ -7,5 +7,6 @@ CREATE TABLE "users" (
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+DELETE FROM "tasks" WHERE "created_by" IS NOT NULL or "updated_by" IS NOT NULL;
 ALTER TABLE "tasks" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("username");
 ALTER TABLE "tasks" ADD FOREIGN KEY ("updated_by") REFERENCES "users" ("username");
