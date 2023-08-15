@@ -1,26 +1,24 @@
-package domain
+package api
 
 import (
 	"testing"
 
+	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
 )
 
 
-
-
-
-func createRandomUser(t *testing.T) User {
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
+func randomUser(t *testing.T) (user domain.User, password string) {
+	password = util.RandomString(6)
+	hashedPassword, err := util.HashPassword(password)
 	require.NoError(t, err)
 
-	user := User{
+	user = domain.User{
 		Username:       util.RandomName(),
 		HashedPassword: hashedPassword,
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
 	}
-
-	return user
+	return
 }

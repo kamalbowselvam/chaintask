@@ -1,4 +1,4 @@
-package repositories
+package db
 
 import (
 	"testing"
@@ -32,4 +32,9 @@ func TestDeleteTaskPersistence(t *testing.T){
 
 func TestUpdateTaskPersistence(t *testing.T) {
 	UpdateTaskHelper(t, testPersistenceStore)
+}
+
+
+func TestGetUserPersistence(t *testing.T) {
+	GetUserHelper(t, testPersistenceStore)
 }
