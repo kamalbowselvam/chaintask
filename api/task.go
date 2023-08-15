@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/db"
@@ -40,12 +39,12 @@ type getTaskRequest struct {
 func (h *HttpHandler) GetTask(c *gin.Context) {
 	var req getTaskRequest
 	err := c.ShouldBindUri(&req)
-	// id, err := strconv.ParseInt(c.Param("id"),10,64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+	task, err := h.taskService.GetTask(c,req.Id)
 
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	task, err := h.taskService.GetTask(id)
-
-	authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 	if err != nil {
 
 		if err == sql.ErrNoRows {
@@ -58,17 +57,14 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 
 	}
 
+	authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 	if task.CreatedBy != authorizationPayload.Username {
 		err := errors.New("task does not belong to user")
 		c.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
 		return
 	}
 
-	if err != nil {
-		c.AbortWithStatusJSON(404, gin.H{"message": err.Error()})
-		return
-	}
-	c.JSON(200, task)
+	c.JSON(http.StatusOK, task)
 }
 
 

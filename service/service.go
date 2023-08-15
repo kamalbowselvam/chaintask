@@ -8,7 +8,7 @@ import (
 )
 
 type TaskService interface {
-	GetTask(id int64) (domain.Task, error)
+	GetTask(context.Context, int64) (domain.Task, error)
 	CreateTask(context.Context, db.CreateTaskParams) (domain.Task,error)
 	CreateUser(context.Context, db.CreateUserParams) (domain.User, error)
 	GetUser(context.Context, string ) (domain.User, error)
