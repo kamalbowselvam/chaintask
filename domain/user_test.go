@@ -7,32 +7,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomUser(t *testing.T) User {
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
-	require.NoError(t, err)
-
-	user := User{
-		Username:       util.RandomName(),
-		HashedPassword: hashedPassword,
-		FullName:       util.RandomName(),
-		Email:          util.RandomEmail(),
-	}
-
-	return user
-}
-
 func TestNewUser(t *testing.T) {
 
 	hashedPassword, err := util.HashPassword(util.RandomString(6))
 
-	require.NoError(t,err)
+	require.NoError(t, err)
 
 	username := util.RandomName()
 	hpassword := hashedPassword
 	fullname := util.RandomName()
 	email := util.RandomEmail()
+	role := util.RandomRole()
 
-	user := NewUser(username, hpassword, fullname, email)
+	user := NewUser(username, hpassword, fullname, email, role)
 
 	require.NotEmpty(t, user)
 	require.Equal(t, username, user.Username)

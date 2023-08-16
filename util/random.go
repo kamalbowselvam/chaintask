@@ -37,6 +37,10 @@ func RandomName() string {
 	return RandomString(6)
 }
 
+func RandomRole() string {
+	return RandomString(6)
+}
+
 func RandomBudget() float64 {
 	return float64(RandomInt(0, 100000))
 }

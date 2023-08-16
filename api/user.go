@@ -20,6 +20,7 @@ type createUserRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
+	Role     string `json:"role" binding:"required"`
 }
 
 type userResponse struct {
@@ -60,6 +61,7 @@ func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
 		HashedPassword: hashedPassword,
 		FullName:       req.FullName,
 		Email:          req.Email,
+		Role:           req.Role,
 	}
 
 
@@ -121,6 +123,7 @@ func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 
 	accessToken, _, err := hdlr.tokenMaker.CreateToken(
 		user.Username,
+		user.Role,
 		hdlr.config.AccessTokenDuration,
 	)
 

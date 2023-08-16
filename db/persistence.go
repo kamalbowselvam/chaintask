@@ -25,9 +25,10 @@ const createUser = `INSERT INTO users (
 	username, 
 	hashed_password, 
 	full_name, 
-	email 
+	email,
+	role_id 
 ) VALUES ( 
-	$1, $2, $3, $4
+	$1, $2, $3, $4, (select id from roles where userRole=$5)
 ) 
 RETURNING username, hashed_password, full_name, email, created_at
 `
@@ -37,10 +38,11 @@ type CreateUserParams struct {
 	HashedPassword string `json:"hashed_password"`
 	FullName       string `json:"full_name"`
 	Email          string `json:"email"`
+	Role           string `json:"role"`
 }
 
 func (q *PersistenceSotrage) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error){
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email, arg.Role)
 	var i domain.User
 
 	err := row.Scan(
