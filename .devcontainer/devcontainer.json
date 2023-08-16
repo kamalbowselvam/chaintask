@@ -19,7 +19,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ckolkman.vscode-postgres"
+				"ckolkman.vscode-postgres",
+				"rangav.vscode-thunder-client"
 			]
 		}
 	}
