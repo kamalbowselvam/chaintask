@@ -4,6 +4,7 @@ import (
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/api"
+	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/util"
 )
 
@@ -25,8 +26,8 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 
 	authRoutes := router.Group("/").Use(api.AuthMiddleware(*tokenMaker))
 
-	authRoutes.GET("/tasks/:id", api.AuthorizeMiddleware(util.TASK, util.READ, adapter), server.taskhandler.GetTask)
-	authRoutes.POST("/tasks/", api.AuthorizeMiddleware(util.TASK, util.WRITE, adapter), server.taskhandler.CreateTask)
+	authRoutes.GET("/tasks/:id", api.AuthorizeMiddleware(db.GetTaskRequest{}, util.READ, adapter), server.taskhandler.GetTask)
+	authRoutes.POST("/tasks/", api.AuthorizeMiddleware(db.CreateTaskParams{}, util.WRITE, adapter), server.taskhandler.CreateTask)
 	server.router = router
 	return server
 }

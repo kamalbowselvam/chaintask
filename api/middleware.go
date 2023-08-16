@@ -58,7 +58,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(obj string, act string, adapter persist.Adapter) gin.HandlerFunc {
+func AuthorizeMiddleware(obj interface{}, act string, adapter persist.Adapter) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)
@@ -68,9 +68,14 @@ func AuthorizeMiddleware(obj string, act string, adapter persist.Adapter) gin.Ha
 		}
 		// Casbin enforces policy
 		log.Println(val)
+		err := c.BindJSON(&obj)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
+			return
+		}
 		ok, err := enforce(val.(*token.Payload), obj, act, adapter)
 		if err != nil {
-			log.Fatal("Error occured while authorizing the user")
+			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
 			return
 		}
@@ -82,7 +87,7 @@ func AuthorizeMiddleware(obj string, act string, adapter persist.Adapter) gin.Ha
 	}
 }
 
-func enforce(sub *token.Payload, obj string, act string, adapter persist.Adapter) (bool, error) {
+func enforce(sub *token.Payload, obj interface{}, act string, adapter persist.Adapter) (bool, error) {
 	// Load model configuration file and policy store adapter
 
 	enforcer, err := casbin.NewEnforcer("./config/rbac_model.conf", adapter)

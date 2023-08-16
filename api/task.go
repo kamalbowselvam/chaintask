@@ -32,12 +32,12 @@ func (h *HttpHandler) GetTokenMaker() *token.Maker {
 	return &h.tokenMaker
 }
 
-type getTaskRequest struct {
+type GetTaskRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (h *HttpHandler) GetTask(c *gin.Context) {
-	var req getTaskRequest
+	var req GetTaskRequest
 	err := c.ShouldBindUri(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
