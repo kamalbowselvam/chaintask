@@ -73,6 +73,8 @@ type CreateTaskParams struct {
 }
 
 func (q *PersistenceSotrage) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
+	log.Println("saving tasks")
+	log.Println(arg)
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy)
 	var i domain.Task
 	err := row.Scan(
@@ -93,8 +95,12 @@ const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on
 	WHERE id = $1 LIMIT 1
 	`
 
-func (q *PersistenceSotrage) GetTask(ctx context.Context, id int64) (domain.Task, error) {
-	row := q.db.QueryRowContext(ctx, getTask, id)
+type GetTaskParams struct {
+	Id int64 `uri:"id" binding:"required,min=1"`
+}
+
+func (q *PersistenceSotrage) GetTask(ctx context.Context, arg GetTaskParams) (domain.Task, error) {
+	row := q.db.QueryRowContext(ctx, getTask, arg.Id)
 	var t domain.Task
 	err := row.Scan(
 		&t.Id,
@@ -175,7 +181,7 @@ func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (
 	if err = tx.Commit(); err != nil {
 		return fail(err)
 	}
-	return q.GetTask(ctx, id)
+	return q.GetTask(ctx, GetTaskParams{Id: id})
 }
 
 const getUser = `-- name: GetUser :one

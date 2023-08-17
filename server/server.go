@@ -26,7 +26,7 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 
 	authRoutes := router.Group("/").Use(api.AuthMiddleware(*tokenMaker))
 
-	authRoutes.GET("/tasks/:id", api.AuthorizeMiddleware(db.GetTaskRequest{}, util.READ, adapter), server.taskhandler.GetTask)
+	authRoutes.GET("/tasks/:id", api.AuthorizeMiddleware(db.GetTaskParams{}, util.READ, adapter), server.taskhandler.GetTask)
 	authRoutes.POST("/tasks/", api.AuthorizeMiddleware(db.CreateTaskParams{}, util.WRITE, adapter), server.taskhandler.CreateTask)
 	server.router = router
 	return server

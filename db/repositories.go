@@ -20,7 +20,7 @@ type UserRepository interface {
 
 type TaskRepository interface {
 	
-	GetTask(context.Context, int64) (domain.Task, error)
+	GetTask(context.Context, GetTaskParams) (domain.Task, error)
 	CreateTask(context.Context, CreateTaskParams) (domain.Task, error)
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)
 	DeleteTask(context.Context, int64) error

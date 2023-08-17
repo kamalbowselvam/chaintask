@@ -84,7 +84,7 @@ func GetTaskHelper(t *testing.T, store GlobalRepository) {
 
 	require.NotEmpty(t, task1)
 
-	task2, err := store.GetTask(context.Background(), task1.Id)
+	task2, err := store.GetTask(context.Background(), GetTaskParams{Id: task1.Id})
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
 	require.Equal(t, task1.TaskName, task2.TaskName)

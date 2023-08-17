@@ -10,6 +10,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
@@ -67,8 +68,7 @@ func AuthorizeMiddleware(obj interface{}, act string, adapter persist.Adapter) g
 			return
 		}
 		// Casbin enforces policy
-		log.Println(val)
-		err := c.BindJSON(&obj)
+		err := c.ShouldBindBodyWith(&obj, binding.JSON)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
 			return
@@ -100,6 +100,8 @@ func enforce(sub *token.Payload, obj interface{}, act string, adapter persist.Ad
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
 	// Verify
-	ok, err := enforcer.Enforce(sub.Role, obj, act)
+	log.Println(sub.Role)
+	ok, err := enforcer.Enforce(sub, obj, act)
+	log.Println(err)
 	return ok, err
 }
