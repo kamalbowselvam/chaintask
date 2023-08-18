@@ -17,7 +17,7 @@ func TestNewUser(t *testing.T) {
 	hpassword := hashedPassword
 	fullname := util.RandomName()
 	email := util.RandomEmail()
-	role := util.RandomRole()
+	role := util.RandomRoleString()
 
 	user := NewUser(username, hpassword, fullname, email, role)
 

@@ -47,6 +47,7 @@ func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 		HashedPassword: hpassword,
 		FullName:  util.RandomName(),
 		Email:  util.RandomEmail(),
+		Role: util.RandomRoleString(),
 	}
 	user, err := store.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -84,7 +85,7 @@ func GetTaskHelper(t *testing.T, store GlobalRepository) {
 
 	require.NotEmpty(t, task1)
 
-	task2, err := store.GetTask(context.Background(), GetTaskParams{Id: task1.Id})
+	task2, err := store.GetTask(context.Background(), task1.Id)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
 	require.Equal(t, task1.TaskName, task2.TaskName)

@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/token"
@@ -40,7 +39,7 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
-	task, err := h.taskService.GetTask(c, req)
+	task, err := h.taskService.GetTask(c, req.Id)
 
 	if err != nil {
 
@@ -66,7 +65,7 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 
 func (h *HttpHandler) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
-	c.ShouldBindBodyWith(&taskparam, binding.JSON)
+	c.BindJSON(&taskparam)
 	log.Println(taskparam)
 
 	task, err := h.taskService.CreateTask(c, taskparam)

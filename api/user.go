@@ -29,6 +29,7 @@ type userResponse struct {
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
+	Role              int64    `json:"role"`
 }
 
 
@@ -40,6 +41,7 @@ func newUserResponse(user domain.User) userResponse {
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
+		Role: util.ROLES_INVERT[user.Role],
 	}
 }
 
@@ -123,7 +125,7 @@ func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 
 	accessToken, _, err := hdlr.tokenMaker.CreateToken(
 		user.Username,
-		user.Role,
+		util.ROLES_INVERT[user.Role],
 		hdlr.config.AccessTokenDuration,
 	)
 

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/persist"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/token"
@@ -20,6 +20,10 @@ const (
 	authorizationTypeBearer = "bearer"
 	authorizationPayloadKey = "author"
 )
+
+type WriteDetail struct {
+	CreatedBy string
+}
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
@@ -59,8 +63,13 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(obj interface{}, act string, adapter persist.Adapter) gin.HandlerFunc {
+func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("Recovering from panic")
+			}
+		}()
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)
 		if !existed {
@@ -68,11 +77,8 @@ func AuthorizeMiddleware(obj interface{}, act string, adapter persist.Adapter) g
 			return
 		}
 		// Casbin enforces policy
-		err := c.ShouldBindBodyWith(&obj, binding.JSON)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
-			return
-		}
+		var obj interface{}
+		c.ShouldBindBodyWith(&obj, binding.JSON)
 		ok, err := enforce(val.(*token.Payload), obj, act, adapter)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
@@ -87,10 +93,15 @@ func AuthorizeMiddleware(obj interface{}, act string, adapter persist.Adapter) g
 	}
 }
 
-func enforce(sub *token.Payload, obj interface{}, act string, adapter persist.Adapter) (bool, error) {
+func enforce(sub *token.Payload, abstract interface{}, act string, adapter interface{}) (bool, error) {
 	// Load model configuration file and policy store adapter
-
-	enforcer, err := casbin.NewEnforcer("./config/rbac_model.conf", adapter)
+	conf_file_path := "./config/rbac_model.conf"
+	fmt.Println(sub)
+	_, err := os.Stat(conf_file_path)
+	if err != nil {
+		conf_file_path = "." + conf_file_path
+	}
+	enforcer, err := casbin.NewEnforcer(conf_file_path, adapter)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,8 +111,14 @@ func enforce(sub *token.Payload, obj interface{}, act string, adapter persist.Ad
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
 	// Verify
-	log.Println(sub.Role)
+	temp := abstract.(map[string]interface{})
+	res, check := temp["CreatedBy"].(string)
+	obj := WriteDetail{}
+	if check {
+		obj.CreatedBy = res
+	} else {
+		obj.CreatedBy = sub.Username
+	}
 	ok, err := enforcer.Enforce(sub, obj, act)
-	log.Println(err)
 	return ok, err
 }

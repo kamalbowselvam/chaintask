@@ -62,8 +62,8 @@ func (repo *InMemoryStorage) CreateTask(ctx context.Context, arg CreateTaskParam
 	return task, err
 }
 
-func (repo *InMemoryStorage) GetTask(ctx context.Context, arg GetTaskParams) (domain.Task, error) {
-	task, ok := repo.taskstore[arg.Id]
+func (repo *InMemoryStorage) GetTask(ctx context.Context, id int64) (domain.Task, error) {
+	task, ok := repo.taskstore[id]
 
 	var err error
 

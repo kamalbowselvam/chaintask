@@ -99,8 +99,8 @@ type GetTaskParams struct {
 	Id int64 `uri:"id" binding:"required,min=1"`
 }
 
-func (q *PersistenceSotrage) GetTask(ctx context.Context, arg GetTaskParams) (domain.Task, error) {
-	row := q.db.QueryRowContext(ctx, getTask, arg.Id)
+func (q *PersistenceSotrage) GetTask(ctx context.Context, id int64) (domain.Task, error) {
+	row := q.db.QueryRowContext(ctx, getTask, id)
 	var t domain.Task
 	err := row.Scan(
 		&t.Id,
@@ -181,7 +181,7 @@ func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (
 	if err = tx.Commit(); err != nil {
 		return fail(err)
 	}
-	return q.GetTask(ctx, GetTaskParams{Id: id})
+	return q.GetTask(ctx, id)
 }
 
 const getUser = `-- name: GetUser :one
