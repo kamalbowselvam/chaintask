@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,36 +15,31 @@ import (
 
 type HttpHandler struct {
 	taskService service.TaskService
-	tokenMaker token.Maker
-	config util.Config
+	tokenMaker  token.Maker
+	config      util.Config
 }
 
-func NewHttpHandler(taskService service.TaskService,tokenMaker token.Maker, config util.Config) *HttpHandler {
+func NewHttpHandler(taskService service.TaskService, tokenMaker token.Maker, config util.Config) *HttpHandler {
 
 	return &HttpHandler{
 		taskService: taskService,
-		tokenMaker: tokenMaker,
-		config: config,
+		tokenMaker:  tokenMaker,
+		config:      config,
 	}
 }
-
 
 func (h *HttpHandler) GetTokenMaker() *token.Maker {
 	return &h.tokenMaker
 }
 
-type getTaskRequest struct {
-	Id int64 `uri:"id" binding:"required,min=1"`
-}
-
 func (h *HttpHandler) GetTask(c *gin.Context) {
-	var req getTaskRequest
+	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
-	task, err := h.taskService.GetTask(c,req.Id)
+	task, err := h.taskService.GetTask(c, req.Id)
 
 	if err != nil {
 
@@ -67,13 +63,12 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
-
-
 func (h *HttpHandler) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
 	c.BindJSON(&taskparam)
+	log.Println(taskparam)
 
-	task, err := h.taskService.CreateTask(c,taskparam)
+	task, err := h.taskService.CreateTask(c, taskparam)
 
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})

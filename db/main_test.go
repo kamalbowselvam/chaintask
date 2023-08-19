@@ -47,6 +47,7 @@ func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 		HashedPassword: hpassword,
 		FullName:  util.RandomName(),
 		Email:  util.RandomEmail(),
+		Role: util.RandomRoleString(),
 	}
 	user, err := store.CreateUser(context.Background(), arg)
 	require.NoError(t, err)

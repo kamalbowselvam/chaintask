@@ -22,7 +22,7 @@ func NewTaskService(taskRepository db.GlobalRepository) *service {
 
 
 func (srv *service) GetTask(ctx context.Context,id int64) (domain.Task, error){
-	task ,err := srv.taskRepository.GetTask(context.Background(),id)
+	task ,err := srv.taskRepository.GetTask(context.Background(), id)
 	return task, err
 }
 

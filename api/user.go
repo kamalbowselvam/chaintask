@@ -20,6 +20,7 @@ type createUserRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
+	Role     string `json:"role" binding:"required"`
 }
 
 type userResponse struct {
@@ -28,6 +29,7 @@ type userResponse struct {
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
+	Role              int64    `json:"role"`
 }
 
 
@@ -39,6 +41,7 @@ func newUserResponse(user domain.User) userResponse {
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
+		Role: util.ROLES_INVERT[user.Role],
 	}
 }
 
@@ -60,6 +63,7 @@ func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
 		HashedPassword: hashedPassword,
 		FullName:       req.FullName,
 		Email:          req.Email,
+		Role:           req.Role,
 	}
 
 
@@ -121,6 +125,7 @@ func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 
 	accessToken, _, err := hdlr.tokenMaker.CreateToken(
 		user.Username,
+		util.ROLES_INVERT[user.Role],
 		hdlr.config.AccessTokenDuration,
 	)
 
