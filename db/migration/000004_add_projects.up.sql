@@ -12,6 +12,8 @@ CREATE TABLE "projects" (
 ALTER TABLE "projects" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("username");
 ALTER TABLE "projects" ADD FOREIGN KEY ("responsible") REFERENCES "users" ("username");
 
+DELETE from "tasks";
+
 ALTER TABLE "tasks" ADD "project_id" INT NOT NULL REFERENCES "projects"("id"); 
 
 CREATE OR REPLACE FUNCTION check_roles() RETURNS trigger AS $check_roles$
@@ -21,13 +23,13 @@ CREATE OR REPLACE FUNCTION check_roles() RETURNS trigger AS $check_roles$
   BEGIN
     SELECT role_id INTO responsible_role FROM users where username=NEW.responsible;
     IF responsible_role != 2 THEN 
-      RAISE EXCEPTION "Responsible has not the right role"
+      RAISE EXCEPTION 'Responsible %s has not the right role', NEW.responsible;
     END IF;
     SELECT role_id INTO client_role FROM users where username=NEW.client;
     IF client_role != 1 THEN
-      RAISE EXCEPTION "Client has not the right role"
+      RAISE EXCEPTION 'Client %s has not the right role', NEW.client;
     END IF;
-    RETURNS NEW;
+    RETURN NEW;
   END;
 
 $check_roles$ LANGUAGE plpgsql;
