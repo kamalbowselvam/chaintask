@@ -52,3 +52,19 @@ func RandomBudget() float64 {
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
 }
+
+func RandomAddress() string {
+	return RandomString(1000)
+}
+
+func RandomFloatInInterval(interval int64) float64 {
+	return rand.Float64() * float64(interval) * float64(rand.Intn(2)-1)
+}
+
+func RandomLongitude() float64 {
+	return RandomFloatInInterval(180)
+}
+
+func RandomLatitude() float64 {
+	return RandomFloatInInterval(90)
+}

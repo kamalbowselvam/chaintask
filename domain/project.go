@@ -10,6 +10,7 @@ type Location struct{
 
 
 type Project struct {
+	Id                int64     `json:"id"`
 	Projectname       string    `json:"projectname"`
 	CreatedOn         time.Time `json:"createdOn"`
 	CreatedBy         string    `json:"createdBy"`

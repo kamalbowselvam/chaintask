@@ -13,13 +13,17 @@ func createRandomTask(t *testing.T) Task {
 	name := util.RandomName()
 	budget := util.RandomBudget()
 	createdBy := util.RandomName()
+	projectId := util.RandomInt(0, 100)
+	taskOrder := util.RandomInt(0, 100)
 
-	task := NewTask(name,budget,createdBy)
+	task := NewTask(name,budget,createdBy, taskOrder, projectId)
 	require.NotEmpty(t,task)
 	require.Equal(t, task.TaskName, name)
 	require.Equal(t, task.Budget, budget)
 	require.Equal(t, task.CreatedBy, createdBy)
 	require.Equal(t, task.UpdatedBy, createdBy)
+	require.Equal(t, task.ProjectId, projectId)
+	require.Equal(t, task.TaskOrder, taskOrder)
 
 	return task
 }

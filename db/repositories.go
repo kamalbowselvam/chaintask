@@ -11,6 +11,7 @@ import (
 type GlobalRepository interface {
 	TaskRepository
 	UserRepository
+	ProjectRepository
 }
 
 type UserRepository interface {
@@ -25,6 +26,10 @@ type TaskRepository interface {
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)
 	DeleteTask(context.Context, int64) error
 	UpdateTask(context.Context, domain.Task) (domain.Task, error)
+}
+
+type ProjectRepository interface {
+	CreateProject(context.Context, CreateProjectParam) (domain.Project, error)
 }
 
 

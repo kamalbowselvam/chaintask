@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/lib/pq"
@@ -60,22 +61,26 @@ const createTask = `INSERT INTO tasks (
 	taskname,
 	budget,
 	created_by,
-	updated_by 
+	updated_by,
+	task_order,
+	project_id 
   ) VALUES (
-	$1, $2, $3, $4
+	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, task_order, project_id, done;`
 
 type CreateTaskParams struct {
 	TaskName  string  `json:"taskname"`
 	Budget    float64 `json:"budget"`
 	CreatedBy string  `json:"createdBy"`
+	TaskOrder int64  `json:"taskOrder"`
+	ProjectId int64  `json:"projectId"`
 }
 
 func (q *PersistenceSotrage) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
 	log.Println("saving tasks")
 	log.Println(arg)
-	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy)
+	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)
 	var i domain.Task
 	err := row.Scan(
 		&i.Id,
@@ -86,12 +91,14 @@ func (q *PersistenceSotrage) CreateTask(ctx context.Context, arg CreateTaskParam
 		&i.UpdatedBy,
 		&i.UpdatedOn,
 		&i.Done,
+		&i.TaskOrder,
+		&i.ProjectId,
 	)
 	return i, err
 
 }
 
-const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 	WHERE id = $1 LIMIT 1
 	`
 
@@ -111,12 +118,14 @@ func (q *PersistenceSotrage) GetTask(ctx context.Context, id int64) (domain.Task
 		&t.UpdatedOn,
 		&t.UpdatedBy,
 		&t.Done,
+		&t.TaskOrder,
+		&t.ProjectId,
 	)
 	return t, err
 }
 
 const getTaskList = `
-SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 WHERE id=any($1)
 `
 
@@ -138,6 +147,8 @@ func (q *PersistenceSotrage) GetTaskList(ctx context.Context, ids []int64) ([]do
 			&t.UpdatedOn,
 			&t.UpdatedBy,
 			&t.Done,
+			&t.TaskOrder,
+			&t.ProjectId,
 		)
 		res = append(res, t)
 	}
@@ -152,7 +163,7 @@ func (q *PersistenceSotrage) DeleteTask(ctx context.Context, id int64) error {
 }
 
 const updateTask = `
- UPDATE tasks set taskname = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7 where id = $8
+ UPDATE tasks set taskname = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7, task_order=$8, project_id=$9 where id = $10
 `
 
 func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
@@ -172,7 +183,7 @@ func (q *PersistenceSotrage) UpdateTask(ctx context.Context, task domain.Task) (
 		}
 	}()
 	var id = task.Id
-	_, err = tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, id)
+	_, err = tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, id)
 	if err != nil {
 		return fail(err)
 	}
@@ -202,4 +213,47 @@ func (q *PersistenceSotrage) GetUser(ctx context.Context, username string) (doma
 		&i.Role,
 	)
 	return i, err
+}
+
+const createProject = `INSERT INTO projects (
+	projectname,
+	created_on
+	created_by,
+	location,
+	address,
+	responsible,
+	client,
+  ) VALUES (
+	$1, $2, $3, $4, $5, $6, $7
+  )
+  RETURNING id, projectname, created_on, created_by, location.x, location.y, address, responsible, client;`
+
+type CreateProjectParam struct {
+	ProjectName  string  `json:"projectname"`
+	CreatedOn    time.Time `json:"createdAt"`
+	CreatedBy    string  `json:"createdBy"`
+	Location     domain.Location  `json:"location"`
+	Address      string  `json:"address"`
+	Responsible  string `json:"responsible"`
+	Client       string `json:"client"`
+}
+
+func (q *PersistenceSotrage) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
+	log.Println("saving projects")
+	log.Println(arg)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedOn, arg.CreatedBy, arg.Location, arg.Address, arg.Responsible, arg.Client)
+	var i domain.Project
+	err := row.Scan(
+		&i.Id,
+		&i.Projectname,
+		&i.CreatedOn,
+		&i.CreatedBy,
+		&i.Location.Longitude,
+		&i.Location.Latitude,
+		&i.Address,
+		&i.Responsible,
+		&i.Client,
+	)
+	return i, err
+
 }

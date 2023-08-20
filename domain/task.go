@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-// FIXME Add project and order here
+
 type Task struct {
 	Id        int64     `json:"id"`
 	TaskName  string    `json:"taskname"`
@@ -12,9 +12,11 @@ type Task struct {
 	UpdatedOn time.Time `json:"updatedOn"`
 	UpdatedBy string    `json:"updatedBy"`
 	Done      bool      `json:"done"`
+	TaskOrder int64     `json:"taskOrder"`
+	ProjectId int64     `json:"ProjectId"`
 }
 
-func NewTask(name string, budget float64, user string) Task {
+func NewTask(name string, budget float64, user string, taskorder int64, projectid int64) Task {
 
 	t := Task{
 		TaskName:  name,
@@ -24,6 +26,8 @@ func NewTask(name string, budget float64, user string) Task {
 		UpdatedOn: time.Now(),
 		UpdatedBy: user,
 		Done:      false,
+		TaskOrder: taskorder,
+		ProjectId: projectid,
 	}
 	return t
 }
