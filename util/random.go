@@ -58,7 +58,7 @@ func RandomAddress() string {
 }
 
 func RandomFloatInInterval(interval int64) float64 {
-	return rand.Float64() * float64(interval) * float64(rand.Intn(2)-1)
+	return float64(rand.Int63n(2*interval) - interval)
 }
 
 func RandomLongitude() float64 {

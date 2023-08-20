@@ -1,6 +1,6 @@
 CREATE TABLE "projects" (
   "id" BIGSERIAL PRIMARY KEY,
-  "pojectname" VARCHAR NOT NULL,
+  "projectname" VARCHAR NOT NULL,
   "created_on" timestamptz NOT NULL DEFAULT (now()),
   "created_by" VARCHAR NOT NULL,
   "location" Point NOT NULL,
@@ -34,5 +34,5 @@ CREATE OR REPLACE FUNCTION check_roles() RETURNS trigger AS $check_roles$
 
 $check_roles$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_roles BEFORE INSERT OR UPDATE ON projects
+CREATE OR REPLACE TRIGGER check_roles BEFORE INSERT OR UPDATE ON projects
     FOR EACH ROW EXECUTE FUNCTION check_roles();

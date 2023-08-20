@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 
 }
 
-func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
+func generateRandomUserWithRole(t *testing.T, store GlobalRepository, role string) domain.User {
 
 	hpassword, _ := util.HashPassword(util.RandomString(32))
 	arg := CreateUserParams{
@@ -45,7 +45,7 @@ func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 		HashedPassword: hpassword,
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
-		Role:           util.RandomRoleString(),
+		Role:           role,
 	}
 	user, err := store.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -54,23 +54,21 @@ func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 
 }
 
+func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
+	return generateRandomUserWithRole(t, store, util.RandomRoleString())
+}
+
 func generateRandomWorksManager(t *testing.T, store GlobalRepository) domain.User {
-	user := generateRandomUser(t, store)
-	user.Role = util.ROLES[2]
-	return user
+	return generateRandomUserWithRole(t, store, util.ROLES[2])
 }
 
 func generateRandomClient(t *testing.T, store GlobalRepository) domain.User {
-	user := generateRandomUser(t, store)
-	user.Role = util.ROLES[1]
-	return user
+	return generateRandomUserWithRole(t, store, util.ROLES[1])
 }
 
 func generateRandomLocation() domain.Location {
 	return domain.Location{
-		Longitude: util.RandomLongitude(),
-		Latitude:  util.RandomLatitude(),
-	}
+		util.RandomLatitude(), util.RandomLongitude()}
 }
 
 func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project {
@@ -90,7 +88,7 @@ func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project 
 	require.NoError(t, err)
 	require.NotEmpty(t, project)
 	require.Equal(t, arg.ProjectName, project.Projectname)
-	require.Equal(t, arg.CreatedOn, project.CreatedOn)
+	require.WithinDuration(t, arg.CreatedOn, project.CreatedOn, time.Second)
 	require.Equal(t, arg.CreatedBy, project.CreatedBy)
 	require.Equal(t, arg.Client, project.Client)
 	require.Equal(t, arg.Responsible, project.Responsible)

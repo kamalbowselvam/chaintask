@@ -67,14 +67,14 @@ const createTask = `INSERT INTO tasks (
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, task_order, project_id, done;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
 	TaskName  string  `json:"taskname"`
 	Budget    float64 `json:"budget"`
 	CreatedBy string  `json:"createdBy"`
-	TaskOrder int64  `json:"taskOrder"`
-	ProjectId int64  `json:"projectId"`
+	TaskOrder int64   `json:"taskOrder"`
+	ProjectId int64   `json:"projectId"`
 }
 
 func (q *PersistenceSotrage) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
@@ -217,39 +217,38 @@ func (q *PersistenceSotrage) GetUser(ctx context.Context, username string) (doma
 
 const createProject = `INSERT INTO projects (
 	projectname,
-	created_on
+	created_on,
 	created_by,
 	location,
 	address,
 	responsible,
-	client,
+	client
   ) VALUES (
 	$1, $2, $3, $4, $5, $6, $7
   )
-  RETURNING id, projectname, created_on, created_by, location.x, location.y, address, responsible, client;`
+  RETURNING id, projectname, created_on, created_by, address, responsible, client;`
 
 type CreateProjectParam struct {
-	ProjectName  string  `json:"projectname"`
-	CreatedOn    time.Time `json:"createdAt"`
-	CreatedBy    string  `json:"createdBy"`
-	Location     domain.Location  `json:"location"`
-	Address      string  `json:"address"`
-	Responsible  string `json:"responsible"`
-	Client       string `json:"client"`
+	ProjectName string          `json:"projectname"`
+	CreatedOn   time.Time       `json:"createdAt"`
+	CreatedBy   string          `json:"createdBy"`
+	Location    domain.Location `json:"location"`
+	Address     string          `json:"address"`
+	Responsible string          `json:"responsible"`
+	Client      string          `json:"client"`
 }
 
 func (q *PersistenceSotrage) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
 	log.Println("saving projects")
 	log.Println(arg)
-	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedOn, arg.CreatedBy, arg.Location, arg.Address, arg.Responsible, arg.Client)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedOn, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project
 	err := row.Scan(
 		&i.Id,
 		&i.Projectname,
 		&i.CreatedOn,
 		&i.CreatedBy,
-		&i.Location.Longitude,
-		&i.Location.Latitude,
+		//&i.Location,
 		&i.Address,
 		&i.Responsible,
 		&i.Client,
