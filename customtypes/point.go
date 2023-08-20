@@ -1,12 +1,11 @@
-package db
+package customtypes
 
 import (
-	"bytes"
 	"database/sql/driver"
-	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 )
 
 // Point represents an x,y coordinate in EPSG:4326 for PostGIS.
@@ -20,11 +19,26 @@ func (p *Point) String() string {
 // Scan implements the sql.Scanner interface.
 func (p *Point) Scan(val interface{}) error {
 	log.Println("going over there")
-	b, err := hex.DecodeString(string(val.([]uint8)))
-	if err != nil {
-		return err
+	temp := string(val.([]uint8))
+	log.Println(temp)
+	temp = strings.TrimRight(temp, ")")
+	temp = strings.TrimLeft(temp, "(")
+	parts := strings.Split(temp, ",")
+	if len(parts) != 2 {
+		return fmt.Errorf("%s has not the expected format", temp)
+	} else {
+		latitude, err := strconv.ParseFloat(parts[0], 64)
+		if err != nil {
+			return err
+		}
+		longitude, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return err
+		}
+		p[0] = latitude
+		p[1] = longitude
 	}
-	r := bytes.NewReader(b)
+	/* := bytes.NewReader(b)
 	var wkbByteOrder uint8
 	if err := binary.Read(r, binary.LittleEndian, &wkbByteOrder); err != nil {
 		return err
@@ -47,7 +61,7 @@ func (p *Point) Scan(val interface{}) error {
 
 	if err := binary.Read(r, byteOrder, p); err != nil {
 		return err
-	}
+	}*/
 
 	return nil
 }
