@@ -36,6 +36,21 @@ func (m *MockGlobalRepository) EXPECT() *MockGlobalRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateProject mocks base method.
+func (m *MockGlobalRepository) CreateProject(arg0 context.Context, arg1 db.CreateProjectParam) (domain.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateProject", arg0, arg1)
+	ret0, _ := ret[0].(domain.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateProject indicates an expected call of CreateProject.
+func (mr *MockGlobalRepositoryMockRecorder) CreateProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProject", reflect.TypeOf((*MockGlobalRepository)(nil).CreateProject), arg0, arg1)
+}
+
 // CreateTask mocks base method.
 func (m *MockGlobalRepository) CreateTask(arg0 context.Context, arg1 db.CreateTaskParams) (domain.Task, error) {
 	m.ctrl.T.Helper()
