@@ -7,4 +7,5 @@ CREATE TABLE "tasks" (
   "updated_on" timestamptz NOT NULL DEFAULT (now()),
   "updated_by" VARCHAR NOT NULL,
   "done" BOOLEAN NOT NULL DEFAULT (FALSE)
+  "task_order" INTEGER NOT NULL
 );

@@ -2,6 +2,7 @@ package domain
 
 import "time"
 
+// FIXME Add project and order here
 type Task struct {
 	Id        int64     `json:"id"`
 	TaskName  string    `json:"taskname"`
