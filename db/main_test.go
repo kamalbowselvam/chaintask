@@ -74,7 +74,6 @@ func generateRandomLocation() domain.Location {
 }
 
 func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project {
-	// FIXME
 	resp := generateRandomWorksManager(t, store)
 	client := generateRandomClient(t, store)
 	arg := CreateProjectParam{
@@ -103,13 +102,14 @@ func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project 
 func generateRandomTask(t *testing.T, store GlobalRepository) domain.Task {
 
 	user := generateRandomUser(t, store)
+	project := generateRandomProject(t, store)
 
 	arg := CreateTaskParams{
 		TaskName:  util.RandomName(),
 		Budget:    util.RandomBudget(),
 		CreatedBy: user.Username,
 		TaskOrder: util.RandomInt(0, 100),
-		ProjectId: util.RandomInt(0, 100),
+		ProjectId: project.Id,
 	}
 
 	task, err := store.CreateTask(context.Background(), arg)
