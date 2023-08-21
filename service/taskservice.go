@@ -36,6 +36,16 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 
 }
 
+
+func (srv *service) DeleteTask(ctx context.Context, id int64) error {
+	err := srv.taskRepository.DeleteTask(context.Background(), id)
+	if err != nil {
+		log.Fatalf("could not delete task in repository %s", err.Error())
+	}
+	return err
+}
+
+
 func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
 
 	user, err := srv.taskRepository.CreateUser(context.Background(), arg)
@@ -49,6 +59,7 @@ func (srv *service) GetUser(ctx context.Context, username string) (domain.User, 
 
 	return user, err
 }
+
 
 func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
 	project, err := srv.taskRepository.CreateProject(context.Background(), arg)
@@ -69,3 +80,4 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	project.Budget = 0
 	return project, err
 }
+
