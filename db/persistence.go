@@ -155,6 +155,39 @@ func (q *PersistenceSotrage) GetTaskList(ctx context.Context, ids []int64) ([]do
 	return res, err
 }
 
+
+const getTaskListByProject = `
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+WHERE project_id=$1 ORDER BY task_order ASC
+`
+
+func (q *PersistenceSotrage) GetTaskListByProject(ctx context.Context, project_id int64) ([]domain.Task, error) {
+	rows, err := q.db.QueryContext(ctx, getTaskListByProject, project_id)
+	res := []domain.Task{}
+	if err != nil {
+		return res, err
+	}
+	for rows.Next() {
+		// FIXME Maybe that method could be extracted ?
+		var t domain.Task
+		err = rows.Scan(
+			&t.Id,
+			&t.TaskName,
+			&t.Budget,
+			&t.CreatedOn,
+			&t.CreatedBy,
+			&t.UpdatedOn,
+			&t.UpdatedBy,
+			&t.Done,
+			&t.TaskOrder,
+			&t.ProjectId,
+		)
+		res = append(res, t)
+	}
+	return res, err
+}
+
+
 const deleteAccount = `DELETE FROM tasks WHERE id = $1`
 
 func (q *PersistenceSotrage) DeleteTask(ctx context.Context, id int64) error {

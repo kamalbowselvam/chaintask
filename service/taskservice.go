@@ -56,13 +56,16 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 		log.Fatalf("could not create project due to %s", err)
 		return domain.Project{}, err
 	}
-	// FIXME
-	/*
-		tasks, err := srv.taskRepository.GetTaskList()
-		project.Tasks = tasks
-		// FIXME Compute global budget and completion stage
+	tasks, err := srv.taskRepository.GetTaskListByProject(context.Background(), project.Id)
+	if err != nil {
+		return project, err
+	}
+	project.Tasks = tasks
+	// FIXME Compute global budget and completion stage
+	n := len(tasks)
+	if n > 0 {
 		project.CompletionPercentage = 0
-		project.Budget = 0
-	*/
+	}
+	project.Budget = 0
 	return project, err
 }

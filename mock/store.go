@@ -125,6 +125,21 @@ func (mr *MockGlobalRepositoryMockRecorder) GetTaskList(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskList", reflect.TypeOf((*MockGlobalRepository)(nil).GetTaskList), arg0, arg1)
 }
 
+// GetTaskListByProject mocks base method.
+func (m *MockGlobalRepository) GetTaskListByProject(arg0 context.Context, arg1 int64) ([]domain.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskListByProject", arg0, arg1)
+	ret0, _ := ret[0].([]domain.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskListByProject indicates an expected call of GetTaskListByProject.
+func (mr *MockGlobalRepositoryMockRecorder) GetTaskListByProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskListByProject", reflect.TypeOf((*MockGlobalRepository)(nil).GetTaskListByProject), arg0, arg1)
+}
+
 // GetUser mocks base method.
 func (m *MockGlobalRepository) GetUser(arg0 context.Context, arg1 string) (domain.User, error) {
 	m.ctrl.T.Helper()
