@@ -3,6 +3,7 @@ package util
 const (
 	READ  = "read"
 	WRITE = "write"
+	DELETE = "delete"
 	TASK  = "task"
 )
 

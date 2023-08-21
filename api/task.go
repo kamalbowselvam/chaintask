@@ -63,6 +63,31 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+func (h *HttpHandler) DeleteTask(c *gin.Context) {
+	var req db.GetTaskParams
+	err := c.ShouldBindUri(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+
+	err = h.taskService.DeleteTask(c, req.Id)
+
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.ErrorResponse(err))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+
+	}
+
+	c.JSON(http.StatusAccepted, nil)
+}
+
 func (h *HttpHandler) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
 	c.BindJSON(&taskparam)

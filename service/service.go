@@ -9,20 +9,18 @@ import (
 
 type TaskService interface {
 	GetTask(context.Context, int64) (domain.Task, error)
-	CreateTask(context.Context, db.CreateTaskParams) (domain.Task,error)
-	// DeleteTask(context.Context, int64) error TODO
+	CreateTask(context.Context, db.CreateTaskParams) (domain.Task, error)
+	DeleteTask(context.Context, int64) error
 	// UpdateTask(context.Contect, db.UpdateTaskParams) (domain.Task,error)
-	
-	
+
 	CreateUser(context.Context, db.CreateUserParams) (domain.User, error)
-	GetUser(context.Context, string ) (domain.User, error)
+	GetUser(context.Context, string) (domain.User, error)
 	// DeleteUser
-	// UpdateUser 
+	// UpdateUser
 
-
-	// Create Project 
-	// Get Project 
-	// Delete Project 
-	// Update Project 
+	// Create Project
+	// Get Project
+	// Delete Project
+	// Update Project
 
 }
