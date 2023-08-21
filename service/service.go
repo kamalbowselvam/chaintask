@@ -19,6 +19,7 @@ type TaskService interface {
 	// UpdateUser
 
 	// Create Project
+	CreateProject(context.Context, db.CreateProjectParam) (domain.Project, error)
 	// Get Project
 	// Delete Project
 	// Update Project

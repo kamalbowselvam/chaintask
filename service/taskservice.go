@@ -36,6 +36,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 
 }
 
+
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	err := srv.taskRepository.DeleteTask(context.Background(), id)
 	if err != nil {
@@ -43,6 +44,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	}
 	return err
 }
+
 
 func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
 
@@ -57,3 +59,25 @@ func (srv *service) GetUser(ctx context.Context, username string) (domain.User, 
 
 	return user, err
 }
+
+
+func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
+	project, err := srv.taskRepository.CreateProject(context.Background(), arg)
+	if err != nil {
+		log.Fatalf("could not create project due to %s", err)
+		return domain.Project{}, err
+	}
+	tasks, err := srv.taskRepository.GetTaskListByProject(context.Background(), project.Id)
+	if err != nil {
+		return project, err
+	}
+	project.Tasks = tasks
+	// FIXME Compute global budget and completion stage
+	n := len(tasks)
+	if n > 0 {
+		project.CompletionPercentage = 0
+	}
+	project.Budget = 0
+	return project, err
+}
+

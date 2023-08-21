@@ -10,20 +10,22 @@ import (
 )
 
 type InMemoryStorage struct {
-	taskstore map[int64]domain.Task
-	userstore map[string]domain.User
-	entries   int64
+	taskstore    map[int64]domain.Task
+	userstore    map[string]domain.User
+	projectstore map[int64]domain.Project
+	entries      int64
 }
 
 func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
 		taskstore: map[int64]domain.Task{},
 		userstore: map[string]domain.User{},
+		projectstore: map[int64]domain.Project{},
 		entries:   1,
 	}
 }
 
-func (repo *InMemoryStorage) GetUser(ctx context.Context, username string) (domain.User, error){
+func (repo *InMemoryStorage) GetUser(ctx context.Context, username string) (domain.User, error) {
 
 	var err error
 	return repo.userstore[username], err
@@ -32,11 +34,11 @@ func (repo *InMemoryStorage) GetUser(ctx context.Context, username string) (doma
 func (repo *InMemoryStorage) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
 
 	user := domain.User{
-		Username: arg.Username,
+		Username:       arg.Username,
 		HashedPassword: arg.HashedPassword,
-		FullName: arg.FullName,
-		Email: arg.Email,
-		CreatedAt: time.Now(),
+		FullName:       arg.FullName,
+		Email:          arg.Email,
+		CreatedAt:      time.Now(),
 	}
 	repo.userstore[user.Username] = user
 	var err error
@@ -46,13 +48,15 @@ func (repo *InMemoryStorage) CreateUser(ctx context.Context, arg CreateUserParam
 func (repo *InMemoryStorage) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
 
 	task := domain.Task{
-		TaskName: arg.TaskName,
-		Budget: arg.Budget,
+		TaskName:  arg.TaskName,
+		Budget:    arg.Budget,
 		CreatedBy: arg.CreatedBy,
 		CreatedOn: time.Now(),
 		UpdatedBy: arg.CreatedBy,
 		UpdatedOn: time.Now(),
-		Done: false,
+		Done:      false,
+		ProjectId: arg.ProjectId,
+		TaskOrder: arg.TaskOrder,
 	}
 
 	task.Id = repo.entries
@@ -60,6 +64,23 @@ func (repo *InMemoryStorage) CreateTask(ctx context.Context, arg CreateTaskParam
 	repo.entries += 1
 	var err error
 	return task, err
+}
+
+func (repo *InMemoryStorage) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
+	project := domain.Project{
+		Projectname: arg.ProjectName,
+		CreatedOn:   arg.CreatedOn,
+		CreatedBy:   arg.CreatedBy,
+		Location:    arg.Location,
+		Address:     arg.Address,
+		Responsible: arg.Responsible,
+		Client:      arg.Client,
+	}
+	project.Id = repo.entries
+	repo.projectstore[repo.entries] = project
+	repo.entries += 1
+	var err error
+	return project, err
 }
 
 func (repo *InMemoryStorage) GetTask(ctx context.Context, id int64) (domain.Task, error) {
@@ -89,6 +110,19 @@ func (repo *InMemoryStorage) GetTaskList(ctx context.Context, ids []int64) ([]do
 		}
 
 		fmt.Println(i, s)
+	}
+	return tasks, err
+}
+
+
+func (repo *InMemoryStorage) GetTaskListByProject(ctx context.Context, id int64) ([]domain.Task, error) {
+	var tasks []domain.Task
+	var err error
+
+	for _, task := range repo.taskstore {
+		if(task.ProjectId == id){
+			tasks = append(tasks, task)
+		}
 	}
 	return tasks, err
 }

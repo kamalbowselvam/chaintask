@@ -28,6 +28,7 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 	authRoutes.GET("/tasks/:id", api.AuthorizeMiddleware(util.READ, adapter), server.taskhandler.GetTask)
 	authRoutes.POST("/tasks/", api.AuthorizeMiddleware(util.WRITE, adapter), server.taskhandler.CreateTask)
 	authRoutes.DELETE("/tasks/:id", api.AuthorizeMiddleware(util.DELETE, adapter), server.taskhandler.DeleteTask)
+	authRoutes.POST("/projects/", api.AuthorizeMiddleware(util.WRITE, adapter), server.taskhandler.CreateProject)
 	server.router = router
 	return server
 }
