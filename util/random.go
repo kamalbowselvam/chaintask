@@ -38,7 +38,7 @@ func RandomName() string {
 }
 
 func RandomRole() int64 {
-	return RandomInt(0, 2)
+	return RandomInt(1, 3)
 }
 
 func RandomRoleString() string {
@@ -51,4 +51,20 @@ func RandomBudget() float64 {
 
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
+}
+
+func RandomAddress() string {
+	return RandomString(1000)
+}
+
+func RandomFloatInInterval(interval int64) float64 {
+	return float64(rand.Int63n(2*interval) - interval)
+}
+
+func RandomLongitude() float64 {
+	return RandomFloatInInterval(180)
+}
+
+func RandomLatitude() float64 {
+	return RandomFloatInInterval(90)
 }

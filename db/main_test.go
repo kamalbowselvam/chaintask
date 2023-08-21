@@ -18,8 +18,6 @@ var testPersistenceStore *PersistenceSotrage
 var testInMemoryStore *InMemoryStorage
 var testDB *sql.DB
 
-
-
 func TestMain(m *testing.M) {
 
 	config, err := util.LoadConfig("../")
@@ -39,15 +37,15 @@ func TestMain(m *testing.M) {
 
 }
 
-func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
-	
+func generateRandomUserWithRole(t *testing.T, store GlobalRepository, role string) domain.User {
+
 	hpassword, _ := util.HashPassword(util.RandomString(32))
 	arg := CreateUserParams{
-		Username : util.RandomName(),
+		Username:       util.RandomName(),
 		HashedPassword: hpassword,
-		FullName:  util.RandomName(),
-		Email:  util.RandomEmail(),
-		Role: util.RandomRoleString(),
+		FullName:       util.RandomName(),
+		Email:          util.RandomEmail(),
+		Role:           role,
 	}
 	user, err := store.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -56,14 +54,60 @@ func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
 
 }
 
+func generateRandomUser(t *testing.T, store GlobalRepository) domain.User {
+	return generateRandomUserWithRole(t, store, util.RandomRoleString())
+}
+
+func generateRandomWorksManager(t *testing.T, store GlobalRepository) domain.User {
+	return generateRandomUserWithRole(t, store, util.ROLES[2])
+}
+
+func generateRandomClient(t *testing.T, store GlobalRepository) domain.User {
+	return generateRandomUserWithRole(t, store, util.ROLES[1])
+}
+
+func generateRandomLocation() domain.Location {
+	return domain.Location{
+		util.RandomLatitude(), util.RandomLongitude()}
+}
+
+func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project {
+	resp := generateRandomWorksManager(t, store)
+	client := generateRandomClient(t, store)
+	arg := CreateProjectParam{
+		ProjectName: util.RandomName(),
+		CreatedOn:   time.Now(),
+		CreatedBy:   resp.Username,
+		Client:      client.Username,
+		Responsible: resp.Username,
+		Address:     util.RandomAddress(),
+		Location:    generateRandomLocation(),
+	}
+
+	project, err := store.CreateProject(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, project)
+	require.Equal(t, arg.ProjectName, project.Projectname)
+	require.WithinDuration(t, arg.CreatedOn, project.CreatedOn, time.Second)
+	require.Equal(t, arg.CreatedBy, project.CreatedBy)
+	require.Equal(t, arg.Client, project.Client)
+	require.Equal(t, arg.Responsible, project.Responsible)
+	require.NotZero(t, project.Id)
+	require.NotZero(t, project.CreatedOn)
+	return project
+}
+
 func generateRandomTask(t *testing.T, store GlobalRepository) domain.Task {
 
 	user := generateRandomUser(t, store)
+	project := generateRandomProject(t, store)
 
-	arg :=  CreateTaskParams{
-		TaskName : util.RandomName(),
-		Budget : util.RandomBudget(),
-		CreatedBy  : user.Username,
+	arg := CreateTaskParams{
+		TaskName:  util.RandomName(),
+		Budget:    util.RandomBudget(),
+		CreatedBy: user.Username,
+		TaskOrder: util.RandomInt(0, 100),
+		ProjectId: project.Id,
 	}
 
 	task, err := store.CreateTask(context.Background(), arg)
@@ -72,6 +116,8 @@ func generateRandomTask(t *testing.T, store GlobalRepository) domain.Task {
 	require.Equal(t, arg.TaskName, task.TaskName)
 	require.Equal(t, arg.Budget, task.Budget)
 	require.Equal(t, arg.CreatedBy, task.CreatedBy)
+	require.Equal(t, arg.TaskOrder, task.TaskOrder)
+	require.Equal(t, arg.ProjectId, task.ProjectId)
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -91,6 +137,8 @@ func GetTaskHelper(t *testing.T, store GlobalRepository) {
 	require.Equal(t, task1.TaskName, task2.TaskName)
 	require.Equal(t, task1.Budget, task2.Budget)
 	require.Equal(t, task1.CreatedBy, task2.CreatedBy)
+	require.Equal(t, task1.TaskOrder, task2.TaskOrder)
+	require.Equal(t, task1.ProjectId, task2.ProjectId)
 	require.WithinDuration(t, task1.CreatedOn, task2.CreatedOn, time.Second)
 
 }
@@ -136,20 +184,18 @@ func UpdateTaskHelper(t *testing.T, store GlobalRepository) {
 
 }
 
-
-func GetUserHelper(t *testing.T, store GlobalRepository){
+func GetUserHelper(t *testing.T, store GlobalRepository) {
 	user1 := generateRandomUser(t, store)
-	require.NotEmpty(t,user1)
+	require.NotEmpty(t, user1)
 
 	username := user1.Username
 
-	user2, err := store.GetUser(context.Background(),username)
-	require.NoError(t,err)
+	user2, err := store.GetUser(context.Background(), username)
+	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 	require.Equal(t, user1.Username, user2.Username)
 	require.Equal(t, user1.FullName, user2.FullName)
 	require.Equal(t, user1.Email, user2.Email)
 	require.Equal(t, user1.HashedPassword, user2.HashedPassword)
-
 
 }

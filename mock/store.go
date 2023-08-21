@@ -36,6 +36,21 @@ func (m *MockGlobalRepository) EXPECT() *MockGlobalRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateProject mocks base method.
+func (m *MockGlobalRepository) CreateProject(arg0 context.Context, arg1 db.CreateProjectParam) (domain.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateProject", arg0, arg1)
+	ret0, _ := ret[0].(domain.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateProject indicates an expected call of CreateProject.
+func (mr *MockGlobalRepositoryMockRecorder) CreateProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProject", reflect.TypeOf((*MockGlobalRepository)(nil).CreateProject), arg0, arg1)
+}
+
 // CreateTask mocks base method.
 func (m *MockGlobalRepository) CreateTask(arg0 context.Context, arg1 db.CreateTaskParams) (domain.Task, error) {
 	m.ctrl.T.Helper()
@@ -108,6 +123,21 @@ func (m *MockGlobalRepository) GetTaskList(arg0 context.Context, arg1 []int64) (
 func (mr *MockGlobalRepositoryMockRecorder) GetTaskList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskList", reflect.TypeOf((*MockGlobalRepository)(nil).GetTaskList), arg0, arg1)
+}
+
+// GetTaskListByProject mocks base method.
+func (m *MockGlobalRepository) GetTaskListByProject(arg0 context.Context, arg1 int64) ([]domain.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskListByProject", arg0, arg1)
+	ret0, _ := ret[0].([]domain.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskListByProject indicates an expected call of GetTaskListByProject.
+func (mr *MockGlobalRepositoryMockRecorder) GetTaskListByProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskListByProject", reflect.TypeOf((*MockGlobalRepository)(nil).GetTaskListByProject), arg0, arg1)
 }
 
 // GetUser mocks base method.
