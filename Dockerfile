@@ -3,27 +3,30 @@ FROM golang:1.20.5-alpine AS build_base
 RUN apk add --no-cache git
 
 # Set the Current Working Directory inside the container
-WORKDIR /tmp/chaintask
-
-# We want to populate the module cache based on the go.{mod,sum} files.
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
-
+WORKDIR /app
 COPY . .
 
-# Build the Go app
-RUN go build -o ./out/chaintask .
+RUN apk update
+RUN apk add curl
 
+# Build the Go app
+RUN go build -o  main main.go
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz 
 # Start fresh from a smaller image
 FROM alpine:3.9 
 RUN apk add ca-certificates
+WORKDIR /app
 
-COPY --from=build_base /tmp/chaintask/out/chaintask /app/chaintask
+COPY --from=build_base /app/main .
+COPY --from=build_base /app/migrate ./migrate
+COPY app.env .
+COPY start.sh .
+COPY wait-for.sh .
+COPY db/migration ./migration
 
 # This container exposes port 8080 to the outside world
 EXPOSE 8080
 
 # Run the binary program produced by `go install`
-CMD ["/app/chaintask"]
+CMD ["/app/main"]
+ENTRYPOINT [ "/app/start.sh" ]
