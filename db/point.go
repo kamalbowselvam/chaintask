@@ -1,4 +1,4 @@
-package customtypes
+package db
 
 import (
 	"database/sql/driver"

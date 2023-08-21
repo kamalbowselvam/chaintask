@@ -114,6 +114,19 @@ func (repo *InMemoryStorage) GetTaskList(ctx context.Context, ids []int64) ([]do
 	return tasks, err
 }
 
+
+func (repo *InMemoryStorage) GetTaskListByProject(ctx context.Context, id int64) ([]domain.Task, error) {
+	var tasks []domain.Task
+	var err error
+
+	for _, task := range repo.taskstore {
+		if(task.ProjectId == id){
+			tasks = append(tasks, task)
+		}
+	}
+	return tasks, err
+}
+
 func (repo *InMemoryStorage) DeleteTask(ctx context.Context, id int64) error {
 	_, ok := repo.taskstore[id]
 
