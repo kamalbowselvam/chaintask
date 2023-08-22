@@ -5,6 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/util"
+	docs "github.com/kamalbowselvam/chaintask/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // server to serve HTTP request for our booking service
@@ -20,6 +23,8 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 
 	tokenMaker := handler.GetTokenMaker()
 
+	// FIXME api should be versioned
+	docs.SwaggerInfo.BasePath = "/"
 	router.POST("/users", server.taskhandler.CreateUser)
 	router.POST("/users/login", server.taskhandler.LoginUser)
 
@@ -31,6 +36,7 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 	authRoutes.PUT("/tasks/:id", api.AuthorizeMiddleware(util.UPDATE, adapter), server.taskhandler.UpdateTask)
 	authRoutes.POST("/projects/", api.AuthorizeMiddleware(util.WRITE, adapter), server.taskhandler.CreateProject)
 	server.router = router
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return server
 }
 
