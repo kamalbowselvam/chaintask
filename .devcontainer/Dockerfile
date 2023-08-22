@@ -15,3 +15,4 @@ RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/
 RUN apt update && apt install postgresql-client -y
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/golang/mock/mockgen@v1.6.0
+RUN curl -L https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar xvz && mv ngrok /usr/bin/ngrok
