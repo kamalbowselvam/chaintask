@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/db"
+	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -103,6 +104,21 @@ func (h *HttpHandler) CreateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
+
+func (h *HttpHandler) UpdateTask(c *gin.Context) {
+	taskparam := domain.Task{}
+	c.BindJSON(&taskparam)
+	log.Println(taskparam)
+
+	task, err := h.taskService.UpdateTask(c, taskparam)
+
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, task)
+}
 
 func (h *HttpHandler) CreateProject(c *gin.Context){
 	projectparam := db.CreateProjectParam{}
