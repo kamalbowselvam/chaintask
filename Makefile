@@ -12,7 +12,6 @@ network:
 postgres:
 	docker run --name taskchain-postgres --network task-network -p 5433:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:14-alpine
 
-
 createdb:
 	docker exec -it taskchain-postgres createdb --username=root --owner=root chain_task
 
@@ -33,4 +32,4 @@ mock:
 	mockgen -package mockdb --build_flags=--mod=mod -destination mock/store.go github.com/kamalbowselvam/chaintask/db GlobalRepository
 
 
-.PHONY: run network postgres createdb dropdb migrateup migratedown test mock
+.PHONY: run network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown
