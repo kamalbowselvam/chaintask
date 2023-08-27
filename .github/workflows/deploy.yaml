@@ -44,8 +44,11 @@ jobs:
         REPOSITORY: chain_task
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t latest .
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
         docker push -a $REGISTRY/$REPOSITORY
+
+    - name: Update kube config
+      run: aws eks update-kubeconfig --name chain-task --region eu-west-3
 
     - name: Deploy images to Amazon EKS 
       run: |
