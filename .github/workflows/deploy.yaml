@@ -56,4 +56,7 @@ jobs:
 
     - name: Deploy images to Amazon EKS 
       run: |
-        kubectl get pods
+        kubectl apply -f aws-auth.yaml 
+        kubectl apply -f deployment.yaml 
+        kubectl apply -f service.yaml
+        kubectl apply -f ingress.yaml
