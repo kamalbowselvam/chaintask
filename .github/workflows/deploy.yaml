@@ -47,7 +47,7 @@ jobs:
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
         docker push -a $REGISTRY/$REPOSITORY
 
-    - name: Update kube config
+    - name: Update kube config and identity
       run: |
       aws sts get-caller-identity
       aws eks update-kubeconfig --name chain-task --region eu-west-3
