@@ -17,5 +17,6 @@ spec:
       containers:
       - name: chain-task-api
         image: 402744909175.dkr.ecr.eu-west-3.amazonaws.com/chain_task:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
