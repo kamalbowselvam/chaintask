@@ -48,7 +48,9 @@ jobs:
         docker push -a $REGISTRY/$REPOSITORY
 
     - name: Update kube config
-      run: aws eks update-kubeconfig --name chain-task --region eu-west-3
+      run: |
+      aws sts get-caller-identity
+      aws eks update-kubeconfig --name chain-task --region eu-west-3
 
     - name: Deploy images to Amazon EKS 
       run: |
