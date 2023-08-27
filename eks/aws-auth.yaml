@@ -17,4 +17,9 @@ data:
       groups:
         - system:masters
 
+    - rolearn: arn:aws:iam::402744909175:role/GitHubAction-AssumeRoleWithAction
+      username: GitHubAction-AssumeRoleWithAction
+      groups:
+        - system:masters
+
     

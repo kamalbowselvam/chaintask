@@ -52,10 +52,8 @@ jobs:
         aws sts get-caller-identity
         aws eks update-kubeconfig --name chain-task --region eu-west-3
 
+        more /home/runner/.kube/config
+
     - name: Deploy images to Amazon EKS 
       run: |
         kubectl apply -f eks/aws-auth.yaml
-        kubectl apply -f eks/deployment.yaml
-        kubectl apply -f eks/service.yaml
-        kubectl apply -f eks/ingress.yaml
-
