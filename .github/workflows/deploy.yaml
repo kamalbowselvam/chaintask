@@ -5,7 +5,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  deploy:
+
     name: Build Image
     runs-on: ubuntu-latest
     permissions:
@@ -15,6 +16,12 @@ jobs:
     steps:
     - name: Check out code into the repository 
       uses: actions/checkout@v3
+
+    - name: Install kubecontrol
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.1' # default is latest stable
+      id: install
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -37,5 +44,13 @@ jobs:
         REPOSITORY: chain_task
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t latest .
+        docker push -a $REGISTRY/$REPOSITORY
+
+    - name: Deploy images to Amazon EKS 
+      run: |
+        kubectl apply -f eks/aws-auth.yaml 
+        kubectl apply -f eks/deployment.yaml
+        kubectl apply -f eks/service.yaml
+        kubectl apply -f eks/ingress.yaml
+
