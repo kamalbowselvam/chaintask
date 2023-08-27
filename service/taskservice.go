@@ -25,7 +25,6 @@ func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) 
 
 func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error) {
 
-	//task := domain.NewTask(name, budget, user)
 	task, err := srv.taskRepository.CreateTask(context.Background(), arg)
 	if err != nil {
 		log.Fatal("Could not save the task in repository", err.Error())
@@ -36,7 +35,6 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 
 }
 
-
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	err := srv.taskRepository.DeleteTask(context.Background(), id)
 	if err != nil {
@@ -45,6 +43,13 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	return err
 }
 
+func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
+	task, err := srv.taskRepository.UpdateTask(context.Background(), task)
+	if err != nil {
+		log.Fatalf("could not update task in repository %s", err.Error())
+	}
+	return task, err
+}
 
 func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
 
@@ -59,7 +64,6 @@ func (srv *service) GetUser(ctx context.Context, username string) (domain.User, 
 
 	return user, err
 }
-
 
 func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
 	project, err := srv.taskRepository.CreateProject(context.Background(), arg)
@@ -80,4 +84,3 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	project.Budget = 0
 	return project, err
 }
-
