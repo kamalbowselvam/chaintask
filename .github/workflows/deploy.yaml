@@ -49,8 +49,8 @@ jobs:
 
     - name: Update kube config and identity
       run: |
-      aws sts get-caller-identity
-      aws eks update-kubeconfig --name chain-task --region eu-west-3
+        aws sts get-caller-identity
+        aws eks update-kubeconfig --name chain-task --region eu-west-3
 
     - name: Deploy images to Amazon EKS 
       run: |
