@@ -11,12 +11,10 @@ data:
       groups:
         - system:bootstrappers
         - system:nodes
+
     - rolearn: arn:aws:iam::402744909175:role/AWSReservedSSO_PowerUserAccess_611128f8573b4840
       username: kselvam
       groups:
         - system:masters
-    - rolearn: arn:aws:iam::402744909175:role/GitHubAction-AssumeRoleWithAction
-      username: kselvam
-      groups:
-        - system:masters
+
     

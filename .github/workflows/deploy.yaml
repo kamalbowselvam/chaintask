@@ -47,14 +47,12 @@ jobs:
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
         docker push -a $REGISTRY/$REPOSITORY
 
-    - name: Authorise Github
-      run: kubectl apply -f eks/aws-auth.yaml 
-
     - name: Update kube config
       run: aws eks update-kubeconfig --name chain-task --region eu-west-3
 
     - name: Deploy images to Amazon EKS 
       run: |
+        kubectl apply -f eks/aws-auth.yaml
         kubectl apply -f eks/deployment.yaml
         kubectl apply -f eks/service.yaml
         kubectl apply -f eks/ingress.yaml
