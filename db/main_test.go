@@ -15,24 +15,18 @@ import (
 )
 
 var testPersistenceStore *PersistenceSotrage
-var testInMemoryStore *InMemoryStorage
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-
 	config, err := util.LoadConfig("../")
-
 	if err != nil {
 		log.Fatal("Failed to load the config file")
 	}
-
 	testDB, err = sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connet to db: ", err)
 	}
-
 	testPersistenceStore = NewPersistenceStorage(testDB)
-	testInMemoryStore = NewInMemoryStorage()
 	os.Exit(m.Run())
 
 }
@@ -76,7 +70,6 @@ func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project 
 	client := generateRandomClient(t, store)
 	arg := CreateProjectParam{
 		ProjectName: util.RandomName(),
-		CreatedOn:   time.Now(),
 		CreatedBy:   resp.Username,
 		Client:      client.Username,
 		Responsible: resp.Username,
@@ -88,7 +81,6 @@ func generateRandomProject(t *testing.T, store GlobalRepository) domain.Project 
 	require.NoError(t, err)
 	require.NotEmpty(t, project)
 	require.Equal(t, arg.ProjectName, project.Projectname)
-	require.WithinDuration(t, arg.CreatedOn, project.CreatedOn, time.Second)
 	require.Equal(t, arg.CreatedBy, project.CreatedBy)
 	require.Equal(t, arg.Client, project.Client)
 	require.Equal(t, arg.Responsible, project.Responsible)
