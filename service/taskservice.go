@@ -9,23 +9,23 @@ import (
 )
 
 type service struct {
-	taskRepository db.GlobalRepository
+	globalRepository db.GlobalRepository
 }
 
-func NewTaskService(taskRepository db.GlobalRepository) *service {
+func NewTaskService(globalRepository db.GlobalRepository) *service {
 	return &service{
-		taskRepository: taskRepository,
+		globalRepository: globalRepository,
 	}
 }
 
 func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) {
-	task, err := srv.taskRepository.GetTask(context.Background(), id)
+	task, err := srv.globalRepository.GetTask(context.Background(), id)
 	return task, err
 }
 
 func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error) {
 
-	task, err := srv.taskRepository.CreateTask(context.Background(), arg)
+	task, err := srv.globalRepository.CreateTask(context.Background(), arg)
 	if err != nil {
 		log.Fatal("Could not save the task in repository", err.Error())
 
@@ -36,7 +36,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 }
 
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
-	err := srv.taskRepository.DeleteTask(context.Background(), id)
+	err := srv.globalRepository.DeleteTask(context.Background(), id)
 	if err != nil {
 		log.Fatalf("could not delete task in repository %s", err.Error())
 	}
@@ -44,7 +44,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 }
 
 func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
-	task, err := srv.taskRepository.UpdateTask(context.Background(), task)
+	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
 		log.Fatalf("could not update task in repository %s", err.Error())
 	}
@@ -53,20 +53,20 @@ func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Ta
 
 func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
 
-	user, err := srv.taskRepository.CreateUser(context.Background(), arg)
+	user, err := srv.globalRepository.CreateUser(context.Background(), arg)
 
 	return user, err
 
 }
 
 func (srv *service) GetUser(ctx context.Context, username string) (domain.User, error) {
-	user, err := srv.taskRepository.GetUser(context.Background(), username)
+	user, err := srv.globalRepository.GetUser(context.Background(), username)
 
 	return user, err
 }
 
 func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
-	project, err := srv.taskRepository.CreateProject(context.Background(), arg)
+	project, err := srv.globalRepository.CreateProject(context.Background(), arg)
 	if err != nil {
 		log.Fatalf("could not create project due to %s", err)
 		return domain.Project{}, err
@@ -74,7 +74,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 
 
 	// shouldn't the task be empty when we create the project for first time ? 
-	//tasks, err := srv.taskRepository.GetTaskListByProject(context.Background(), project.Id)
+	//tasks, err := srv.globalRepository.GetTaskListByProject(context.Background(), project.Id)
 	//if err != nil {
 	//	return project, err
 	//}
