@@ -45,6 +45,18 @@ func newUserResponse(user domain.User) userResponse {
 	}
 }
 
+// CreateUser godoc
+// @Summary      Create a User
+// @Description  Create a user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        request body createUserRequest true "user creation parameters"
+// @Success      200  {object}  domain.User
+// @Failure      400  {object} error
+// @Failure      404  {object} error
+// @Failure      500  {object} error
+// @Router       /users/ [post]
 func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -95,6 +107,18 @@ type loginUserResponse struct {
 	User                  userResponse `json:"user"`
 }
 
+// LoginUser godoc
+// @Summary      Logs an user in
+// @Description  Logs an user in
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        request body createUserRequest true "user creation parameters"
+// @Success      200  {object}  loginUserResponse
+// @Failure      400  {object} error
+// @Failure      404  {object} error
+// @Failure      500  {object} error
+// @Router       /users/login [post]
 func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 
 

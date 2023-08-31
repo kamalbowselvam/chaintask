@@ -18,18 +18,6 @@ func NewTaskService(taskRepository db.GlobalRepository) *service {
 	}
 }
 
-// ShowAccount godoc
-// @Summary      Show an account
-// @Description  get string by ID
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        id   path      int  true  "Account ID"
-// @Success      200  {object}  domain.Task
-// @Failure      400  {object}  error
-// @Failure      404  {object}  error
-// @Failure      500  {object}  error
-// @Router       /tasks/{id} [get]
 func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 	task, err := srv.taskRepository.GetTask(context.Background(), id)
 	return task, err

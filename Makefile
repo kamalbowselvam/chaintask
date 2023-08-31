@@ -27,9 +27,11 @@ migratedown:
 test:
 	go test -v -cover -short ./...
 
+swagger:
+	swag init
 
 mock:
 	mockgen -package mockdb --build_flags=--mod=mod -destination mock/store.go github.com/kamalbowselvam/chaintask/db GlobalRepository
 
 
-.PHONY: run network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown
+.PHONY: run network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown swagger

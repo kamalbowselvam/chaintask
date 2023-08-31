@@ -16,9 +16,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// @title           Swagger Example API
+// @title           Swagger ChainTasks API
 // @version         1.0
-// @description     This is a sample server celler server.
+// @description     This a server helping organizing tasks in a chain.
 // @termsOfService  http://swagger.io/terms/
 
 // @contact.name   API Support
@@ -31,10 +31,9 @@ import (
 // @host      localhost:8080
 // @BasePath  /api/v1
 
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+// @securitydefinitions.apikey  BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	var dbconn *sql.DB

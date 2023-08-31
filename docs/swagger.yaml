@@ -1,6 +1,110 @@
 basePath: /api/v1
 definitions:
+  api.createUserRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - role
+    - username
+    type: object
+  api.loginUserResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/api.userResponse'
+    type: object
+  api.userResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password_changed_at:
+        type: string
+      role:
+        type: integer
+      username:
+        type: string
+    type: object
+  db.CreateProjectParam:
+    properties:
+      address:
+        type: string
+      client:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      location:
+        items:
+          type: number
+        type: array
+      projectname:
+        type: string
+      responsible:
+        type: string
+    type: object
+  db.CreateTaskParams:
+    properties:
+      budget:
+        type: number
+      createdBy:
+        type: string
+      projectId:
+        type: integer
+      taskOrder:
+        type: integer
+      taskname:
+        type: string
+    type: object
+  domain.Project:
+    properties:
+      address:
+        type: string
+      budget:
+        type: number
+      client:
+        type: string
+      completion_percentage:
+        type: number
+      createdBy:
+        type: string
+      createdOn:
+        type: string
+      id:
+        type: integer
+      location:
+        items:
+          type: number
+        type: array
+      projectname:
+        type: string
+      responsible:
+        type: string
+      tasks:
+        items:
+          $ref: '#/definitions/domain.Task'
+        type: array
+    type: object
   domain.Task:
+    description: User account information with user id and username
     properties:
       ProjectId:
         type: integer
@@ -23,30 +127,133 @@ definitions:
       updatedOn:
         type: string
     type: object
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
+  domain.User:
+    properties:
+      CreatedAt:
+        type: string
+      PasswordChangedAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      hashed_password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: This is a sample server celler server.
+  description: This a server helping organizing tasks in a chain.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Swagger ChainTasks API
   version: "1.0"
 paths:
-  /tasks/{id}:
-    get:
+  /projects/:
+    post:
+      description: create a  project
+      parameters:
+      - description: project creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateProjectParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Project'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Create a project
+      tags:
+      - projects
+  /tasks/:
+    post:
       consumes:
       - application/json
-      description: get string by ID
+      description: Create a tasks
       parameters:
-      - description: Account ID
+      - description: task creation parameter
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateTaskParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Create a Task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: delete a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Delete a Task by its ID
+      tags:
+      - tasks
+    get:
+      description: get a task by its ID
+      parameters:
+      - description: Task ID
         in: path
         name: id
         required: true
@@ -67,10 +274,76 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Show an account
+      security:
+      - BearerAuth: []
+      summary: Get a Task by its ID
       tags:
-      - accounts
+      - tasks
+  /users/:
+    post:
+      consumes:
+      - application/json
+      description: Create a user
+      parameters:
+      - description: user creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a User
+      tags:
+      - users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs an user in
+      parameters:
+      - description: user creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.loginUserResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Logs an user in
+      tags:
+      - users
 securityDefinitions:
-  BasicAuth:
-    type: basic
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
