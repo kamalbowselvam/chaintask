@@ -16,6 +16,24 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// @title           Swagger ChainTasks API
+// @version         1.0
+// @description     This a server helping organizing tasks in a chain.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securitydefinitions.apikey  BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	var dbconn *sql.DB

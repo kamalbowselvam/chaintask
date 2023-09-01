@@ -33,6 +33,18 @@ func (h *HttpHandler) GetTokenMaker() *token.Maker {
 	return &h.tokenMaker
 }
 
+// GetTask godoc
+// @Summary      Get a Task by its ID
+// @Description  get a task by its ID
+// @Tags         tasks
+// @Produce      json
+// @Param        id   path      int  true  "Task ID"
+// @Success      200  {object}  domain.Task
+// @Failure      400  {object}  error
+// @Failure      404  {object}  error
+// @Failure      500  {object}  error
+// @Router       /tasks/{id} [get]
+// @Security BearerAuth
 func (h *HttpHandler) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
@@ -64,6 +76,18 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// DeleteTask godoc
+// @Summary      Delete a Task by its ID
+// @Description  delete a task by its ID
+// @Tags         tasks
+// @Produce      json
+// @Param        id   path      int  true  "Task ID"
+// @Success      202
+// @Failure      400  {object}  error
+// @Failure      404  {object}  error
+// @Failure      500  {object}  error
+// @Router       /tasks/{id} [delete]
+// @Security BearerAuth
 func (h *HttpHandler) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
@@ -89,6 +113,19 @@ func (h *HttpHandler) DeleteTask(c *gin.Context) {
 	c.JSON(http.StatusAccepted, nil)
 }
 
+// CreateTask godoc
+// @Summary      Create a Task
+// @Description  Create a tasks
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        request body db.CreateTaskParams true "task creation parameter"
+// @Success      200  {object}  domain.Task
+// @Failure      400  {object} error
+// @Failure      404  {object} error
+// @Failure      500  {object} error
+// @Router       /tasks/ [post]
+// @Security BearerAuth
 func (h *HttpHandler) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
 	c.BindJSON(&taskparam)
@@ -120,7 +157,20 @@ func (h *HttpHandler) UpdateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
-func (h *HttpHandler) CreateProject(c *gin.Context){
+
+// CreateProject godoc
+// @Summary      Create a project
+// @Description  create a  project
+// @Tags         projects
+// @Produce      json
+// @Param        request body db.CreateProjectParam true "project creation parameters"
+// @Success      200  {object}  domain.Project
+// @Failure      400  {object}  error 
+// @Failure      404  {object}  error 
+// @Failure      500  {object}  error 
+// @Router       /projects/ [post]
+// @Security BearerAuth
+func (h *HttpHandler) CreateProject(c *gin.Context) {
 	projectparam := db.CreateProjectParam{}
 	c.BindJSON(&projectparam)
 	log.Println(projectparam)
