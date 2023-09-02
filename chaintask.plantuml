@@ -1,0 +1,324 @@
+@startuml
+namespace api {
+    class HttpHandler << (S,Aquamarine) >> {
+        - taskService service.TaskService
+        - tokenMaker token.Maker
+        - config util.Config
+
+        + GetTokenMaker() *token.Maker
+        + GetTask(c *gin.Context) 
+        + DeleteTask(c *gin.Context) 
+        + CreateTask(c *gin.Context) 
+        + UpdateTask(c *gin.Context) 
+        + CreateProject(c *gin.Context) 
+        + CreateUser(ctx *gin.Context) 
+        + LoginUser(ctx *gin.Context) 
+
+    }
+    class WriteDetail << (S,Aquamarine) >> {
+        + CreatedBy string
+
+    }
+    class createUserRequest << (S,Aquamarine) >> {
+        + Username string
+        + Password string
+        + FullName string
+        + Email string
+        + Role string
+
+    }
+    class loginUserRequest << (S,Aquamarine) >> {
+        + Username string
+        + Password string
+
+    }
+    class loginUserResponse << (S,Aquamarine) >> {
+        + AccessToken string
+        + User userResponse
+
+    }
+    class userResponse << (S,Aquamarine) >> {
+        + Username string
+        + FullName string
+        + Email string
+        + PasswordChangedAt time.Time
+        + CreatedAt time.Time
+        + Role int64
+
+    }
+}
+
+
+namespace db {
+    class CreateProjectParam << (S,Aquamarine) >> {
+        + ProjectName string
+        + CreatedOn time.Time
+        + CreatedBy string
+        + Location domain.Location
+        + Address string
+        + Responsible string
+        + Client string
+
+    }
+    class CreateTaskParams << (S,Aquamarine) >> {
+        + TaskName string
+        + Budget float64
+        + CreatedBy string
+        + TaskOrder int64
+        + ProjectId int64
+
+    }
+    class CreateUserParams << (S,Aquamarine) >> {
+        + Username string
+        + HashedPassword string
+        + FullName string
+        + Email string
+        + Role string
+
+    }
+    class GetTaskParams << (S,Aquamarine) >> {
+        + Id int64
+
+    }
+    interface GlobalRepository  {
+    }
+    class InMemoryStorage << (S,Aquamarine) >> {
+        - taskstore <font color=blue>map</font>[int64]domain.Task
+        - userstore <font color=blue>map</font>[string]domain.User
+        - projectstore <font color=blue>map</font>[int64]domain.Project
+        - entries int64
+
+        + GetUser(ctx context.Context, username string) (domain.User, error)
+        + CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error)
+        + CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error)
+        + CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error)
+        + GetTask(ctx context.Context, id int64) (domain.Task, error)
+        + GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, error)
+        + GetTaskListByProject(ctx context.Context, id int64) ([]domain.Task, error)
+        + DeleteTask(ctx context.Context, id int64) error
+        + UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error)
+
+    }
+    class PersistenceSotrage << (S,Aquamarine) >> {
+        - db *sql.DB
+
+        + CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error)
+        + CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error)
+        + GetTask(ctx context.Context, id int64) (domain.Task, error)
+        + GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, error)
+        + GetTaskListByProject(ctx context.Context, project_id int64) ([]domain.Task, error)
+        + DeleteTask(ctx context.Context, id int64) error
+        + UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error)
+        + GetUser(ctx context.Context, username string) (domain.User, error)
+        + CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error)
+
+    }
+    class Point << (S,Aquamarine) >> {
+        + String() string
+        + Scan(val <font color=blue>interface</font>{}) error
+        + Value() (driver.Value, error)
+
+    }
+    interface ProjectRepository  {
+        + CreateProject( context.Context,  CreateProjectParam) (domain.Project, error)
+
+    }
+    interface TaskRepository  {
+        + GetTask( context.Context,  int64) (domain.Task, error)
+        + CreateTask( context.Context,  CreateTaskParams) (domain.Task, error)
+        + GetTaskList( context.Context,  []int64) ([]domain.Task, error)
+        + GetTaskListByProject( context.Context,  int64) ([]domain.Task, error)
+        + DeleteTask( context.Context,  int64) error
+        + UpdateTask( context.Context,  domain.Task) (domain.Task, error)
+
+    }
+    interface UserRepository  {
+        + CreateUser( context.Context,  CreateUserParams) (domain.User, error)
+        + GetUser( context.Context,  string) (domain.User, error)
+
+    }
+    class db.Point << (T, #FF7700) >>  {
+    }
+}
+"db.ProjectRepository" *-- "db.GlobalRepository"
+"db.TaskRepository" *-- "db.GlobalRepository"
+"db.UserRepository" *-- "db.GlobalRepository"
+
+"db.ProjectRepository" <|-- "db.InMemoryStorage"
+"db.TaskRepository" <|-- "db.InMemoryStorage"
+"db.UserRepository" <|-- "db.InMemoryStorage"
+"service.TaskService" <|-- "db.InMemoryStorage"
+"db.ProjectRepository" <|-- "db.PersistenceSotrage"
+"db.TaskRepository" <|-- "db.PersistenceSotrage"
+"db.UserRepository" <|-- "db.PersistenceSotrage"
+"service.TaskService" <|-- "db.PersistenceSotrage"
+
+namespace domain {
+    class Project << (S,Aquamarine) >> {
+        + Id int64
+        + Projectname string
+        + CreatedOn time.Time
+        + CreatedBy string
+        + Location Location
+        + Address string
+        + Responsible string
+        + Client string
+        + Tasks []Task
+        + CompletionPercentage float64
+        + Budget float64
+
+    }
+    class Task << (S,Aquamarine) >> {
+        + Id int64
+        + TaskName string
+        + Budget float64
+        + CreatedOn time.Time
+        + CreatedBy string
+        + UpdatedOn time.Time
+        + UpdatedBy string
+        + Done bool
+        + TaskOrder int64
+        + ProjectId int64
+
+        + GetTaskName() string
+        + GetBudget() float64
+        + IsDone() bool
+        + SetTaskDone(val bool) 
+
+    }
+    class User << (S,Aquamarine) >> {
+        + Username string
+        + HashedPassword string
+        + FullName string
+        + Email string
+        + CreatedAt time.Time
+        + PasswordChangedAt time.Time
+        + Role string
+
+    }
+    class domain.Location << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace mockdb {
+    class MockGlobalRepository << (S,Aquamarine) >> {
+        - ctrl *gomock.Controller
+        - recorder *MockGlobalRepositoryMockRecorder
+
+        + EXPECT() *MockGlobalRepositoryMockRecorder
+        + CreateProject(arg0 context.Context, arg1 db.CreateProjectParam) (domain.Project, error)
+        + CreateTask(arg0 context.Context, arg1 db.CreateTaskParams) (domain.Task, error)
+        + CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (domain.User, error)
+        + DeleteTask(arg0 context.Context, arg1 int64) error
+        + GetTask(arg0 context.Context, arg1 int64) (domain.Task, error)
+        + GetTaskList(arg0 context.Context, arg1 []int64) ([]domain.Task, error)
+        + GetTaskListByProject(arg0 context.Context, arg1 int64) ([]domain.Task, error)
+        + GetUser(arg0 context.Context, arg1 string) (domain.User, error)
+        + UpdateTask(arg0 context.Context, arg1 domain.Task) (domain.Task, error)
+
+    }
+    class MockGlobalRepositoryMockRecorder << (S,Aquamarine) >> {
+        - mock *MockGlobalRepository
+
+        + CreateProject(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + CreateTask(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + CreateUser(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + DeleteTask(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + GetTask(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + GetTaskList(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + GetTaskListByProject(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + GetUser(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+        + UpdateTask(arg0 <font color=blue>interface</font>{}, arg1 <font color=blue>interface</font>{}) *gomock.Call
+
+    }
+}
+
+"db.ProjectRepository" <|-- "mockdb.MockGlobalRepository"
+"db.TaskRepository" <|-- "mockdb.MockGlobalRepository"
+"db.UserRepository" <|-- "mockdb.MockGlobalRepository"
+"service.TaskService" <|-- "mockdb.MockGlobalRepository"
+
+namespace server {
+    class Server << (S,Aquamarine) >> {
+        - taskhandler *api.HttpHandler
+        - router *gin.Engine
+
+        + Start(address string) error
+
+    }
+}
+
+
+namespace service {
+    interface TaskService  {
+        + GetTask( context.Context,  int64) (domain.Task, error)
+        + CreateTask( context.Context,  db.CreateTaskParams) (domain.Task, error)
+        + DeleteTask( context.Context,  int64) error
+        + UpdateTask( context.Context,  domain.Task) (domain.Task, error)
+        + CreateUser( context.Context,  db.CreateUserParams) (domain.User, error)
+        + GetUser( context.Context,  string) (domain.User, error)
+        + CreateProject( context.Context,  db.CreateProjectParam) (domain.Project, error)
+
+    }
+    class service << (S,Aquamarine) >> {
+        - taskRepository db.GlobalRepository
+
+        + GetTask(ctx context.Context, id int64) (domain.Task, error)
+        + CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error)
+        + DeleteTask(ctx context.Context, id int64) error
+        + UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error)
+        + CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error)
+        + GetUser(ctx context.Context, username string) (domain.User, error)
+        + CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error)
+
+    }
+}
+
+"db.ProjectRepository" <|-- "service.service"
+"db.UserRepository" <|-- "service.service"
+"service.TaskService" <|-- "service.service"
+
+namespace token {
+    interface Maker  {
+        + CreateToken(username string, role int64, duration time.Duration) (string, *Payload, error)
+        + VerifyToken(token string) (*Payload, error)
+
+    }
+    class PasetoMaker << (S,Aquamarine) >> {
+        - paseto *paseto.V2
+        - symmetricKey []byte
+
+        + CreateToken(username string, role int64, duration time.Duration) (string, *Payload, error)
+        + VerifyToken(token string) (*Payload, error)
+
+    }
+    class Payload << (S,Aquamarine) >> {
+        + ID uuid.UUID
+        + Username string
+        + Role int64
+        + IssuedAt time.Time
+        + ExpiredAt time.Time
+
+        + Valid() error
+
+    }
+}
+
+"token.Maker" <|-- "token.PasetoMaker"
+
+namespace util {
+    class Config << (S,Aquamarine) >> {
+        + DBDriver string
+        + DBSource string
+        + ServerAddress string
+        + TokenSymmetricKey string
+        + AccessTokenDuration time.Duration
+
+    }
+}
+
+
+"__builtin__.[]float64" #.. "db.Point"
+"__builtin__.[]float64" #.. "domain.Location"
+@enduml
