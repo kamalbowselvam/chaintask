@@ -21,6 +21,19 @@ erDiagram
     USER ||--|| ROLE : has
     TASK ||--o{ DOCUMENT : has
     TASK ||--o{ IMAGE: has
+    TASK ||--o{ FUNDING: has
+    FUNDING ||--o{ SOURCE: has
+    FUNDING{
+        int Id
+        int TaskId
+        int SourceId
+        float amount
+    }
+    SOURCE {
+        int id
+        string SourceName
+        float sourceAmout
+    }
     PROJECT {
         int Id
         string projectName
@@ -64,10 +77,14 @@ erDiagram
         date CreatedAt 
     }
     IMAGE {
-        int ID
+        int Id
         string Filepath
         string CreatedBy 
         date CreatedAt 
+    }
+    POLICY {
+        int Id
+        string Policy
     }
 ```
 
