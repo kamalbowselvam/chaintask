@@ -13,6 +13,8 @@ erDiagram
     PROJECT ||--o{ TASK : contains
     USER ||--o{ PROJECT : creates
     USER ||--|| ROLE : has
+    TASK ||--o{ DOCUMENT : has
+    TASK ||--o{ IMAGE: has
     PROJECT {
         int Id
         string projectName
@@ -47,7 +49,19 @@ erDiagram
     }
     ROLE {
         int Id
-        string role
+        string Role
+    }
+    DOCUMENT {
+        int Id
+        string Filepath
+        string CreatedBy 
+        date CreatedAt 
+    }
+    IMAGE {
+        int ID
+        string Filepath
+        string CreatedBy 
+        date CreatedAt 
     }
 ```
 
