@@ -178,7 +178,8 @@ func TestGetTaskAPI(t *testing.T) {
 			taskHandler := NewTestHandler(t, store)
 			router := gin.New()
 			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
-			authRoutes.GET("/tasks/:id", taskHandler.GetTask)
+
+			authRoutes.GET("/tasks/:id",AuthorizeMiddleware(util.READ, "../test/fake_policy.csv"),taskHandler.GetTask)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/tasks/%d", tc.taskID)

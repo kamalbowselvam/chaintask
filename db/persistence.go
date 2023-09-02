@@ -30,7 +30,7 @@ const createUser = `INSERT INTO users (
 ) VALUES ( 
 	$1, $2, $3, $4, (select id from roles where userRole=$5)
 ) 
-RETURNING username, hashed_password, full_name, email, created_at
+RETURNING username, hashed_password, full_name, email, created_at, role_id
 `
 
 type CreateUserParams struct {
@@ -52,6 +52,7 @@ func (q *PersistenceSotrage) CreateUser(ctx context.Context, arg CreateUserParam
 		&i.FullName,
 		&i.Email,
 		&i.CreatedAt,
+		&i.Role,
 	)
 
 	return i, err

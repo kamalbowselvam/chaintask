@@ -8,8 +8,6 @@ import (
 
 
 
-
-
 func (h *HttpHandler) CreateProject(c *gin.Context){
 	projectparam := db.CreateProjectParam{}
 	c.BindJSON(&projectparam)
