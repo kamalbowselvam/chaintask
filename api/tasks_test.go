@@ -58,7 +58,7 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 }
 
 func TestGetTaskAPI(t *testing.T) {
-	user, _ := randomUser(t)
+	user, _ := randomUser(t,"1")
 	task := randomTask(user.Username)
 
 	testCases := []struct {
@@ -178,7 +178,8 @@ func TestGetTaskAPI(t *testing.T) {
 			taskHandler := NewTestHandler(t, store)
 			router := gin.New()
 			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
-			authRoutes.GET("/tasks/:id", taskHandler.GetTask)
+
+			authRoutes.GET("/tasks/:id",AuthorizeMiddleware(util.READ, "../test/fake_policy.csv"),taskHandler.GetTask)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/tasks/%d", tc.taskID)
@@ -195,7 +196,7 @@ func TestGetTaskAPI(t *testing.T) {
 }
 
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t)
+	user, _ := randomUser(t,"1")
 	task := randomTask(user.Username)
 
 	t.Log(task)
@@ -267,7 +268,6 @@ func randomTask(username string) domain.Task {
 	name := util.RandomName()
 	budget := util.RandomBudget()
 
-	//task.Id = util.RandomInt(1, 100)
 	return domain.Task{
 		Id:        util.RandomInt(1, 1000),
 		TaskName:  name,
@@ -287,3 +287,17 @@ func requiredBodyMatchTask(t *testing.T, body *bytes.Buffer, task domain.Task) {
 	require.Equal(t, task.CreatedOn.UnixMilli(), gotTask.CreatedOn.UnixMilli())
 
 }
+
+
+func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, project domain.Project) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotProject domain.Project
+
+	err = json.Unmarshal(data, &gotProject)
+	require.NoError(t, err)
+	require.Equal(t, project.CreatedOn.UnixMilli(), gotProject.CreatedOn.UnixMilli())
+
+}
+

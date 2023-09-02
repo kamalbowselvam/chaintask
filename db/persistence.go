@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
+
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/lib/pq"
@@ -30,7 +30,7 @@ const createUser = `INSERT INTO users (
 ) VALUES ( 
 	$1, $2, $3, $4, (select id from roles where userRole=$5)
 ) 
-RETURNING username, hashed_password, full_name, email, created_at
+RETURNING username, hashed_password, full_name, email, created_at, role_id
 `
 
 type CreateUserParams struct {
@@ -52,6 +52,7 @@ func (q *PersistenceSotrage) CreateUser(ctx context.Context, arg CreateUserParam
 		&i.FullName,
 		&i.Email,
 		&i.CreatedAt,
+		&i.Role,
 	)
 
 	return i, err
@@ -250,20 +251,18 @@ func (q *PersistenceSotrage) GetUser(ctx context.Context, username string) (doma
 
 const createProject = `INSERT INTO projects (
 	projectname,
-	created_on,
 	created_by,
 	location,
 	address,
 	responsible,
 	client
   ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7
+	$1, $2, $3, $4, $5, $6
   )
   RETURNING id, projectname, created_on, created_by, location, address, responsible, client;`
 
 type CreateProjectParam struct {
 	ProjectName string          `json:"projectname"`
-	CreatedOn   time.Time       `json:"createdAt"`
 	CreatedBy   string          `json:"createdBy"`
 	Location    domain.Location `json:"location"`
 	Address     string          `json:"address"`
@@ -274,7 +273,7 @@ type CreateProjectParam struct {
 func (q *PersistenceSotrage) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
 	log.Println("saving projects")
 	log.Println(arg)
-	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedOn, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project
 	var p Point;
 	err := row.Scan(
