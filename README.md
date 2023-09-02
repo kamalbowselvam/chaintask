@@ -6,6 +6,10 @@
 
 This project aims to ease construction project by managing each tasks and providing end user with useful infos.
 
+## Roadmap
+
+[Trello](https://trello.com/b/DyvI6iCi/chain-task)
+
 ## Technical Documentation
 
 ### Entity Relationship Diagram
@@ -72,3 +76,7 @@ erDiagram
 ![UML Diagram](www.plantuml.com/plantuml/png/HST1gi8m403Gg_n_WKQGL114segsYYXKkd0tJOC9cKnACh7N5zpuTk_Vai8ywHpnpp3FQIj4XALuMJPvp4b75OWrSQ625muyu1YMfF4DNYW3bXYI4rDGlnKp0d7skEVWDErERLyzLjLNqzPoKnw7wxhhPDF9-t2eRsNvR7jvELSV)
 
 (Url generated thanks to [this SO](https://stackoverflow.com/questions/32203610/how-to-integrate-uml-diagrams-into-gitlab-or-github/32771815#32771815))
+
+## Deployment
+
+Chaintask is deployed in a [EKS cluster](https://kamalbowselvam.awsapps.com/start/) on Amazon 
