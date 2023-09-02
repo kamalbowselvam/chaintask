@@ -17,3 +17,5 @@ RUN curl -L https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
 USER vscode
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/golang/mock/mockgen@v1.6.0mak
+RUN go get github.com/jfeliu007/goplantuml/parser
+RUN go install github.com/jfeliu007/goplantuml/cmd/goplantuml@latest
