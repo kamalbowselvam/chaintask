@@ -2,11 +2,13 @@
 
 
 
-#Introduction 
+## Introduction 
 
+This project aims to ease construction project by managing each tasks and providing end user with useful infos.
 
+## Technical Documentation
 
-## Entity Relationship Diagram
+### Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -64,4 +66,6 @@ erDiagram
         date CreatedAt 
     }
 ```
+
+### UML Diagram 
 
