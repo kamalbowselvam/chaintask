@@ -95,15 +95,7 @@ erDiagram
 
 ### Workflows
 
-#### Authentification
-```mermaid
-sequenceDiagram
-    Client->>+chain_task: /users/login
-    chain_task->>-Client: token
-    
-```
-
-#### Authorization
+#### Authentification and Authorization
 ```mermaid
 sequenceDiagram
     Client->>+chain_task: /projects
