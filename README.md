@@ -90,7 +90,7 @@ erDiagram
 
 ### UML Diagram 
 
-<!--[Click to Open Interactive Diagram](./chaintask.puml)-->
+<!--[Click to Open Interactive Diagram](./chaintask.plantuml)-->
 
 
 ### Workflows
