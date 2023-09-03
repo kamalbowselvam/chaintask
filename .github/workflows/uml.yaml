@@ -1,0 +1,16 @@
+name: Run unit tests
+
+on:
+  push:
+    branches: [ "doc" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  embed-puml-markdown:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Embed PlantUML inside Markdown
+      uses: alessandro-marcantoni/puml-markdown@v0.1.1

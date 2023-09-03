@@ -90,10 +90,51 @@ erDiagram
 
 ### UML Diagram 
 
-![UML Diagram](www.plantuml.com/plantuml/png/HST1gi8m403Gg_n_WKQGL114segsYYXKkd0tJOC9cKnACh7N5zpuTk_Vai8ywHpnpp3FQIj4XALuMJPvp4b75OWrSQ625muyu1YMfF4DNYW3bXYI4rDGlnKp0d7skEVWDErERLyzLjLNqzPoKnw7wxhhPDF9-t2eRsNvR7jvELSV)
+<!--[Click to Open Interactive Diagram](./chaintask.puml)-->
 
-(Url generated thanks to [this SO](https://stackoverflow.com/questions/32203610/how-to-integrate-uml-diagrams-into-gitlab-or-github/32771815#32771815))
+
+### Workflows
+
+#### Authentification
+```mermaid
+sequenceDiagram
+    Client->>+chain_task: /users/login
+    chain_task->>-Client: token
+    
+```
+
+#### Authorization
+```mermaid
+sequenceDiagram
+    Client->>+chain_task: /projects
+    chain_task->>+http_handler: taking incoming request
+    chain_task->>+authentification_middleware:token
+    authentification_middleware->>+authorization_middleware:role and policy verification
+    authorization_middleware->>+service_layer:analyzing the incoming request and validates it
+    service_layer->>+persistence_layer: saving data into a DB
+    persistence_layer->>-service_layer: returning db object
+    service_layer->>-http_handler: business loginc returning business object
+    http_handler->>-chain_task: json representing the response 
+    chain_task->>-Client: created project
+```
+
+#### Policies
+
+|RESOURCES| ADMIN  | RESPONSIBLES  |  CLIENT |
+|---|---|---|---|
+| LOGIN | (x)  | (x)  | (x)  |
+| USERS |  CRUD on every rows | RU on him-self  |  RU on him-self   |
+| PROJECTS | CRUD on every rows | RU on assigned projects | RU on assigned project |
+| TASKS  | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
+| DOCUMENTS | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
+| IMAGES | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
+| FUNDINGS | no rights | no rights | CRUD on assigned project |
+
 
 ## Deployment
 
-Chaintask is deployed in a [EKS cluster](https://kamalbowselvam.awsapps.com/start/) on Amazon 
+Chaintask is deployed in a [EKS cluster](https://kamalbowselvam.awsapps.com/start/) on Amazon. 
+
+Deployment is made on each push on the  `main` branch.
+
+[Here](http://a14b4fc8215394893b5360715edc21b1-00313d1ee7230a45.elb.eu-west-3.amazonaws.com/) is the publicly avaible URL for the deployed API. You can use [this tutoriel](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html) to set up kubectl in the CloudShell Console.
