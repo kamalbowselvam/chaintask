@@ -112,15 +112,14 @@ sequenceDiagram
 
 #### Policies
 
-|RESOURCES| ADMIN  | RESPONSIBLES  |  CLIENT |
-|---|---|---|---|
-| LOGIN | (x)  | (x)  | (x)  |
-| USERS |  CRUD on every rows | RU on him-self  |  RU on him-self   |
-| PROJECTS | CRUD on every rows | RU on assigned projects | RU on assigned project |
-| TASKS  | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
-| DOCUMENTS | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
-| IMAGES | CRUD on every rows | CRUD on assigned projects | CRUD on assigned project |
-| FUNDINGS | no rights | no rights | CRUD on assigned project |
+
+
+||Company|Project|Tasks|Documents|Images|Fundings|
+|--|-----|------|------|--------|------|--------|
+|superadmin| CRUD | CRUD | CRUD | CRUD | CRUD |CRUD |
+| admin | - | CRUD | CRUD | CRUD | CRUD | - | 
+| Manager | - | CRUD |CRUD |CRUD | CRUD| -  |
+| Client |  - | RU | R every tasks of the project U on tasks he created himself, delete on task he created himself  | R every documents of the project U on tasks he created himself, delete on task he created himself | see documemnts | CRUD |
 
 
 ## Deployment
