@@ -5,7 +5,9 @@ const (
 	WRITE  = "write"
 	DELETE = "delete"
 	UPDATE = "update"
-	TASK   = "task"
+	TASK   = "tasks"
+	PROJECT = "projects"
+	USER = "users"
 )
 
 var (

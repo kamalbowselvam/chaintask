@@ -21,9 +21,9 @@ const (
 	authorizationPayloadKey = "author"
 )
 
-type WriteDetail struct {
-	CreatedBy string
-}
+type IdObject struct {
+	Id int64 `json:"Id" uri:"id"`
+};
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
@@ -76,10 +76,15 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, util.ErrorResponseString("user has not logged in yet"))
 			return
 		}
-		// Casbin enforces policy
-		var obj interface{}
-		c.ShouldBindBodyWith(&obj, binding.JSON)
-		ok, err := enforce(val.(*token.Payload), obj, act, adapter)
+		// get id from either uri or json
+		var obj = IdObject{}
+		err := c.ShouldBindBodyWith(&obj, binding.JSON)
+		if(err != nil){
+			c.ShouldBindUri(&obj)
+		}
+		// Get the first part of the route
+		resource := strings.Split(strings.TrimLeft(c.FullPath(), "/"), "/")[0]
+		ok, err := enforce(val.(*token.Payload), obj, act, resource, adapter)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -93,7 +98,7 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 	}
 }
 
-func enforce(sub *token.Payload, abstract interface{}, act string, adapter interface{}) (bool, error) {
+func enforce(sub *token.Payload, obj IdObject, act string, resource string, adapter interface{}) (bool, error) {
 	// Load model configuration file and policy store adapter
 	conf_file_path := "./config/rbac_model.conf"
 	fmt.Println(sub)
@@ -111,14 +116,6 @@ func enforce(sub *token.Payload, abstract interface{}, act string, adapter inter
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
 	// Verify
-	temp := abstract.(map[string]interface{})
-	res, check := temp["CreatedBy"].(string)
-	obj := WriteDetail{}
-	if check {
-		obj.CreatedBy = res
-	} else {
-		obj.CreatedBy = sub.Username
-	}
 	ok, err := enforcer.Enforce(sub, obj, act)
 	return ok, err
 }

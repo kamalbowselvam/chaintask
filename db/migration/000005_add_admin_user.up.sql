@@ -1,0 +1,1 @@
+insert into users values ("kselvamADMIN", "$2a$10$jB5hObqu5Ayn82FJvdjk/e7zi56t8KnDuw7kEBdjVWO.ALOz6kixC", "ADMIN ADMIN", "admin@chaintask.org")
