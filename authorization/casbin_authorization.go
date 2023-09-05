@@ -40,9 +40,10 @@ func (authorize *CasbinAuthorization) CreateEnforcer()
 func (authorize *CasbinAuthorization) CreateAdapter()
 func (authorize *CasbinAuthorization) LoadAdminPolicies() {
 	rules := [][]string{
-		[]string{"p", util.ROLES[3], util.TASK, "*", "read"},
-		[]string{"p", util.ROLES[3], util.PROJECT, "*", "read"},
-		[]string{"p", util.ROLES[3], util.USER, "*", "read"},
+		// FIXME
+		[]string{"p", util.ROLES[3], util.TASK, "*", util.READ},
+		[]string{"p", util.ROLES[3], util.PROJECT, "*", util.WRITE},
+		[]string{"p", util.ROLES[3], util.USER, "*", util.DELETE},
 	}
 
 	_, err := authorize.Enforcer.AddPoliciesEx(rules)
