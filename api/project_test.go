@@ -81,6 +81,7 @@ func TestCreateProjectAPI(t *testing.T) {
 			taskHandler := NewTestHandler(t, store)
 			router := gin.New()
 			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
+
 			authRoutes.POST("/projects/", taskHandler.CreateProject)
 			recorder := httptest.NewRecorder()
 

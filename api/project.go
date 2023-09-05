@@ -21,6 +21,7 @@ import (
 // @Router       /projects/ [post]
 // @Security BearerAuth
 func (h *HttpHandler) CreateProject(c *gin.Context){
+	
 	projectparam := db.CreateProjectParam{}
 	c.BindJSON(&projectparam)
 	log.Println(projectparam)

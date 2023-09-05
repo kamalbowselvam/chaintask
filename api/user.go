@@ -163,7 +163,6 @@ func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 		User: newUserResponse(user),
 	}
 
-
 	ctx.JSON(http.StatusOK, rsp)
 
 }

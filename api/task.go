@@ -97,19 +97,14 @@ func (h *HttpHandler) DeleteTask(c *gin.Context) {
 	}
 
 	err = h.taskService.DeleteTask(c, req.Id)
-
 	if err != nil {
-
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
-
 		c.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
-
 	}
-
 	c.JSON(http.StatusAccepted, nil)
 }
 
@@ -141,7 +136,6 @@ func (h *HttpHandler) CreateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
-
 func (h *HttpHandler) UpdateTask(c *gin.Context) {
 	taskparam := domain.Task{}
 	c.BindJSON(&taskparam)
@@ -153,8 +147,5 @@ func (h *HttpHandler) UpdateTask(c *gin.Context) {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
 	}
-
 	c.JSON(200, task)
 }
-
-
