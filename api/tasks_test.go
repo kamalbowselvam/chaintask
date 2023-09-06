@@ -175,35 +175,32 @@ func TestGetTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			taskHandler := NewTestHandler(t, store)
-			router := gin.New()
-			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
-
-			authRoutes.GET("/tasks/:id",AuthorizeMiddleware(util.READ, "../test/fake_policy.csv"),taskHandler.GetTask)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
-
 			url := fmt.Sprintf("/tasks/%d", tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
-			tc.setupAuth(t, request, taskHandler.tokenMaker)
-			router.ServeHTTP(recorder, request)
+		
+			tc.setupAuth(t, request, server.tokenMaker)
+			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
-
 		})
 
 	}
 
 }
 
+
+
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t,"1")
+	user, _ := randomUser(t,util.ROLES[3])
 	task := randomTask(user.Username)
 
-	t.Log(task)
 	testCases := []struct {
 		name          string
 		body          gin.H
 		gtask         domain.Task
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -214,13 +211,22 @@ func TestCreateTaskAPI(t *testing.T) {
 				"taskname":  task.TaskName,
 				"createdBy": task.CreatedBy,
 				"budget":    task.Budget,
+				"ProjectId": task.ProjectId,
+				"TaskOrder": task.TaskOrder,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role,  time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
+					ProjectId: task.ProjectId,
+					TaskOrder: task.TaskOrder,
 				}
+
 				store.EXPECT().
 					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
 					Times(1).
@@ -228,6 +234,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				requiredBodyMatchTask(t, recorder.Body, task)
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
@@ -236,7 +243,7 @@ func TestCreateTaskAPI(t *testing.T) {
 	for i := range testCases {
 
 		tc := testCases[i]
-
+		
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
@@ -244,18 +251,19 @@ func TestCreateTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			taskHandler := NewTestHandler(t, store)
-
-			router := gin.New()
-			router.POST("/tasks/", taskHandler.CreateTask)
+			server:= newTestServer(t, store)
 			recorder := httptest.NewRecorder()
-
 			data, err := json.Marshal(tc.body)
+
 			require.NoError(t, err)
+
 			url := "/tasks/"
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
-			router.ServeHTTP(recorder, request)
+
+			tc.setupAuth(t, request, server.tokenMaker)
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t,recorder)
 
 		})
 
@@ -273,6 +281,8 @@ func randomTask(username string) domain.Task {
 		TaskName:  name,
 		Budget:    budget,
 		CreatedBy: username,
+		ProjectId: util.RandomInt(1,10),
+		TaskOrder: util.RandomInt(1,10),
 	}
 }
 

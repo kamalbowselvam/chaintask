@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -29,20 +30,21 @@ type userResponse struct {
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
-	Role              int64    `json:"role"`
+	Role              string    `json:"role"`
 }
 
-
-
 func newUserResponse(user domain.User) userResponse {
-	return userResponse{
+
+	rsp := userResponse{
 		Username:          user.Username,
 		FullName:          user.FullName,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
-		Role: util.ROLES_INVERT[user.Role],
+		Role:              user.Role,
 	}
+
+	return rsp
 }
 
 // CreateUser godoc
@@ -57,7 +59,7 @@ func newUserResponse(user domain.User) userResponse {
 // @Failure      404  {object} error
 // @Failure      500  {object} error
 // @Router       /users/ [post]
-func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
+func (s *Server) CreateUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
@@ -78,14 +80,13 @@ func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
 		Role:           req.Role,
 	}
 
-
-	user, err := hdlr.taskService.CreateUser(ctx, arg)
+	user, err := s.service.CreateUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name(){
+			switch pqErr.Code.Name() {
 			case "unique_violation":
-					ctx.JSON(http.StatusForbidden, util.ErrorResponse(err))
-					return
+				ctx.JSON(http.StatusForbidden, util.ErrorResponse(err))
+				return
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -96,14 +97,17 @@ func (hdlr *HttpHandler) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-
 type loginUserRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
 type loginUserResponse struct {
+	SessionID             uuid.UUID    `json:"session_id"`
 	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
 	User                  userResponse `json:"user"`
 }
 
@@ -119,26 +123,24 @@ type loginUserResponse struct {
 // @Failure      404  {object} error
 // @Failure      500  {object} error
 // @Router       /users/login [post]
-func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
-
+func (s *Server) LoginUser(ctx *gin.Context) {
 
 	var req loginUserRequest
 
-	if err := ctx.ShouldBindJSON(&req) ; err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
-
-	user, err := hdlr.taskService.GetUser(ctx,req.Username)
+	user, err := s.service.GetUser(ctx, req.Username)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows){
+		if errors.Is(err, sql.ErrNoRows) {
 			ctx.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
-		
+
 	}
 
 	err = util.CheckPassword(req.Password, user.HashedPassword)
@@ -147,20 +149,50 @@ func (hdlr *HttpHandler) LoginUser(ctx *gin.Context){
 		return
 	}
 
-	accessToken, _, err := hdlr.tokenMaker.CreateToken(
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
 		user.Username,
 		util.ROLES_INVERT[user.Role],
-		hdlr.config.AccessTokenDuration,
+		s.config.AccessTokenDuration,
 	)
 
-	if err != nil { 
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+	}
+
+	refreshToken, refreshPayload, err := s.tokenMaker.CreateToken(
+		user.Username,
+		util.ROLES_INVERT[user.Role],
+		s.config.RefreshTokenDuration,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+	}
+
+	session, err := s.service.CreateSession(ctx, db.CreateSessionParams{
+		ID:           refreshPayload.ID,
+		Username:     user.Username,
+		RefreshToken: refreshToken,
+		UserAgent:    ctx.Request.UserAgent(),
+		ClientIp:     ctx.ClientIP(),
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+	})
+
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
 	rsp := loginUserResponse{
-		AccessToken: accessToken,
-		User: newUserResponse(user),
+		SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  newUserResponse(user),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)
