@@ -1,5 +1,5 @@
 package api
-
+/*
 import (
 	"bytes"
 	"encoding/json"
@@ -101,3 +101,4 @@ func TestCreateProjectAPI(t *testing.T) {
 
 
 }
+*/

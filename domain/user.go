@@ -5,7 +5,7 @@ import "time"
 type User struct {
 	Username          string    `json:"username"`
 	HashedPassword    string    `json:"hashed_password"`
-	FullName          string    `josn:"full_name"`
+	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
 	CreatedAt         time.Time `json:"CreatedAt"`
 	PasswordChangedAt time.Time `json:"PasswordChangedAt"`

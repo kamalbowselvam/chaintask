@@ -20,13 +20,13 @@ import (
 // @Failure      500  {object}  error 
 // @Router       /projects/ [post]
 // @Security BearerAuth
-func (h *HttpHandler) CreateProject(c *gin.Context){
+func (s *Server) CreateProject(c *gin.Context){
 	
 	projectparam := db.CreateProjectParam{}
 	c.BindJSON(&projectparam)
 	log.Println(projectparam)
 
-	task, err := h.taskService.CreateProject(c, projectparam)
+	task, err := s.service.CreateProject(c, projectparam)
 
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})

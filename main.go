@@ -9,9 +9,7 @@ import (
 	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/db"
-	"github.com/kamalbowselvam/chaintask/server"
 	"github.com/kamalbowselvam/chaintask/service"
-	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
 )
@@ -57,11 +55,9 @@ func main() {
 		panic(err)
 	}
 
-	taskRepository := db.NewPersistenceStorage(dbconn)
+	taskRepository := db.NewStore(dbconn)
 	taskService := service.NewTaskService(taskRepository)
-	tokenMaker, _ := token.NewPasetoMaker(config.TokenSymmetricKey)
-	taskHandler := api.NewHttpHandler(taskService, tokenMaker, config)
 
-	server := server.NewServer(taskHandler, adapter)
+	server, _ := api.NewServer(config, taskService, adapter)
 	server.Start(":8080")
 }

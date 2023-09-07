@@ -1,5 +1,6 @@
 package server
 
+/*
 import (
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/gin-gonic/gin"
@@ -43,3 +44,4 @@ func NewServer(handler *api.HttpHandler, adapter persist.Adapter) *Server {
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
 }
+*/
