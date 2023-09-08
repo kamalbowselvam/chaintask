@@ -5,33 +5,27 @@ import (
 	"testing"
 	"time"
 
+	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/gin-gonic/gin"
-	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/service"
-	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
 
-func NewTestHandler(t *testing.T, store db.GlobalRepository) *HttpHandler {
-
-	service := service.NewTaskService(store)
-
+func newTestServer(t *testing.T, service service.TaskService) *Server {
 	config := util.Config{
 		TokenSymmetricKey:   util.RandomString(32),
 		AccessTokenDuration: time.Minute,
 	}
-
-	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
-	require.NoError(t,err)
-	handler := NewHttpHandler(service,tokenMaker,config)
+	adapter := fileadapter.NewAdapter("../tests/fake_policy.csv")
+	server, err := NewServer(config, service, adapter)
 	require.NoError(t, err)
-	return handler
+	return server
 }
 
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
-	os.Exit(m.Run())
 
+	os.Exit(m.Run())
 }

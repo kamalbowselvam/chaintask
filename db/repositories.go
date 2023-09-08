@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/kamalbowselvam/chaintask/domain"
 )
 
@@ -17,6 +18,8 @@ type GlobalRepository interface {
 type UserRepository interface {
 	CreateUser(context.Context, CreateUserParams) (domain.User, error)
 	GetUser(context.Context, string)(domain.User, error)
+	CreateSession(context.Context, CreateSessionParams) (domain.Session, error) 
+	GetSession(context.Context, uuid.UUID) (domain.Session, error)
 }
 
 type TaskRepository interface {
@@ -33,7 +36,6 @@ type ProjectRepository interface {
 	CreateProject(context.Context, CreateProjectParam) (domain.Project, error)
 }
 
-
-
+var _ GlobalRepository = (*Queries)(nil)
 
 

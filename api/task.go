@@ -3,35 +3,18 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
-	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
-
-type HttpHandler struct {
-	taskService service.TaskService
-	tokenMaker  token.Maker
-	config      util.Config
-}
-
-func NewHttpHandler(taskService service.TaskService, tokenMaker token.Maker, config util.Config) *HttpHandler {
-
-	return &HttpHandler{
-		taskService: taskService,
-		tokenMaker:  tokenMaker,
-		config:      config,
-	}
-}
-
-func (h *HttpHandler) GetTokenMaker() *token.Maker {
-	return &h.tokenMaker
-}
 
 // GetTask godoc
 // @Summary      Get a Task by its ID
@@ -45,14 +28,14 @@ func (h *HttpHandler) GetTokenMaker() *token.Maker {
 // @Failure      500  {object}  error
 // @Router       /tasks/{id} [get]
 // @Security BearerAuth
-func (h *HttpHandler) GetTask(c *gin.Context) {
+func (s *Server) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
-	task, err := h.taskService.GetTask(c, req.Id)
+	task, err := s.service.GetTask(c, req.Id)
 
 	if err != nil {
 
@@ -88,7 +71,7 @@ func (h *HttpHandler) GetTask(c *gin.Context) {
 // @Failure      500  {object}  error
 // @Router       /tasks/{id} [delete]
 // @Security BearerAuth
-func (h *HttpHandler) DeleteTask(c *gin.Context) {
+func (s *Server) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
 	if err != nil {
@@ -96,20 +79,15 @@ func (h *HttpHandler) DeleteTask(c *gin.Context) {
 		return
 	}
 
-	err = h.taskService.DeleteTask(c, req.Id)
-
+	err = s.service.DeleteTask(c, req.Id)
 	if err != nil {
-
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
-
 		c.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
-
 	}
-
 	c.JSON(http.StatusAccepted, nil)
 }
 
@@ -126,12 +104,15 @@ func (h *HttpHandler) DeleteTask(c *gin.Context) {
 // @Failure      500  {object} error
 // @Router       /tasks/ [post]
 // @Security BearerAuth
-func (h *HttpHandler) CreateTask(c *gin.Context) {
-	taskparam := db.CreateTaskParams{}
-	c.BindJSON(&taskparam)
-	log.Println(taskparam)
+func (s *Server) CreateTask(c *gin.Context) {
 
-	task, err := h.taskService.CreateTask(c, taskparam)
+	body, err := io.ReadAll(c.Request.Body)
+
+	fmt.Println(body,err)
+	taskparam := db.CreateTaskParams{}
+	c.ShouldBindBodyWith(&taskparam, binding.JSON)
+
+	task, err := s.service.CreateTask(c, taskparam)
 
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
@@ -141,20 +122,16 @@ func (h *HttpHandler) CreateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
-
-func (h *HttpHandler) UpdateTask(c *gin.Context) {
+func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := domain.Task{}
 	c.BindJSON(&taskparam)
 	log.Println(taskparam)
 
-	task, err := h.taskService.UpdateTask(c, taskparam)
+	task, err := s.service.UpdateTask(c, taskparam)
 
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
 	}
-
 	c.JSON(200, task)
 }
-
-

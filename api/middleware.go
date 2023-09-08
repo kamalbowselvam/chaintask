@@ -115,6 +115,8 @@ func enforce(sub *token.Payload, obj IdObject, act string, resource string, adap
 	if err != nil {
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
+
+
 	// Verify
 	ok, err := enforcer.Enforce(sub, obj, act)
 	return ok, err
