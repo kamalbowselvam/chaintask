@@ -63,9 +63,8 @@ func (server *Server) setupRouter() {
 	authRoutes.DELETE("/tasks/:id", authorizeMid, server.DeleteTask)
 	authRoutes.PUT("/tasks/:id", authorizeMid, server.UpdateTask)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
-	server.router = router
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
+	server.router = router
 }
 
 // Start runs the HTTP server on a specific address.
