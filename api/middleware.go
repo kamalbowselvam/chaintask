@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
@@ -23,7 +22,7 @@ const (
 
 type IdObject struct {
 	Id int64 `json:"Id" uri:"id"`
-};
+}
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
@@ -63,7 +62,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
+func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -79,12 +78,12 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 		// get id from either uri or json
 		var obj = IdObject{}
 		err := c.ShouldBindBodyWith(&obj, binding.JSON)
-		if(err != nil){
+		if err != nil {
 			c.ShouldBindUri(&obj)
 		}
 		// Get the first part of the route
 		resource := strings.Split(strings.TrimLeft(c.FullPath(), "/"), "/")[0]
-		ok, err := enforce(val.(*token.Payload), obj, act, resource, adapter)
+		ok, err := enforce(val.(*token.Payload), resource, obj, c.Request.Method, authorize)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -98,26 +97,15 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 	}
 }
 
-func enforce(sub *token.Payload, obj IdObject, act string, resource string, adapter interface{}) (bool, error) {
-	// Load model configuration file and policy store adapter
-	conf_file_path := "./config/rbac_model.conf"
-	fmt.Println(sub)
-	_, err := os.Stat(conf_file_path)
-	if err != nil {
-		conf_file_path = "." + conf_file_path
-	}
-	enforcer, err := casbin.NewEnforcer(conf_file_path, adapter)
-	if err != nil {
-		log.Fatal(err)
-	}
+func enforce(sub *token.Payload, resource string, obj IdObject, act string, authorize authorization.AuthorizationService) (bool, error) {
+
 	// Load policies from DB dynamically
-	err = enforcer.LoadPolicy()
+	err := authorize.LoadPolicy()
 	if err != nil {
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
-
-
 	// Verify
-	ok, err := enforcer.Enforce(sub, obj, act)
+	object := fmt.Sprintf("%s:%d", resource, obj.Id)
+	ok, err := authorize.Enforce(*sub, object, act)
 	return ok, err
 }

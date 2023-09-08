@@ -5,8 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/casbin/casbin/v2"
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/gin-gonic/gin"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
@@ -19,7 +21,17 @@ func newTestServer(t *testing.T, service service.TaskService) *Server {
 		AccessTokenDuration: time.Minute,
 	}
 	adapter := fileadapter.NewAdapter("../tests/fake_policy.csv")
-	server, err := NewServer(config, service, adapter)
+	enforcer, err := casbin.NewEnforcer("../config/rbac_model.conf", adapter)
+	loaders := authorization.FakeLoader{
+		Adapter:  adapter,
+		Enforcer: enforcer,
+	}
+	if err != nil {
+		panic(err)
+	}
+	authorizationService, err := authorization.NewFakeCasbinAuthorization(loaders)
+	policyManagementService, _ := authorization.NewFakeCasbinManagement(loaders)
+	server, err := NewServer(config, service, authorizationService, policyManagementService)
 	require.NoError(t, err)
 	return server
 }

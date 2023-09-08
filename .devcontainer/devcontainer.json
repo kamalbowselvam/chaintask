@@ -20,7 +20,8 @@
 		"vscode": {
 			"extensions": [
 				"ckolkman.vscode-postgres",
-				"rangav.vscode-thunder-client"
+				"rangav.vscode-thunder-client",
+				"tsandall.opa"
 			]
 		}
 	}

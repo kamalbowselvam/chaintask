@@ -8,6 +8,7 @@ const (
 	TASK   = "tasks"
 	PROJECT = "projects"
 	USER = "users"
+	PIPE = "|"
 )
 
 var (

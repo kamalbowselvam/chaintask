@@ -1,11 +1,8 @@
 package authorization
+
+import "github.com/kamalbowselvam/chaintask/token"
+
 type AuthorizationService interface {
-	CreateEnforcer()
-	CreateAdapter()
-	LoadAdminPolicies()
-	AddPolicy()
-	AddPolicies()
-	RemovePolicy()
-	RemovePolicies()
-	Enforce()
+	LoadPolicy() error
+	Enforce(token.Payload, string, string) (bool, error)
 }
