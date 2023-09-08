@@ -12,6 +12,7 @@ type service struct {
 	globalRepository db.GlobalRepository
 }
 
+// FIXME Add policies management service here
 func NewTaskService(globalRepository db.GlobalRepository) *service {
 	return &service{
 		globalRepository: globalRepository,
@@ -50,4 +51,3 @@ func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Ta
 	}
 	return task, err
 }
-

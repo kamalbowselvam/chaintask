@@ -7,8 +7,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/domain"
 )
 
-
-
+// FIXME add policies management service
 func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (domain.User, error) {
 
 	user, err := srv.globalRepository.CreateUser(context.Background(), arg)
@@ -22,6 +21,3 @@ func (srv *service) GetUser(ctx context.Context, username string) (domain.User, 
 
 	return user, err
 }
-
-
-
