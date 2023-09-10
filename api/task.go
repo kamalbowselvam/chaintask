@@ -3,8 +3,6 @@ package api
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
 
@@ -105,10 +103,6 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Router       /tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
-
-	body, err := io.ReadAll(c.Request.Body)
-
-	fmt.Println(body,err)
 	taskparam := db.CreateTaskParams{}
 	c.ShouldBindBodyWith(&taskparam, binding.JSON)
 

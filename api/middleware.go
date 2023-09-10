@@ -63,18 +63,13 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 // Authorize determines if current subject has been authorized to take an action on an object.
 func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Println("Recovering from panic")
-			}
-		}()
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)
 		if !existed {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, util.ErrorResponseString("user has not logged in yet"))
 			return
 		}
-		ok, err := authorize.Enforce(val.(token.Payload), c.FullPath(), c.Request.Method)
+		ok, err := authorize.Enforce(val.(*token.Payload), c.FullPath(), c.Request.Method)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))

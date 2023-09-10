@@ -21,10 +21,11 @@ func NewCasbinAuthorization(loader Loaders) (AuthorizationService, error) {
 
 	return authorize, nil
 }
-func (authorize *CasbinAuthorization) Enforce(sub token.Payload, obj string, act string) (bool, error) {
+func (authorize *CasbinAuthorization) Enforce(sub *token.Payload, obj string, act string) (bool, error) {
 	err := authorize.Enforcer.LoadPolicy()
-	if err != nil{
+	if err != nil {
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
-	return false, nil
+	// FIXME enforce policies!!!
+	return true, nil
 }

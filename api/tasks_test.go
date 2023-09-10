@@ -221,8 +221,8 @@ func TestCreateTaskAPI(t *testing.T) {
 				"taskname":  task.TaskName,
 				"createdBy": task.CreatedBy,
 				"budget":    task.Budget,
-				"ProjectId": task.ProjectId,
-				"TaskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+				"taskOrder": task.TaskOrder,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {

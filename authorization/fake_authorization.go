@@ -19,6 +19,6 @@ func NewFakeCasbinAuthorization(loader FakeLoader) (AuthorizationService, error)
 
 	return authorize, nil
 }
-func (authorize *FakeCasbinAuthorization) Enforce(sub token.Payload, obj string, act string) (bool, error) {
+func (authorize *FakeCasbinAuthorization) Enforce(sub *token.Payload, obj string, act string) (bool, error) {
 	return true, nil
 }
