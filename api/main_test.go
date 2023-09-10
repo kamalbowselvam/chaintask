@@ -30,7 +30,9 @@ func newTestServer(t *testing.T, service service.TaskService) *Server {
 		panic(err)
 	}
 	authorizationService, err := authorization.NewFakeCasbinAuthorization(loaders)
-	policyManagementService, _ := authorization.NewFakeCasbinManagement(loaders)
+	require.NoError(t, err)
+	policyManagementService, err := authorization.NewFakeCasbinManagement(loaders)
+	require.NoError(t, err)
 	server, err := NewServer(config, service, authorizationService, policyManagementService)
 	require.NoError(t, err)
 	return server
