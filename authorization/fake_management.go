@@ -22,7 +22,7 @@ func NewFakeCasbinManagement(loader FakeLoader) (PolicyManagementService, error)
 
 	return management, nil
 }
-func (management *FakeCasbinManagement) CreateAdminPolicies() {
+func (management *FakeCasbinManagement) CreateAdminPolicies(adminName string) error {
 	// FIXME Change to HTTP verb ? it should be better
 	rights := strings.Join([]string{util.READ, util.WRITE, util.UPDATE, util.DELETE}, util.PIPE)
 	rules := [][]string{
@@ -36,19 +36,16 @@ func (management *FakeCasbinManagement) CreateAdminPolicies() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = management.Enforcer.AddGroupingPoliciesEx([][]string{{"g", util.ROLES[3], "kselvamADMIN"}})
+	_, err = management.Enforcer.AddGroupingPoliciesEx([][]string{{"g", util.ROLES[3], adminName}})
 	if err != nil {
 		log.Fatal(err)
 	}
+	return err
 }
-func (management *FakeCasbinManagement) AddPolicy()
-func (management *FakeCasbinManagement) AddPolicies()
-func (management *FakeCasbinManagement) RemovePolicy()
-func (management *FakeCasbinManagement) RemovePolicies()
-func (management *FakeCasbinManagement) RemoveUserPolicies()
-func (management *FakeCasbinManagement) RemoveTaskPolicies()
-func (management *FakeCasbinManagement) RemoveProjectPolicies()
-func (management *FakeCasbinManagement) RemoveAdminPolicies()
-func (management *FakeCasbinManagement) CreateUserPolicies()
-func (management *FakeCasbinManagement) CreateTaskPolicies()
-func (management *FakeCasbinManagement) CreateProjectPolocies()
+func (management *FakeCasbinManagement) RemoveUserPolicies(string) error
+func (management *FakeCasbinManagement) RemoveTaskPolicies(int64) error
+func (management *FakeCasbinManagement) RemoveProjectPolicies(int64) error
+func (management *FakeCasbinManagement) RemoveAdminPolicies(string) error
+func (management *FakeCasbinManagement) CreateUserPolicies(string, string) error
+func (management *FakeCasbinManagement) CreateTaskPolicies(int64, int64, string, string) error
+func (management *FakeCasbinManagement) CreateProjectPolicies(int64, string, string) error

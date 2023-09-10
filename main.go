@@ -56,14 +56,14 @@ func main() {
 		panic(err)
 	}
 	// Just assuring that the casbin has at least policies for admin
-	policyManagementService.CreateAdminPolicies()
+	policyManagementService.CreateAdminPolicies(util.DEFAULT_ADMIN)
 
 	if err = dbconn.Ping(); err != nil {
 		panic(err)
 	}
 
 	taskRepository := db.NewStore(dbconn)
-	taskService := service.NewTaskService(taskRepository)
+	taskService := service.NewTaskService(taskRepository, policyManagementService)
 
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 	server.Start(":8080")

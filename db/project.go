@@ -7,8 +7,6 @@ import (
 	"github.com/kamalbowselvam/chaintask/domain"
 )
 
-
-
 const createProject = `INSERT INTO projects (
 	projectname,
 	created_by,
@@ -35,7 +33,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (do
 	log.Println(arg)
 	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project
-	var p Point;
+	var p Point
 	err := row.Scan(
 		&i.Id,
 		&i.Projectname,
@@ -49,4 +47,17 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (do
 	i.Location = domain.Location{p[0], p[1]}
 	return i, err
 
+}
+
+const getClientAndResponsibleByProject = `SELECT client, responsible from projects where id=$1`
+
+func (q *Queries) GetClientAndResponsibleByProject(ctx context.Context, projectId int64) (string, string, error) {
+	row := q.db.QueryRowContext(ctx, getClientAndResponsibleByProject, projectId)
+	client := ""
+	responsible := ""
+	err := row.Scan(
+		client,
+		responsible,
+	)
+	return client, responsible, err
 }

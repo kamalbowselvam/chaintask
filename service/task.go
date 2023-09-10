@@ -4,18 +4,20 @@ import (
 	"context"
 	"log"
 
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 )
 
 type service struct {
-	globalRepository db.GlobalRepository
+	globalRepository   db.GlobalRepository
+	policiesRepository authorization.PolicyManagementService
 }
 
-// FIXME Add policies management service here
-func NewTaskService(globalRepository db.GlobalRepository) *service {
+func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService) *service {
 	return &service{
-		globalRepository: globalRepository,
+		globalRepository:   globalRepository,
+		policiesRepository: policiesRepository,
 	}
 }
 
@@ -31,6 +33,13 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 		log.Fatal("Could not save the task in repository", err.Error())
 
 	}
+	client, responsible, err := srv.globalRepository.GetClientAndResponsibleByProject(ctx, task.ProjectId)
+	if err != nil {
+		log.Fatalf("Data integrity problem with project %d", task.ProjectId)
+		// FIXME What to do next ?
+	} else {
+		srv.policiesRepository.CreateTaskPolicies(task.Id, task.ProjectId, client, responsible)
+	}
 
 	return task, err
 
@@ -41,6 +50,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	if err != nil {
 		log.Fatalf("could not delete task in repository %s", err.Error())
 	}
+	srv.policiesRepository.RemoveTaskPolicies(id)
 	return err
 }
 
@@ -48,6 +58,11 @@ func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Ta
 	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
 		log.Fatalf("could not update task in repository %s", err.Error())
+	}
+	srv.policiesRepository.RemoveTaskPolicies(task.Id)
+	client, responsible, err := srv.globalRepository.GetClientAndResponsibleByProject(ctx, task.ProjectId)
+	if err!=nil {
+		srv.policiesRepository.CreateTaskPolicies(task.Id, task.ProjectId, client, responsible)
 	}
 	return task, err
 }

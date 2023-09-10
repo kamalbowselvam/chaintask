@@ -9,6 +9,7 @@ const (
 	PROJECT = "projects"
 	USER = "users"
 	PIPE = "|"
+	DEFAULT_ADMIN = "kselvamADMIN"
 )
 
 var (

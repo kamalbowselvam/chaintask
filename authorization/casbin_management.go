@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"log"
+	"net/http"
 	"strings"
 
 	pgadapter "github.com/casbin/casbin-pg-adapter"
@@ -22,33 +23,28 @@ func NewCasbinManagement(loader Loaders) (PolicyManagementService, error) {
 
 	return management, nil
 }
-func (management *CasbinManagement) CreateAdminPolicies() {
-	// FIXME Change to HTTP verb ? it should be better
-	rights := strings.Join([]string{util.READ, util.WRITE, util.UPDATE, util.DELETE}, util.PIPE)
+func (management *CasbinManagement) CreateAdminPolicies(adminName string) error {
+	rights := strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut}, util.PIPE)
 	rules := [][]string{
-		// FIXME
-		{"p", util.ROLES[3], util.TASK, "*", rights},
-		{"p", util.ROLES[3], util.PROJECT, "*", rights},
-		{"p", util.ROLES[3], util.USER, "*", rights},
+		{"p", util.ROLES[3], "/tasks/*", "*", rights},
+		{"p", util.ROLES[3], "/users/*", "*", rights},
+		{"p", util.ROLES[3], "/projects/*", "*", rights},
 	}
 
 	_, err := management.Enforcer.AddPoliciesEx(rules)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = management.Enforcer.AddGroupingPoliciesEx([][]string{{"g", util.ROLES[3], "kselvamADMIN"}})
+	_, err = management.Enforcer.AddGroupingPoliciesEx([][]string{{"g", util.ROLES[3], adminName}})
 	if err != nil {
 		log.Fatal(err)
 	}
+	return err
 }
-func (management *CasbinManagement) AddPolicy()
-func (management *CasbinManagement) AddPolicies()
-func (management *CasbinManagement) RemovePolicy()
-func (management *CasbinManagement) RemovePolicies()
-func (management *CasbinManagement) RemoveUserPolicies()
-func (management *CasbinManagement) RemoveTaskPolicies()
-func (management *CasbinManagement) RemoveProjectPolicies()
-func (management *CasbinManagement) RemoveAdminPolicies()
-func (management *CasbinManagement) CreateUserPolicies()
-func (management *CasbinManagement) CreateTaskPolicies()
-func (management *CasbinManagement) CreateProjectPolocies()
+func (management *CasbinManagement) RemoveUserPolicies(string) error
+func (management *CasbinManagement) RemoveTaskPolicies(int64) error
+func (management *CasbinManagement) RemoveProjectPolicies(int64) error
+func (management *CasbinManagement) RemoveAdminPolicies(string) error
+func (management *CasbinManagement) CreateUserPolicies(string, string) error
+func (management *CasbinManagement) CreateTaskPolicies(int64, int64, string, string) error
+func (management *CasbinManagement) CreateProjectPolicies(int64, string, string) error

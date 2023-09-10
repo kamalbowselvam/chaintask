@@ -82,8 +82,7 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 			c.ShouldBindUri(&obj)
 		}
 		// Get the first part of the route
-		resource := strings.Split(strings.TrimLeft(c.FullPath(), "/"), "/")[0]
-		ok, err := enforce(val.(*token.Payload), resource, obj, c.Request.Method, authorize)
+		ok, err := enforce(val.(*token.Payload), c.FullPath(), obj, c.Request.Method, authorize)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -98,12 +97,6 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 }
 
 func enforce(sub *token.Payload, resource string, obj IdObject, act string, authorize authorization.AuthorizationService) (bool, error) {
-
-	// Load policies from DB dynamically
-	err := authorize.LoadPolicy()
-	if err != nil {
-		return false, fmt.Errorf("failed to load policy from DB: %w", err)
-	}
 	// Verify
 	object := fmt.Sprintf("%s:%d", resource, obj.Id)
 	ok, err := authorize.Enforce(*sub, object, act)

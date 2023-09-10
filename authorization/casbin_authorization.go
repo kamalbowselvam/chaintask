@@ -1,6 +1,8 @@
 package authorization
 
 import (
+	"fmt"
+
 	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/casbin/casbin/v2"
 	"github.com/kamalbowselvam/chaintask/token"
@@ -20,9 +22,9 @@ func NewCasbinAuthorization(loader Loaders) (AuthorizationService, error) {
 	return authorize, nil
 }
 func (authorize *CasbinAuthorization) Enforce(sub token.Payload, obj string, act string) (bool, error) {
+	err := authorize.Enforcer.LoadPolicy()
+	if err != nil{
+		return false, fmt.Errorf("failed to load policy from DB: %w", err)
+	}
 	return false, nil
-}
-
-func (authorize *CasbinAuthorization) LoadPolicy() error {
-	return authorize.Enforcer.LoadPolicy()
 }
