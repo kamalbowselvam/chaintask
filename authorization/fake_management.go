@@ -57,10 +57,10 @@ func (management *FakeCasbinManagement) RemoveProjectPolicies(projectId int64, c
 	management.RemovePolicies(resource, responsible)
 	return nil
 }
-func (management *FakeCasbinManagement) CreateUserPolicies(userId int64, username string, role string) error {
+func (management *FakeCasbinManagement) CreateUserPolicies(username string, role string) error {
 	var err error
 	if role != util.ROLES[3] {
-		resource := fmt.Sprintf("/users/%d", userId)
+		resource := fmt.Sprintf("/users/%s", username)
 		err = management.AddPolicies(resource, username, util.GenerateRoleString(http.MethodGet, http.MethodPut))
 	} else {
 		err = management.CreateAdminPolicies(username)

@@ -50,7 +50,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.
 
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, hashed_password, full_name, email, password_changed_at, created_at, role_id as role FROM users left join roles on role_id = roles.id 
+SELECT username, hashed_password, full_name, email, password_changed_at, created_at, role_id as role FROM users left join roles on role_id = roles.id 
 WHERE username = $1 LIMIT 1
 `
 
@@ -58,7 +58,6 @@ func (q *Queries) GetUser(ctx context.Context, username string) (domain.User, er
 	row := q.db.QueryRowContext(ctx, getUser, username)
 	var i domain.User
 	err := row.Scan(
-		&i.Id,
 		&i.Username,
 		&i.HashedPassword,
 		&i.FullName,
