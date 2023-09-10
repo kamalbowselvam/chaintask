@@ -1,5 +1,7 @@
 package util
 
+import "strings"
+
 const (
 	READ   = "read"
 	WRITE  = "write"
@@ -25,3 +27,7 @@ var (
 		"ADMIN":         3,
 	}
 )
+
+func GenerateRoleString(roles ...string) string{
+	return strings.Join(roles, PIPE)
+}

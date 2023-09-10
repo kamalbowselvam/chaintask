@@ -58,11 +58,11 @@ func (server *Server) setupRouter() {
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
 	authRoutes.POST("/users/login", authorizeMid, server.LoginUser)
-	authRoutes.GET("/tasks/:id", authorizeMid, server.GetTask)
-	authRoutes.POST("/tasks/", authorizeMid, server.CreateTask)
-	authRoutes.DELETE("/tasks/:id", authorizeMid, server.DeleteTask)
-	authRoutes.PUT("/tasks/:id", authorizeMid, server.UpdateTask)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
+	authRoutes.POST("/projects/:id/tasks/", authorizeMid, server.CreateTask)
+	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
+	authRoutes.PUT("/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
+	authRoutes.DELETE("/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	server.router = router
 }
