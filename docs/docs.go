@@ -339,6 +339,18 @@ const docTemplate = `{
                 "access_token": {
                     "type": "string"
                 },
+                "access_token_expires_at": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "refresh_token_expires_at": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
                 "user": {
                     "$ref": "#/definitions/api.userResponse"
                 }
@@ -360,7 +372,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
@@ -374,9 +386,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "client": {
-                    "type": "string"
-                },
-                "createdAt": {
                     "type": "string"
                 },
                 "createdBy": {
@@ -461,7 +470,6 @@ const docTemplate = `{
             }
         },
         "domain.Task": {
-            "description": "User account information with user id and username",
             "type": "object",
             "properties": {
                 "ProjectId": {
@@ -508,11 +516,14 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "fullName": {
+                "full_name": {
                     "type": "string"
                 },
                 "hashed_password": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "role": {
                     "type": "string"
