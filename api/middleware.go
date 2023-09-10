@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -75,14 +74,7 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 			c.AbortWithStatusJSON(http.StatusUnauthorized, util.ErrorResponseString("user has not logged in yet"))
 			return
 		}
-		// get id from either uri or json
-		var obj = IdObject{}
-		err := c.ShouldBindBodyWith(&obj, binding.JSON)
-		if err != nil {
-			c.ShouldBindUri(&obj)
-		}
-		// Get the first part of the route
-		ok, err := enforce(val.(*token.Payload), c.FullPath(), obj, c.Request.Method, authorize)
+		ok, err := enforce(val.(*token.Payload), c.FullPath(), c.Request.Method, authorize)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -96,9 +88,8 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 	}
 }
 
-func enforce(sub *token.Payload, resource string, obj IdObject, act string, authorize authorization.AuthorizationService) (bool, error) {
+func enforce(sub *token.Payload, path string, act string, authorize authorization.AuthorizationService) (bool, error) {
 	// Verify
-	object := fmt.Sprintf("%s:%d", resource, obj.Id)
-	ok, err := authorize.Enforce(*sub, object, act)
+	ok, err := authorize.Enforce(*sub, path, act)
 	return ok, err
 }

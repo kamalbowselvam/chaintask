@@ -58,8 +58,8 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 }
 
 func TestGetTaskAPI(t *testing.T) {
-	client, _ := randomUser(t,util.ROLES[0])
-	responsible, _ := randomUser(t,util.ROLES[1])
+	client, _ := randomUser(t, util.ROLES[0])
+	responsible, _ := randomUser(t, util.ROLES[1])
 	project := randomProject(client.Username, responsible.Username)
 	task := randomTask(client.Username, project.Id)
 
@@ -72,11 +72,11 @@ func TestGetTaskAPI(t *testing.T) {
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:   "OK",
-			taskID: task.Id,
+			name:      "OK",
+			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role,  time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -85,13 +85,14 @@ func TestGetTaskAPI(t *testing.T) {
 					Return(task, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				fmt.Println(recorder.Body)
 				require.Equal(t, http.StatusOK, recorder.Code)
 				requiredBodyMatchTask(t, recorder.Body, task)
 			},
 		},
 		{
-			name:   "UnauthorizedUser",
-			taskID: task.Id,
+			name:      "UnauthorizedUser",
+			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "unauthorized_user", "user", time.Minute)
@@ -107,8 +108,8 @@ func TestGetTaskAPI(t *testing.T) {
 			},
 		},
 		{
-			name:   "NoAuthorization",
-			taskID: task.Id,
+			name:      "NoAuthorization",
+			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 			},
@@ -123,8 +124,8 @@ func TestGetTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:   "NotFound",
-			taskID: task.Id,
+			name:      "NotFound",
+			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
@@ -141,8 +142,8 @@ func TestGetTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:   "InternalError",
-			taskID: task.Id,
+			name:      "InternalError",
+			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
@@ -158,8 +159,8 @@ func TestGetTaskAPI(t *testing.T) {
 			},
 		},
 		{
-			name:   "InvalidID",
-			taskID: 0,
+			name:      "InvalidID",
+			taskID:    0,
 			projectID: 0,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
@@ -189,7 +190,7 @@ func TestGetTaskAPI(t *testing.T) {
 			url := fmt.Sprintf("/projects/%d/tasks/%d", tc.projectID, tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
-		
+
 			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
@@ -199,11 +200,9 @@ func TestGetTaskAPI(t *testing.T) {
 
 }
 
-
-
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t,util.ROLES[3])
-	responsible, _ := randomUser(t,util.ROLES[1])
+	user, _ := randomUser(t, util.ROLES[3])
+	responsible, _ := randomUser(t, util.ROLES[1])
 	project := randomProject(user.Username, responsible.Username)
 	task := randomTask(user.Username, project.Id)
 
@@ -227,7 +226,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role,  time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
@@ -245,6 +244,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				fmt.Println(recorder.Body)
 				requiredBodyMatchTask(t, recorder.Body, task)
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
@@ -254,7 +254,7 @@ func TestCreateTaskAPI(t *testing.T) {
 	for i := range testCases {
 
 		tc := testCases[i]
-		
+
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
@@ -262,19 +262,19 @@ func TestCreateTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			server:= newTestServer(t, store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			data, err := json.Marshal(tc.body)
 
 			require.NoError(t, err)
 
-			url := "/tasks/"
+			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
-			tc.checkResponse(t,recorder)
+			tc.checkResponse(t, recorder)
 
 		})
 
@@ -282,20 +282,20 @@ func TestCreateTaskAPI(t *testing.T) {
 
 }
 
-func randomProject(client string, responsible string) domain.Project{
+func randomProject(client string, responsible string) domain.Project {
 	return domain.Project{
-		Id: util.RandomInt(1, 1000),
+		Id:          util.RandomInt(1, 1000),
 		Projectname: util.RandomName(),
-		CreatedOn: time.Now(),
-		CreatedBy: util.DEFAULT_ADMIN,
+		CreatedOn:   time.Now(),
+		CreatedBy:   util.DEFAULT_ADMIN,
 		Location: domain.Location{
 			util.RandomLatitude(),
 			util.RandomLongitude(),
 		},
-		Address: util.RandomAddress(),
-		Client: client,
-		Responsible: responsible,
-		Budget: float64(util.RandomInt(1, 100)),
+		Address:              util.RandomAddress(),
+		Client:               client,
+		Responsible:          responsible,
+		Budget:               float64(util.RandomInt(1, 100)),
 		CompletionPercentage: float64(util.RandomInt(1, 100)),
 	}
 }
@@ -311,7 +311,7 @@ func randomTask(username string, projectId int64) domain.Task {
 		Budget:    budget,
 		CreatedBy: username,
 		ProjectId: projectId,
-		TaskOrder: util.RandomInt(1,10),
+		TaskOrder: util.RandomInt(1, 10),
 	}
 }
 

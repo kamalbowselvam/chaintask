@@ -7,6 +7,7 @@ import (
 	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/casbin/casbin/v2"
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
+	"github.com/casbin/casbin/v2/util"
 )
 
 type Loaders struct {
@@ -14,8 +15,8 @@ type Loaders struct {
 	Enforcer *casbin.Enforcer
 }
 
-type FakeLoader struct{
-	Adapter *fileadapter.Adapter
+type FakeLoader struct {
+	Adapter  *fileadapter.Adapter
 	Enforcer *casbin.Enforcer
 }
 
@@ -37,6 +38,8 @@ func Load(source string, conf string) (*Loaders, error) {
 			log.Fatal(err)
 			return nil, err
 		}
+		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.KeyMatch)
+		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.RegexMatch)
 		singleInstance = &Loaders{
 			Adapter:  adapter,
 			Enforcer: enforcer,

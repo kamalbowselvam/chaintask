@@ -59,7 +59,7 @@ func (server *Server) setupRouter() {
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
-	authRoutes.POST("/projects/:id/tasks/", authorizeMid, server.CreateTask)
+	authRoutes.POST("/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
 	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
 	authRoutes.PUT("/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
 	authRoutes.DELETE("/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
