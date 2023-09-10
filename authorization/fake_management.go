@@ -27,8 +27,8 @@ func NewFakeCasbinManagement(loader FakeLoader) (PolicyManagementService, error)
 func (management *FakeCasbinManagement) CreateAdminPolicies(adminName string) error {
 	rights := strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut}, util.PIPE)
 	rules := [][]string{
-		{"p", util.ROLES[3], "/users/*", rights},
-		{"p", util.ROLES[3], "/projects/*", rights},
+		{util.ROLES[3], "/users/*", rights},
+		{util.ROLES[3], "/projects/*", rights},
 	}
 
 	_, err := management.Enforcer.AddPoliciesEx(rules)
