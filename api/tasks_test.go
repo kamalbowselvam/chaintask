@@ -244,7 +244,6 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				fmt.Println(recorder.Body)
 				requiredBodyMatchTask(t, recorder.Body, task)
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
