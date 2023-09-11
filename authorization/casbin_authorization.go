@@ -26,6 +26,5 @@ func (authorize *CasbinAuthorization) Enforce(sub *token.Payload, obj string, ac
 	if err != nil {
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
-	// FIXME enforce policies!!!
-	return true, nil
+	return authorize.Enforcer.Enforce(sub.Username, obj, act)
 }

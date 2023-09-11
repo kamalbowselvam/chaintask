@@ -17,7 +17,7 @@ const createUser = `INSERT INTO users (
 ) VALUES ( 
 	$1, $2, $3, $4, (select id from roles where userRole=$5)
 ) 
-RETURNING id, username, hashed_password, full_name, email, created_at, role_id
+RETURNING username, hashed_password, full_name, email, created_at, role_id
 `
 
 type CreateUserParams struct {
@@ -34,7 +34,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.
 	var i domain.User
 
 	err := row.Scan(
-		&i.Id,
 		&i.Username,
 		&i.HashedPassword,
 		&i.FullName,

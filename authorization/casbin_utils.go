@@ -40,6 +40,7 @@ func Load(source string, conf string) (*Loaders, error) {
 		}
 		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.KeyMatch)
 		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.RegexMatch)
+		enforcer.EnableLog(true)
 		singleInstance = &Loaders{
 			Adapter:  adapter,
 			Enforcer: enforcer,

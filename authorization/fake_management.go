@@ -27,15 +27,11 @@ func NewFakeCasbinManagement(loader FakeLoader) (PolicyManagementService, error)
 func (management *FakeCasbinManagement) CreateAdminPolicies(adminName string) error {
 	rights := strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut}, util.PIPE)
 	rules := [][]string{
-		{util.ROLES[3], "/users/*", rights},
-		{util.ROLES[3], "/projects/*", rights},
+		{adminName, "/users*", rights},
+		{adminName, "/projects*", rights},
 	}
 
 	_, err := management.Enforcer.AddPoliciesEx(rules)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = management.Enforcer.AddGroupingPoliciesEx([][]string{{"g", util.ROLES[3], adminName}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,10 +45,7 @@ func (management *FakeCasbinManagement) RemoveUserPolicies(username string) erro
 	return err
 }
 func (management *FakeCasbinManagement) RemoveProjectPolicies(projectId int64, client string, responsible string) error {
-	resource := fmt.Sprintf("/projects/%d", projectId)
-	management.RemovePolicies(resource, client)
-	management.RemovePolicies(resource, responsible)
-	resource = fmt.Sprintf("/projects/%d/*", projectId)
+	resource := fmt.Sprintf("/projects/%d*", projectId)
 	management.RemovePolicies(resource, client)
 	management.RemovePolicies(resource, responsible)
 	return nil
@@ -68,10 +61,7 @@ func (management *FakeCasbinManagement) CreateUserPolicies(username string, role
 	return err
 }
 func (management *FakeCasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string) error {
-	resource := fmt.Sprintf("/projects/%d", projectId)
-	management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPut))
-	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPut))
-	resource = fmt.Sprintf("/projects/%d/*", projectId)
+	resource := fmt.Sprintf("/projects/%d*", projectId)
 	management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut))
 	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut))
 	return nil
@@ -92,7 +82,7 @@ func (management *FakeCasbinManagement) RemovePolicies(resource string, username
 }
 func (management *FakeCasbinManagement) AddPolicies(resource string, username string, rights string) error {
 	rules := [][]string{
-		{"p", username, resource, rights},
+		{username, resource, rights},
 	}
 	_, err := management.Enforcer.AddPoliciesEx(rules)
 	return err
