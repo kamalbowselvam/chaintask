@@ -69,7 +69,7 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 			c.AbortWithStatusJSON(http.StatusUnauthorized, util.ErrorResponseString("user has not logged in yet"))
 			return
 		}
-		ok, err := authorize.Enforce(val.(*token.Payload), c.FullPath(), c.Request.Method)
+		ok, err := authorize.Enforce(val.(*token.Payload), c.Request.URL.Path, c.Request.Method)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))

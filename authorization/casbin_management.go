@@ -85,5 +85,8 @@ func (management *CasbinManagement) AddPolicies(resource string, username string
 		{username, resource, rights},
 	}
 	_, err := management.Enforcer.AddPoliciesEx(rules)
+	if err != nil {
+		log.Fatalf("could not create policies %s", err)
+	}
 	return err
 }

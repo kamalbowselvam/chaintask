@@ -17,7 +17,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	}
 	project.CompletionPercentage = 0
 	project.Budget = 0
-	if err != nil {
+	if err == nil {
 		srv.policiesRepository.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
 	}
 	return project, err
