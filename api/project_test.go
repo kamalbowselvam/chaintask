@@ -1,4 +1,5 @@
 package api
+
 /*
 import (
 	"bytes"
@@ -18,7 +19,7 @@ import (
 )
 
 func randomProject(t *testing.T, client domain.User, responsible domain.User, admin domain.User) (project domain.Project) {
-	
+
 	project = domain.Project{
 		Id : util.RandomInt(0,1000),
 		Projectname: util.RandomString(10),

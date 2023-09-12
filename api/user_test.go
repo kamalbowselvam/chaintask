@@ -22,7 +22,10 @@ import (
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"github.com/mattn/go-colorable"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func randomUser(t *testing.T, role string) (user domain.User, password string) {
@@ -97,7 +100,16 @@ func TestCreateUserAPI(t *testing.T) {
 	if err != nil {
 		log.Fatal("cannot connet to db: ", err)
 	}
-	testStore = db.NewStore(testDB)
+	aa := zap.NewDevelopmentEncoderConfig()
+	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(aa),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	 ))
+
+	testStore = db.NewStore(testDB, logger)
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])
 
 	user, password := randomUser(t, util.ROLES[3])

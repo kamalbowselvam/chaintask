@@ -1,11 +1,19 @@
 package db
-import "database/sql"
 
+import (
+	"database/sql"
 
-func New(db *sql.DB) *Queries {
-	return &Queries{db: db}
+	"go.uber.org/zap"
+)
+
+func New(db *sql.DB, logger *zap.Logger) *Queries {
+	return &Queries{
+		db:     db,
+		logger: logger,
+	}
 }
 
 type Queries struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *zap.Logger
 }

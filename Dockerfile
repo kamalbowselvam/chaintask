@@ -17,6 +17,7 @@ FROM alpine:3.9
 RUN apk add ca-certificates
 WORKDIR /app
 
+COPY config /app/config
 COPY --from=build_base /app/main .
 COPY --from=build_base /app/migrate ./migrate
 COPY app.env .

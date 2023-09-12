@@ -7,18 +7,21 @@ import (
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"go.uber.org/zap"
 )
 
 type service struct {
 	globalRepository   db.GlobalRepository
 	policiesRepository authorization.PolicyManagementService
+	logger           *zap.Logger
 }
 
-func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService) *service {
+func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService, logger *zap.Logger) *service {
 	return &service{
 		globalRepository:   globalRepository,
 		policiesRepository: policiesRepository,
-	}
+		logger:           logger,
+}
 }
 
 func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) {

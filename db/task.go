@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 const createTask = `INSERT INTO tasks (
@@ -30,8 +30,15 @@ type CreateTaskParams struct {
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
-	log.Println("saving tasks")
-	log.Println(arg)
+	q.logger.Info("saving tasks")
+	
+	q.logger.Debug("Argument to Create task", zap.String("task_name",arg.TaskName),
+	zap.Float64("budget",arg.Budget),
+	zap.String("task_name",arg.CreatedBy),
+	zap.Int64("task_name",arg.TaskOrder),
+	zap.Int64("task_name",arg.ProjectId),
+	)
+	
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)
 	var i domain.Task
 	err := row.Scan(

@@ -7,11 +7,13 @@ import (
 	"os"
 	"testing"
 
-
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
+	"github.com/mattn/go-colorable"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var testStore Store
@@ -25,7 +27,17 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal("cannot connet to db: ", err)
 	}
-	testStore = NewStore(testDB)
+
+	aa := zap.NewDevelopmentEncoderConfig()
+	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(aa),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	 ))
+
+	testStore = NewStore(testDB, logger)
 	os.Exit(m.Run())
 
 }
@@ -47,10 +59,8 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 
 }
 
-
-
 func generateRandomWorksManager(t *testing.T, store GlobalRepository) domain.User {
-	return generateRandomUserWithRole(t,util.ROLES[2])
+	return generateRandomUserWithRole(t, util.ROLES[2])
 }
 
 func generateRandomClient(t *testing.T, store GlobalRepository) domain.User {

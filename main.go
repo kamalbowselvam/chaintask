@@ -4,7 +4,7 @@ import (
 	//"database/sql"
 	"database/sql"
 
-	"log"
+
 
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/authorization"
@@ -12,6 +12,9 @@ import (
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
+	"github.com/mattn/go-colorable"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // @title           Swagger ChainTasks API
@@ -37,9 +40,19 @@ func main() {
 	var dbconn *sql.DB
 	var err error
 
+	aa := zap.NewDevelopmentEncoderConfig()
+	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(aa),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	 ))
+
+
 	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatal("Can't load the configuration file")
+		logger.Fatal("Can't load the configuration file")
 	}
 
 	dbconn, err = sql.Open(config.DBDriver, config.DBSource)
@@ -62,8 +75,10 @@ func main() {
 		panic(err)
 	}
 
-	taskRepository := db.NewStore(dbconn)
-	taskService := service.NewTaskService(taskRepository, policyManagementService)
+	taskRepository := db.NewStore(dbconn, logger)
+	taskService := service.NewTaskService(taskRepository, policyManagementService, logger)
+	logger.Info("Starting Chain Task SaaS Application")
+	
 
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 	server.Start(":8080")
