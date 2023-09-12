@@ -2,6 +2,8 @@ version: "3.9"
 services:
   postgres:
     image: postgres:14-alpine
+    ports:
+      - '5432:5432'
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=secret
@@ -25,3 +27,19 @@ services:
         "/app/start.sh"
       ]
     command: [ "/app/main" ]
+
+  
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+
+
+volumes:
+  grafana_data: {}
