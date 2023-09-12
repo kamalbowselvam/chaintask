@@ -20,5 +20,7 @@ func NewFakeCasbinAuthorization(loader FakeLoader) (AuthorizationService, error)
 	return authorize, nil
 }
 func (authorize *FakeCasbinAuthorization) Enforce(sub *token.Payload, obj string, act string) (bool, error) {
+	// No enforcement is done, so that previous tests do not break
+	// could be replaced by a setupAuthorirization function for each test cases ?
 	return true, nil
 }
