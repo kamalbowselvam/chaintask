@@ -73,14 +73,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/": {
+        "/projects/{projectId}/tasks/": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a tasks",
+                "description": "Updates a tasks",
                 "consumes": [
                     "application/json"
                 ],
@@ -90,15 +90,15 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Create a Task",
+                "summary": "Update a Task",
                 "parameters": [
                     {
-                        "description": "task creation parameter",
+                        "description": "task update parameter",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.CreateTaskParams"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     }
                 ],
@@ -124,7 +124,50 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}": {
+        "/projects/{projectId}/tasks/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "delete a task by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Delete a Task by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/projects/{projectId}/tasks/{taskId}": {
             "get": {
                 "security": [
                     {
@@ -154,47 +197,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.Task"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "delete a task by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tasks"
-                ],
-                "summary": "Delete a Task by its ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Task ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted"
                     },
                     "400": {
                         "description": "Bad Request",

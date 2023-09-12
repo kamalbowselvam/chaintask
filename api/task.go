@@ -24,7 +24,7 @@ import (
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /tasks/{id} [get]
+// @Router       /projects/{projectId}/tasks/{taskId} [get]
 // @Security BearerAuth
 func (s *Server) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -67,7 +67,7 @@ func (s *Server) GetTask(c *gin.Context) {
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /tasks/{id} [delete]
+// @Router       /projects/{projectId}/tasks/{id} [delete]
 // @Security BearerAuth
 func (s *Server) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -100,7 +100,7 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /tasks/ [post]
+// @Router       /projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
@@ -116,6 +116,19 @@ func (s *Server) CreateTask(c *gin.Context) {
 	c.JSON(200, task)
 }
 
+// UpdateTask godoc
+// @Summary      Update a Task
+// @Description  Updates a tasks
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        request body domain.Task true "task update parameter"
+// @Success      200  {object}  domain.Task
+// @Failure      400  {object} error
+// @Failure      404  {object} error
+// @Failure      500  {object} error
+// @Router       /projects/{projectId}/tasks/ [post]
+// @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := domain.Task{}
 	c.BindJSON(&taskparam)

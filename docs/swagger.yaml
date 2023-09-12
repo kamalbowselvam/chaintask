@@ -196,18 +196,18 @@ paths:
       summary: Create a project
       tags:
       - projects
-  /tasks/:
+  /projects/{projectId}/tasks/:
     post:
       consumes:
       - application/json
-      description: Create a tasks
+      description: Updates a tasks
       parameters:
-      - description: task creation parameter
+      - description: task update parameter
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.CreateTaskParams'
+          $ref: '#/definitions/domain.Task'
       produces:
       - application/json
       responses:
@@ -226,10 +226,10 @@ paths:
           schema: {}
       security:
       - BearerAuth: []
-      summary: Create a Task
+      summary: Update a Task
       tags:
       - tasks
-  /tasks/{id}:
+  /projects/{projectId}/tasks/{id}:
     delete:
       description: delete a task by its ID
       parameters:
@@ -257,6 +257,7 @@ paths:
       summary: Delete a Task by its ID
       tags:
       - tasks
+  /projects/{projectId}/tasks/{taskId}:
     get:
       description: get a task by its ID
       parameters:
