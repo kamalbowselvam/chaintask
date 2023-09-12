@@ -19,10 +19,6 @@ const (
 	authorizationPayloadKey = "author"
 )
 
-type IdObject struct {
-	Id int64 `json:"Id" uri:"id"`
-}
-
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 	return func(ctx *gin.Context) {

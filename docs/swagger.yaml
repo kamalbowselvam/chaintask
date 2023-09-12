@@ -20,6 +20,17 @@ definitions:
     - role
     - username
     type: object
+  api.loginUserRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
   api.loginUserResponse:
     properties:
       access_token:
@@ -329,7 +340,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/api.createUserRequest'
+          $ref: '#/definitions/api.loginUserRequest'
       produces:
       - application/json
       responses:

@@ -279,7 +279,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.createUserRequest"
+                            "$ref": "#/definitions/api.loginUserRequest"
                         }
                     }
                 ],
@@ -329,6 +329,22 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.loginUserRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 6
                 },
                 "username": {
                     "type": "string"
