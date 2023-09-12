@@ -108,7 +108,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 
 	body, err := io.ReadAll(c.Request.Body)
 
-	fmt.Println(body,err)
+	fmt.Println(body, err)
 	taskparam := db.CreateTaskParams{}
 	c.ShouldBindBodyWith(&taskparam, binding.JSON)
 

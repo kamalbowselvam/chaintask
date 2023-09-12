@@ -50,7 +50,7 @@ func (server *Server) setupRouter() {
 
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
-	authRoutes.GET("/auth",AuthMiddleware(server.tokenMaker),
+	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
 		func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, gin.H{})
 		},

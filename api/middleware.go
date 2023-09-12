@@ -80,7 +80,7 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 		// Casbin enforces policy
 		var obj interface{}
 		c.ShouldBindBodyWith(&obj, binding.JSON)
-		
+
 		ok, err := enforce(val.(*token.Payload), obj, act, adapter)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
@@ -113,7 +113,6 @@ func enforce(sub *token.Payload, abstract interface{}, act string, adapter inter
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
 
-
 	// Verify
 	temp := abstract.(map[string]interface{})
 	res, check := temp["CreatedBy"].(string)
@@ -123,7 +122,6 @@ func enforce(sub *token.Payload, abstract interface{}, act string, adapter inter
 	} else {
 		obj.CreatedBy = sub.Username
 	}
-
 
 	ok, err := enforcer.Enforce(sub, obj, act)
 	return ok, err

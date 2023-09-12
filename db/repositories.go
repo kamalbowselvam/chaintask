@@ -7,8 +7,6 @@ import (
 	"github.com/kamalbowselvam/chaintask/domain"
 )
 
-
-
 type GlobalRepository interface {
 	TaskRepository
 	UserRepository
@@ -17,13 +15,12 @@ type GlobalRepository interface {
 
 type UserRepository interface {
 	CreateUser(context.Context, CreateUserParams) (domain.User, error)
-	GetUser(context.Context, string)(domain.User, error)
-	CreateSession(context.Context, CreateSessionParams) (domain.Session, error) 
+	GetUser(context.Context, string) (domain.User, error)
+	CreateSession(context.Context, CreateSessionParams) (domain.Session, error)
 	GetSession(context.Context, uuid.UUID) (domain.Session, error)
 }
 
 type TaskRepository interface {
-	
 	GetTask(context.Context, int64) (domain.Task, error)
 	CreateTask(context.Context, CreateTaskParams) (domain.Task, error)
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)
@@ -37,5 +34,3 @@ type ProjectRepository interface {
 }
 
 var _ GlobalRepository = (*Queries)(nil)
-
-

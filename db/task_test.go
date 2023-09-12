@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 	"time"
+
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
 )
-
 
 func generateRandomTask(t *testing.T) domain.Task {
 
@@ -54,11 +54,9 @@ func TestGetTask(t *testing.T) {
 
 }
 
-
 func TestCreateTaskPersistence(t *testing.T) {
 	generateRandomTask(t)
 }
-
 
 func TestGetTaskList(t *testing.T) {
 	task1 := generateRandomTask(t)
@@ -86,7 +84,6 @@ func TestDeleteTask(t *testing.T) {
 	require.NoError(t, err)
 
 }
-
 
 func TestUpdateTaskHelper(t *testing.T) {
 	task1 := generateRandomTask(t)
