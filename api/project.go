@@ -20,8 +20,8 @@ import (
 // @Failure      500  {object}  error
 // @Router       /projects/ [post]
 // @Security BearerAuth
-func (s *Server) CreateProject(c *gin.Context){
-	
+func (s *Server) CreateProject(c *gin.Context) {
+
 	projectparam := db.CreateProjectParam{}
 	c.ShouldBindBodyWith(&projectparam, binding.JSON)
 	log.Println(projectparam)

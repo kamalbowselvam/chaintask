@@ -6,15 +6,18 @@ import (
 
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"go.uber.org/zap"
 )
 
 type service struct {
 	globalRepository db.GlobalRepository
+	logger           *zap.Logger
 }
 
-func NewTaskService(globalRepository db.GlobalRepository) *service {
+func NewTaskService(globalRepository db.GlobalRepository, logger *zap.Logger) *service {
 	return &service{
 		globalRepository: globalRepository,
+		logger:           logger,
 	}
 }
 
@@ -50,4 +53,3 @@ func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Ta
 	}
 	return task, err
 }
-

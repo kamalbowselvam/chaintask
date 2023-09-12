@@ -74,7 +74,7 @@ func TestCreateUserAPI(t *testing.T) {
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
-		
+
 		{
 			name: "OK",
 			body: gin.H{
@@ -123,7 +123,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
-		
+
 		{
 			name: "DuplicateUsername",
 			body: gin.H{
@@ -141,10 +141,10 @@ func TestCreateUserAPI(t *testing.T) {
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
-				
+
 			},
 		},
-		
+
 		{
 			name: "InvalidUsername",
 			body: gin.H{
@@ -163,7 +163,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
-		
+
 		{
 			name: "InvalidEmail",
 			body: gin.H{
@@ -200,7 +200,6 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
-		
 	}
 
 	for i := range testCases {
@@ -229,7 +228,6 @@ func TestCreateUserAPI(t *testing.T) {
 		})
 	}
 }
-
 
 func TestLoginUserAPI(t *testing.T) {
 	user, password := randomUser(t, util.ROLES[3])

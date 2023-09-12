@@ -58,7 +58,7 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 }
 
 func TestGetTaskAPI(t *testing.T) {
-	user, _ := randomUser(t,"1")
+	user, _ := randomUser(t, "1")
 	task := randomTask(user.Username)
 
 	testCases := []struct {
@@ -72,7 +72,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:   "OK",
 			taskID: task.Id,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role,  time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -180,7 +180,7 @@ func TestGetTaskAPI(t *testing.T) {
 			url := fmt.Sprintf("/tasks/%d", tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
-		
+
 			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
@@ -190,10 +190,8 @@ func TestGetTaskAPI(t *testing.T) {
 
 }
 
-
-
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t,util.ROLES[3])
+	user, _ := randomUser(t, util.ROLES[3])
 	task := randomTask(user.Username)
 
 	testCases := []struct {
@@ -216,7 +214,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role,  time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
@@ -243,7 +241,7 @@ func TestCreateTaskAPI(t *testing.T) {
 	for i := range testCases {
 
 		tc := testCases[i]
-		
+
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
@@ -251,7 +249,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			server:= newTestServer(t, store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			data, err := json.Marshal(tc.body)
 
@@ -263,7 +261,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
-			tc.checkResponse(t,recorder)
+			tc.checkResponse(t, recorder)
 
 		})
 
@@ -281,8 +279,8 @@ func randomTask(username string) domain.Task {
 		TaskName:  name,
 		Budget:    budget,
 		CreatedBy: username,
-		ProjectId: util.RandomInt(1,10),
-		TaskOrder: util.RandomInt(1,10),
+		ProjectId: util.RandomInt(1, 10),
+		TaskOrder: util.RandomInt(1, 10),
 	}
 }
 
@@ -298,7 +296,6 @@ func requiredBodyMatchTask(t *testing.T, body *bytes.Buffer, task domain.Task) {
 
 }
 
-
 func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, project domain.Project) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
@@ -310,4 +307,3 @@ func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, project domain.P
 	require.Equal(t, project.CreatedOn.UnixMilli(), gotProject.CreatedOn.UnixMilli())
 
 }
-

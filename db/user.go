@@ -2,9 +2,9 @@ package db
 
 import (
 	"context"
-	"log"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"go.uber.org/zap"
 )
 
 
@@ -29,7 +29,16 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
-	log.Println(arg)
+
+	q.logger.Debug("Arguments to create user", 
+				zap.String("user_name", arg.Username),
+				zap.String("hashed_password", arg.HashedPassword),
+				zap.String("full_name", arg.FullName),
+				zap.String("email", arg.Email), 
+				zap.String("role", arg.Role),)
+
+
+
 	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email, arg.Role)
 	var i domain.User
 

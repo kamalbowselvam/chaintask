@@ -1,6 +1,10 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"go.uber.org/zap"
+)
 
 // Store defines all functions to execute db queries and transactions
 type Store interface {
@@ -14,9 +18,11 @@ type SQLStore struct {
 }
 
 // NewStore creates a new store
-func NewStore(connPool *sql.DB) Store {
+func NewStore(connPool *sql.DB, logger *zap.Logger) Store {
+
+	logger.Info("Starting the Database connection")
 	return &SQLStore{
 		connPool: connPool,
-		Queries:  New(connPool),
+		Queries:  New(connPool, logger),
 	}
 }
