@@ -29,7 +29,7 @@ func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) 
 }
 
 func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error) {
-
+	// FIXME Create policies here too
 	task, err := srv.globalRepository.CreateTask(context.Background(), arg)
 	if err != nil {
 		srv.logger.Fatal("Could not save the task in repository", zap.Error(err))

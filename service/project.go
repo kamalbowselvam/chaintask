@@ -18,6 +18,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	project.Budget = 0
 	if err == nil {
 		srv.policiesRepository.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
+		// FIXME If policies fails, then the project should be deleted
 	}
 	return project, err
 }

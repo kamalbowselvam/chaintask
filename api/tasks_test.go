@@ -201,8 +201,8 @@ func TestGetTaskAPI(t *testing.T) {
 }
 
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t, util.ROLES[3])
-	responsible, _ := randomUser(t, util.ROLES[1])
+	user, _ := randomUser(t, util.ROLES[1])
+	responsible, _ := randomUser(t, util.ROLES[2])
 	project := randomProject(user.Username, responsible.Username)
 	task := randomTask(user.Username, project.Id)
 

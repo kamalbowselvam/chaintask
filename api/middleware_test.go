@@ -1,13 +1,17 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -117,60 +121,74 @@ func TestAuthMiddleware(t *testing.T) {
 	}
 }
 
-/*
+
 func TestAuthorizationMiddleware(t *testing.T) {
+	admin, _ := randomUser(t, util.ROLES[3])
+	client, _ := randomUser(t, util.ROLES[1])
+	user, _ := randomUser(t, util.ROLES[1])
+	responsible, _ := randomUser(t, util.ROLES[2])
+	project := randomProject(client.Username, responsible.Username)
+	task := randomTask(client.Username, project.Id)
+
 	testCases := []struct {
 		name          string
+		body          gin.H
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		gtask         domain.Task
+		setupAuthorization func(t *testing.T)
+		// FIXME in testcases
+		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
-		payload       []byte
 	}{
 		{
-			name: "OK",
+			name: "NOK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "user", "ADMIN", time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
-			payload: []byte(`{"CreatedBy": "toto"}`),
+			// FXIME
+			body: gin.H{},
+			gtask: task,
 		},
 		{
-			name: "NOK",
+			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "user", "user", time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
-			payload: []byte(`{"CreatedBy": "toto"}`),
+			// FIXME
+			body: gin.H{},
+			gtask: task,
 		},
 	}
 	for i := range testCases {
 		tc := testCases[i]
 
 		t.Run(tc.name, func(t *testing.T) {
-			hdlr := NewTestHandler(t, nil)
-			router := gin.Default()
-			group := router.Group("/").Use(AuthMiddleware(hdlr.tokenMaker))
+			ctrl := gomock.NewController(t)
 
-			authPath := "/auth"
-			group.POST(
-				authPath,
-				AuthorizeMiddleware("ACT", "../tests/fake_policy.csv"),
-				func(ctx *gin.Context) {
-					ctx.JSON(http.StatusOK, gin.H{})
-				},
-			)
+			defer ctrl.Finish()
+			store := mockdb.NewMockGlobalRepository(ctrl)
+			tc.buildStubs(store)
 
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
-			request, err := http.NewRequest(http.MethodPost, authPath, bytes.NewBuffer(tc.payload))
+			data, err := json.Marshal(tc.body)
+
 			require.NoError(t, err)
 
-			tc.setupAuth(t, request, hdlr.tokenMaker)
-			router.ServeHTTP(recorder, request)
+			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
+			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}
 }
-*/
+
