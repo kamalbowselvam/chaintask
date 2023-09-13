@@ -4,8 +4,6 @@ import (
 	//"database/sql"
 	"database/sql"
 
-
-
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
@@ -47,8 +45,7 @@ func main() {
 		zapcore.NewConsoleEncoder(aa),
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
-	 ))
-
+	))
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
@@ -59,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf")
+	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +75,6 @@ func main() {
 	taskRepository := db.NewStore(dbconn, logger)
 	taskService := service.NewTaskService(taskRepository, policyManagementService, logger)
 	logger.Info("Starting Chain Task SaaS Application")
-	
 
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 	server.Start(":8080")
