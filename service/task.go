@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
@@ -13,15 +12,15 @@ import (
 type service struct {
 	globalRepository   db.GlobalRepository
 	policiesRepository authorization.PolicyManagementService
-	logger           *zap.Logger
+	logger             *zap.Logger
 }
 
 func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService, logger *zap.Logger) *service {
 	return &service{
 		globalRepository:   globalRepository,
 		policiesRepository: policiesRepository,
-		logger:           logger,
-}
+		logger:             logger,
+	}
 }
 
 func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) {
@@ -33,7 +32,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 
 	task, err := srv.globalRepository.CreateTask(context.Background(), arg)
 	if err != nil {
-		log.Fatal("Could not save the task in repository", err.Error())
+		srv.logger.Fatal("Could not save the task in repository", zap.Error(err))
 
 	}
 	return task, err
@@ -43,7 +42,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	err := srv.globalRepository.DeleteTask(context.Background(), id)
 	if err != nil {
-		log.Fatalf("could not delete task in repository %s", err.Error())
+		srv.logger.Fatal("could not delete task in repository", zap.Error(err))
 	}
 	return err
 }
@@ -51,7 +50,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
 	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
-		log.Fatalf("could not update task in repository %s", err.Error())
+		srv.logger.Fatal("could not update task in repository", zap.Error(err))
 	}
 	return task, err
 }
