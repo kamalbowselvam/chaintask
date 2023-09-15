@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"database/sql"
 	"database/sql"
 
 	"github.com/kamalbowselvam/chaintask/api"

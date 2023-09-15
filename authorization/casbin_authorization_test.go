@@ -16,7 +16,7 @@ func TestEnforcing(t *testing.T) {
 p, kselvamADMIN, /projects*, GET|POST|DELETE|PUT
 p, toto1,       /projects/1*, GET|POST|DELETE|PUT
 `
-	file, err := ioutil.TempFile("", "myname.*.bat")
+	file, err := ioutil.TempFile("", "policies.*.csv")
 	defer os.RemoveAll(file.Name())
 	file.WriteString(policies)
 	require.NoError(t, err)

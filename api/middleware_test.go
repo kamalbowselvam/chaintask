@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/token"
@@ -121,7 +122,6 @@ func TestAuthMiddleware(t *testing.T) {
 	}
 }
 
-
 func TestAuthorizationMiddleware(t *testing.T) {
 	admin, _ := randomUser(t, util.ROLES[3])
 	client, _ := randomUser(t, util.ROLES[1])
@@ -135,8 +135,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		body          gin.H
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		gtask         domain.Task
-		setupAuthorization func(t *testing.T)
-		// FIXME in testcases
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -146,10 +144,30 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
+				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
-			// FXIME
-			body: gin.H{},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName:  task.TaskName,
+					Budget:    task.Budget,
+					CreatedBy: task.CreatedBy,
+					ProjectId: task.ProjectId,
+					TaskOrder: task.TaskOrder,
+				}
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
+					Times(0).
+					Return(task, nil)
+
+			},
+			body: gin.H{
+				"taskname":  task.TaskName,
+				"budget":    task.Budget,
+				"createdBy": task.CreatedBy,
+				"taskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+			},
 			gtask: task,
 		},
 		{
@@ -158,10 +176,94 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusForbidden, recorder.Code)
+				require.Equal(t, http.StatusOK, recorder.Code)
 			},
-			// FIXME
-			body: gin.H{},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName:  task.TaskName,
+					Budget:    task.Budget,
+					CreatedBy: task.CreatedBy,
+					ProjectId: task.ProjectId,
+					TaskOrder: task.TaskOrder,
+				}
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
+					Times(1).
+					Return(task, nil)
+
+			},
+			body: gin.H{
+				"taskname":  task.TaskName,
+				"budget":    task.Budget,
+				"createdBy": task.CreatedBy,
+				"taskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+			},
+			gtask: task,
+		},
+		{
+			name: "OK",
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName:  task.TaskName,
+					Budget:    task.Budget,
+					CreatedBy: task.CreatedBy,
+					ProjectId: task.ProjectId,
+					TaskOrder: task.TaskOrder,
+				}
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
+					Times(1).
+					Return(task, nil)
+
+			},
+			body: gin.H{
+				"taskname":  task.TaskName,
+				"budget":    task.Budget,
+				"createdBy": task.CreatedBy,
+				"taskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+			},
+			gtask: task,
+		},
+		{
+			name: "OK",
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, responsible.Username, responsible.Role, time.Minute)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName:  task.TaskName,
+					Budget:    task.Budget,
+					CreatedBy: task.CreatedBy,
+					ProjectId: task.ProjectId,
+					TaskOrder: task.TaskOrder,
+				}
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
+					Times(1).
+					Return(task, nil)
+
+			},
+			body: gin.H{
+				"taskname":  task.TaskName,
+				"budget":    task.Budget,
+				"createdBy": task.CreatedBy,
+				"taskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+			},
 			gtask: task,
 		},
 	}
@@ -175,7 +277,9 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			server := newTestServer(t, store)
+			server := newTestServerWithEnforcer(t, store, true)
+			server.policies.CreateAdminPolicies(admin.Username)
+			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
 			recorder := httptest.NewRecorder()
 			data, err := json.Marshal(tc.body)
 
@@ -191,4 +295,3 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		})
 	}
 }
-
