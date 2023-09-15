@@ -152,6 +152,14 @@ func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteTaskFromProject = `DELETE FROM tasks WHERE project_id = $1`
+
+
+func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTaskFromProject, id)
+	return err
+}
+
 const updateTask = `
  UPDATE tasks set taskname = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7, task_order=$8, project_id=$9 where id = $10
 `

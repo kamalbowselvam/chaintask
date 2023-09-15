@@ -14,14 +14,16 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
-		5433
+		5432
 	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ckolkman.vscode-postgres",
 				"rangav.vscode-thunder-client",
-				"tsandall.opa"
+				"tsandall.opa",
+				"wayou.vscode-todo-highlight",
+				"Gruntfuggly.todo-tree"
 			]
 		}
 	}

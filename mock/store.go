@@ -97,6 +97,20 @@ func (mr *MockGlobalRepositoryMockRecorder) CreateUser(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGlobalRepository)(nil).CreateUser), arg0, arg1)
 }
 
+// DeleteProject mocks base method.
+func (m *MockGlobalRepository) DeleteProject(arg0 context.Context, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteProject", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteProject indicates an expected call of DeleteProject.
+func (mr *MockGlobalRepositoryMockRecorder) DeleteProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProject", reflect.TypeOf((*MockGlobalRepository)(nil).DeleteProject), arg0, arg1)
+}
+
 // DeleteTask mocks base method.
 func (m *MockGlobalRepository) DeleteTask(arg0 context.Context, arg1 int64) error {
 	m.ctrl.T.Helper()
@@ -109,6 +123,65 @@ func (m *MockGlobalRepository) DeleteTask(arg0 context.Context, arg1 int64) erro
 func (mr *MockGlobalRepositoryMockRecorder) DeleteTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTask", reflect.TypeOf((*MockGlobalRepository)(nil).DeleteTask), arg0, arg1)
+}
+
+// DeleteTasksLinkedToProject mocks base method.
+func (m *MockGlobalRepository) DeleteTasksLinkedToProject(arg0 context.Context, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTasksLinkedToProject", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTasksLinkedToProject indicates an expected call of DeleteTasksLinkedToProject.
+func (mr *MockGlobalRepositoryMockRecorder) DeleteTasksLinkedToProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTasksLinkedToProject", reflect.TypeOf((*MockGlobalRepository)(nil).DeleteTasksLinkedToProject), arg0, arg1)
+}
+
+// DeleteUser mocks base method.
+func (m *MockGlobalRepository) DeleteUser(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUser", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockGlobalRepositoryMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockGlobalRepository)(nil).DeleteUser), arg0, arg1)
+}
+
+// GetClientAndResponsibleByProject mocks base method.
+func (m *MockGlobalRepository) GetClientAndResponsibleByProject(arg0 context.Context, arg1 int64) (string, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetClientAndResponsibleByProject", arg0, arg1)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetClientAndResponsibleByProject indicates an expected call of GetClientAndResponsibleByProject.
+func (mr *MockGlobalRepositoryMockRecorder) GetClientAndResponsibleByProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClientAndResponsibleByProject", reflect.TypeOf((*MockGlobalRepository)(nil).GetClientAndResponsibleByProject), arg0, arg1)
+}
+
+// GetProject mocks base method.
+func (m *MockGlobalRepository) GetProject(arg0 context.Context, arg1 int64) (domain.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProject", arg0, arg1)
+	ret0, _ := ret[0].(domain.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProject indicates an expected call of GetProject.
+func (mr *MockGlobalRepositoryMockRecorder) GetProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockGlobalRepository)(nil).GetProject), arg0, arg1)
 }
 
 // GetSession mocks base method.

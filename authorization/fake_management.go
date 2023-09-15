@@ -87,3 +87,11 @@ func (management *FakeCasbinManagement) AddPolicies(resource string, username st
 	_, err := management.Enforcer.AddPoliciesEx(rules)
 	return err
 }
+func (management *FakeCasbinManagement) CreateTaskPolicies(taskId int64, projectId int64, author string) error {
+	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+	return management.AddPolicies(resource, author, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete))
+}
+func (management *FakeCasbinManagement) RemoveTaskPolicies(taskId int64, projectId int64, author string) error {
+	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+	return management.RemovePolicies(resource, author)
+}

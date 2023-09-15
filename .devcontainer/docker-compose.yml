@@ -33,8 +33,7 @@ services:
       # Ensure that the variables in .env match the same variables in devcontainer.json
       - .env
     ports:
-     - 5433:5433
-    command: "-p 5433"
+     - 5432:5432
 
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.

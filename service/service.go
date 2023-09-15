@@ -12,21 +12,19 @@ type TaskService interface {
 	GetTask(context.Context, int64) (domain.Task, error)
 	CreateTask(context.Context, db.CreateTaskParams) (domain.Task, error)
 	DeleteTask(context.Context, int64) error
-	UpdateTask(context.Context, domain.Task) (domain.Task,error)
+	UpdateTask(context.Context, domain.Task) (domain.Task, error)
 
 	CreateUser(context.Context, db.CreateUserParams) (domain.User, error)
 	GetUser(context.Context, string) (domain.User, error)
-	CreateSession(context.Context, db.CreateSessionParams) (domain.Session,error)
+	CreateSession(context.Context, db.CreateSessionParams) (domain.Session, error)
 	GetSession(context.Context, uuid.UUID) (domain.Session, error)
-	
-	
-	// DeleteUser
-	// UpdateUser
+	DeleteUser(context.Context, string) error
+	//FIXME Think about arguments that will go into this service
+	//UpdateUser(context.Context, domain.User) (domain.User, error)
 
-	// Create Project
 	CreateProject(context.Context, db.CreateProjectParam) (domain.Project, error)
-	// Get Project
-	// Delete Project
-	// Update Project
-
+	GetProject(context.Context, int64) (domain.Project, error)
+	DeleteProject(context.Context, int64) error
+	//FIXME Think about arguments that will go into this service
+	//UpdateProject(context.Context, domain.Project) (domain.Project, error)
 }

@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,9 +47,7 @@ func (management *CasbinManagement) RemoveUserPolicies(username string) error {
 }
 func (management *CasbinManagement) RemoveProjectPolicies(projectId int64, client string, responsible string) error {
 	resource := fmt.Sprintf("/projects/%d*", projectId)
-	management.RemovePolicies(resource, client)
-	management.RemovePolicies(resource, responsible)
-	return nil
+	return errors.Join(management.RemovePolicies(resource, client), management.RemovePolicies(resource, responsible))
 }
 func (management *CasbinManagement) CreateUserPolicies(username string, role string) error {
 	var err error
@@ -61,10 +60,10 @@ func (management *CasbinManagement) CreateUserPolicies(username string, role str
 	return err
 }
 func (management *CasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string) error {
-	resource := fmt.Sprintf("/projects/%d*", projectId)
-	management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut))
-	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut))
-	return nil
+	resource := fmt.Sprintf("/projects/%d/tasks/", projectId)
+	return errors.Join(management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)))
+
 }
 func (management *CasbinManagement) RemovePolicies(resource string, username string) error {
 	policies := management.Enforcer.GetPermissionsForUser(username)
@@ -89,4 +88,12 @@ func (management *CasbinManagement) AddPolicies(resource string, username string
 		log.Fatalf("could not create policies %s", err)
 	}
 	return err
+}
+func (management *CasbinManagement) CreateTaskPolicies(taskId int64, projectId int64, author string) error {
+	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+	return management.AddPolicies(resource, author, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete))
+}
+func (management *CasbinManagement) RemoveTaskPolicies(taskId int64, projectId int64, author string) error {
+	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+	return management.RemovePolicies(resource, author)
 }
