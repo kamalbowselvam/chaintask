@@ -16,8 +16,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var file *os.File
-
 func newTestServerWithEnforcer(t *testing.T, service service.TaskService, enforce bool) *Server {
 	config := util.Config{
 		TokenSymmetricKey:   util.RandomString(32),
@@ -42,6 +40,7 @@ func newTestServerWithEnforcer(t *testing.T, service service.TaskService, enforc
 	if err != nil {
 		panic(err)
 	}
+	loaders.Enforcer.EnableEnforce(enforce)
 	authorizationService, err := authorization.NewCasbinAuthorization(*loaders)
 	policyManagementService, _ := authorization.NewCasbinManagement(*loaders)
 	if err != nil {
@@ -60,5 +59,4 @@ func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 
 	os.Exit(m.Run())
-	os.RemoveAll(file.Name())
 }
