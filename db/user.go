@@ -15,7 +15,7 @@ const createUser = `INSERT INTO users (
 	email,
 	role_id 
 ) VALUES ( 
-	$1, $2, $3, $4, (select id from roles where userRole=$5)
+	$1, $2, $3, $4, (select id from roles where userRole=UPPER($5))
 ) 
 RETURNING username, hashed_password, full_name, email, created_at, role_id
 `
