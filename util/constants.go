@@ -3,13 +3,6 @@ package util
 import "strings"
 
 const (
-	READ   = "read"
-	WRITE  = "write"
-	DELETE = "delete"
-	UPDATE = "update"
-	TASK   = "tasks"
-	PROJECT = "projects"
-	USER = "users"
 	PIPE = "|"
 	DEFAULT_ADMIN = "kselvamADMIN"
 )
