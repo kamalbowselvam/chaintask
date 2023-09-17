@@ -41,7 +41,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	err := srv.globalRepository.DeleteTask(context.Background(), id)
 	if err != nil {
-		log.Fatalf("could not delete task in repository %s", err.Error())
+		log.Printf("could not delete task in repository %s", err.Error())
 	}
 	return err
 }
@@ -49,7 +49,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
 	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
-		log.Fatalf("could not update task in repository %s", err.Error())
+		log.Printf("could not update task in repository %s", err.Error())
 	}
 	return task, err
 }
