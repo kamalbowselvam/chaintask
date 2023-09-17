@@ -3,7 +3,6 @@ package api
 import (
 	"os"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/authorization"
@@ -16,13 +15,15 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func newTestServerWithEnforcer(t *testing.T, service service.TaskService, enforce bool) *Server {
-	config := util.Config{
-		TokenSymmetricKey:   util.RandomString(32),
-		AccessTokenDuration: time.Minute,
+func loadConfig() *util.Config {
+	config, err := util.LoadConfig("..")
+	if err != nil {
+		panic(err)
 	}
-	var err error
+	return &config
+}
 
+func generateLoader(config util.Config) *authorization.Loaders{
 	aa := zap.NewDevelopmentEncoderConfig()
 	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
@@ -31,24 +32,29 @@ func newTestServerWithEnforcer(t *testing.T, service service.TaskService, enforc
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
 	))
-
-	config, err = util.LoadConfig("..")
-	if err != nil {
-		logger.Fatal("Can't load the configuration file")
-	}
 	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
 	if err != nil {
 		panic(err)
 	}
+	return loaders
+}
+
+func newTestServerWithEnforcerAndLoaders(t *testing.T, service service.TaskService, enforce bool, loaders authorization.Loaders, config util.Config) *Server{
 	loaders.Enforcer.EnableEnforce(enforce)
-	authorizationService, err := authorization.NewCasbinAuthorization(*loaders)
-	policyManagementService, _ := authorization.NewCasbinManagement(*loaders)
+	authorizationService, err := authorization.NewCasbinAuthorization(loaders)
+	policyManagementService, _ := authorization.NewCasbinManagement(loaders)
 	if err != nil {
 		panic(err)
 	}
 	server, err := NewServer(config, service, authorizationService, policyManagementService)
 	require.NoError(t, err)
 	return server
+}
+
+func newTestServerWithEnforcer(t *testing.T, service service.TaskService, enforce bool) *Server {
+	config := loadConfig()
+	loaders := generateLoader(*config)
+	return newTestServerWithEnforcerAndLoaders(t, service, enforce, *loaders, *config)
 }
 
 func newTestServer(t *testing.T, service service.TaskService) *Server {

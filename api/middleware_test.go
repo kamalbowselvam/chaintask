@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
@@ -34,6 +35,23 @@ func addAuthentification(
 
 	authorizationHeader := fmt.Sprintf("%s %s", authentificationType, token)
 	request.Header.Set(authorizationHeaderKey, authorizationHeader)
+}
+
+func AddAuthorization(
+	t *testing.T,
+	authorizationLoaders authorization.Loaders,
+	username string,
+	resource string,
+	rights string,
+){
+	authorizationLoaders.Enforcer.EnableEnforce(true)
+	// Beware, wipes all entries from casbin DB
+	authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
+	rules := [][]string{
+		{username, resource, rights},
+	}
+	_, err  := authorizationLoaders.Enforcer.AddPoliciesEx(rules)
+	require.NoError(t, err)
 }
 
 func TestAuthMiddleware(t *testing.T) {

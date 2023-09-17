@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
@@ -205,12 +206,15 @@ func TestCreateTaskAPI(t *testing.T) {
 	responsible, _ := randomUser(t, util.ROLES[2])
 	project := randomProject(user.Username, responsible.Username)
 	task := randomTask(user.Username, project.Id)
+	config := loadConfig()
+	authorizationLoaders := generateLoader(*config)
 
 	testCases := []struct {
 		name          string
 		body          gin.H
 		gtask         domain.Task
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		setupAuthorization func(t *testing.T, authorizationLoaders *authorization.Loaders)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -227,6 +231,9 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+			},
+			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
+				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/projects/%d/tasks/", task.ProjectId), http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
@@ -272,6 +279,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
+			tc.setupAuthorization(t, authorizationLoaders)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 
