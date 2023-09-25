@@ -60,6 +60,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	err2 := srv.policiesRepository.RemoveTaskPolicies(id, task.ProjectId, task.CreatedBy)
 	if err2 != nil {
 		srv.logger.Fatal("could not delete policies linked to tasks", zap.Error(err2))
+
 	}
 	return err
 }
@@ -68,6 +69,7 @@ func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Ta
 	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
 		srv.logger.Fatal("could not update task in repository", zap.Error(err))
+
 	}
 	return task, err
 }

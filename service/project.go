@@ -11,7 +11,9 @@ import (
 func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
 	project, err := srv.globalRepository.CreateProject(context.Background(), arg)
 	if err != nil {
+
 		srv.logger.Fatal("could not create project due to", zap.Error(err))
+
 		return domain.Project{}, err
 	}
 	project.CompletionPercentage = 0
