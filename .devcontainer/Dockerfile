@@ -16,4 +16,4 @@ RUN apt update && apt install postgresql-client -y
 RUN curl -L https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar xvz && mv ngrok /usr/bin/ngrok
 USER vscode
 RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN go install github.com/golang/mock/mockgen@v1.6.0mak
+RUN go install github.com/golang/mock/mockgen@v1.6.0

@@ -15,7 +15,7 @@ const createUser = `INSERT INTO users (
 	email,
 	role_id 
 ) VALUES ( 
-	$1, $2, $3, $4, (select id from roles where userRole=$5)
+	$1, $2, $3, $4, (select id from roles where userRole=UPPER($5))
 ) 
 RETURNING username, hashed_password, full_name, email, created_at, role_id
 `
@@ -75,4 +75,10 @@ func (q *Queries) GetUser(ctx context.Context, username string) (domain.User, er
 		&i.Role,
 	)
 	return i, err
+}
+
+const deleteUser = `DELETE FROM users WHERE username = $1`
+func (q *Queries) DeleteUser(ctx context.Context, username string) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, username)
+	return err	
 }

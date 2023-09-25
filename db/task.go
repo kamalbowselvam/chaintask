@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
 const createTask = `INSERT INTO tasks (
 	taskname,
 	budget,
@@ -63,7 +62,7 @@ const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on
 	`
 
 type GetTaskParams struct {
-	Id int64 `uri:"id" binding:"required,min=1"`
+	Id int64 `uri:"taskId" binding:"required,min=1"`
 }
 
 func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
@@ -115,7 +114,6 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 	return res, err
 }
 
-
 const getTaskListByProject = `
 SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 WHERE project_id=$1 ORDER BY task_order ASC
@@ -147,11 +145,18 @@ func (q *Queries) GetTaskListByProject(ctx context.Context, project_id int64) ([
 	return res, err
 }
 
-
 const deleteAccount = `DELETE FROM tasks WHERE id = $1`
 
 func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAccount, id)
+	return err
+}
+
+const deleteTaskFromProject = `DELETE FROM tasks WHERE project_id = $1`
+
+
+func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTaskFromProject, id)
 	return err
 }
 
@@ -187,4 +192,3 @@ func (q *Queries) UpdateTask(ctx context.Context, task domain.Task) (domain.Task
 	}
 	return q.GetTask(ctx, id)
 }
-

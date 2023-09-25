@@ -18,6 +18,7 @@ type UserRepository interface {
 	GetUser(context.Context, string) (domain.User, error)
 	CreateSession(context.Context, CreateSessionParams) (domain.Session, error)
 	GetSession(context.Context, uuid.UUID) (domain.Session, error)
+	DeleteUser(context.Context, string) error
 }
 
 type TaskRepository interface {
@@ -27,10 +28,14 @@ type TaskRepository interface {
 	GetTaskListByProject(context.Context, int64) ([]domain.Task, error)
 	DeleteTask(context.Context, int64) error
 	UpdateTask(context.Context, domain.Task) (domain.Task, error)
+	DeleteTasksLinkedToProject(context.Context, int64) error
 }
 
 type ProjectRepository interface {
 	CreateProject(context.Context, CreateProjectParam) (domain.Project, error)
+	GetClientAndResponsibleByProject(context.Context, int64) (string, string, error)
+	DeleteProject(context.Context, int64) error
+	GetProject(context.Context, int64) (domain.Project, error)
 }
 
 var _ GlobalRepository = (*Queries)(nil)

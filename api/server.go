@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/casbin/casbin/v2/persist"
 	"github.com/gin-gonic/gin"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	docs "github.com/kamalbowselvam/chaintask/docs"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/token"
@@ -15,7 +15,8 @@ import (
 )
 
 type Server struct {
-	adapter    persist.Adapter
+	authorize  authorization.AuthorizationService
+	policies   authorization.PolicyManagementService
 	config     util.Config
 	service    service.TaskService
 	tokenMaker token.Maker
@@ -23,14 +24,15 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server and set up routing.
-func NewServer(config util.Config, service service.TaskService, adapter persist.Adapter) (*Server, error) {
+func NewServer(config util.Config, service service.TaskService, authorize authorization.AuthorizationService, policies authorization.PolicyManagementService) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
 
 	server := &Server{
-		adapter:    adapter,
+		authorize:  authorize,
+		policies:   policies,
 		config:     config,
 		service:    service,
 		tokenMaker: tokenMaker,
@@ -45,9 +47,7 @@ func (server *Server) setupRouter() {
 
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
-	router.POST("/users", server.CreateUser)
 	router.POST("/users/login", server.LoginUser)
-
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
@@ -55,22 +55,18 @@ func (server *Server) setupRouter() {
 			ctx.JSON(http.StatusOK, gin.H{})
 		},
 	)
-
-	authRoutes.GET("/tasks/:id", AuthorizeMiddleware(util.READ, server.adapter), server.GetTask)
-	authRoutes.POST("/tasks/", AuthorizeMiddleware(util.WRITE, server.adapter), server.CreateTask)
-	authRoutes.DELETE("/tasks/:id", AuthorizeMiddleware(util.DELETE, server.adapter), server.DeleteTask)
-	authRoutes.PUT("/tasks/:id", AuthorizeMiddleware(util.UPDATE, server.adapter), server.UpdateTask)
-	authRoutes.POST("/projects/", AuthorizeMiddleware(util.WRITE, server.adapter), server.CreateProject)
-	server.router = router
+	authorizeMid := AuthorizeMiddleware(server.authorize)
+	authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
+	authRoutes.POST("/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
+	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
+	authRoutes.PUT("/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
+	authRoutes.DELETE("/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
+	server.router = router
 }
 
 // Start runs the HTTP server on a specific address.
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
 }
