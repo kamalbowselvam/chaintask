@@ -21,6 +21,7 @@ COPY config /app/config
 COPY --from=build_base /app/main .
 COPY --from=build_base /app/migrate ./migrate
 COPY app.env .
+RUN sed -i 's/localhost/postgres/g' app.env
 COPY start.sh .
 COPY wait-for.sh .
 COPY db/migration ./migration
