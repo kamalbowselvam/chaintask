@@ -1,13 +1,10 @@
 package main
 
 import (
-	//"database/sql"
 	"database/sql"
 
-
-
-	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/kamalbowselvam/chaintask/api"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -47,8 +44,7 @@ func main() {
 		zapcore.NewConsoleEncoder(aa),
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
-	 ))
-
+	))
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
@@ -59,20 +55,26 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	adapter, err := pgadapter.NewAdapter(config.DBSource)
+	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
 	if err != nil {
 		panic(err)
 	}
+	authorizationService, err := authorization.NewCasbinAuthorization(*loaders)
+	policyManagementService, _ := authorization.NewCasbinManagement(*loaders)
+	if err != nil {
+		panic(err)
+	}
+	// Just assuring that the casbin has at least policies for admin
+	policyManagementService.CreateAdminPolicies(util.DEFAULT_ADMIN)
 
 	if err = dbconn.Ping(); err != nil {
 		panic(err)
 	}
 
-	logger.Info("Starting Chain Task SaaS Application")
 	taskRepository := db.NewStore(dbconn, logger)
-	taskService := service.NewTaskService(taskRepository, logger)
-	
+	taskService := service.NewTaskService(taskRepository, policyManagementService, logger)
+	logger.Info("Starting Chain Task SaaS Application")
 
-	server, _ := api.NewServer(config, taskService, adapter)
+	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 	server.Start(":8080")
 }

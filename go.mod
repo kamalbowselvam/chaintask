@@ -15,6 +15,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.1
+	go.uber.org/zap v1.25.0
 	golang.org/x/crypto v0.12.0
 )
 
@@ -44,7 +45,6 @@ require (
 	go.opentelemetry.io/otel/metric v0.19.0 // indirect
 	go.opentelemetry.io/otel/trace v0.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )

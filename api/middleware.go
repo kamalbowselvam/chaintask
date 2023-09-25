@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
@@ -20,10 +18,6 @@ const (
 	authorizationTypeBearer = "bearer"
 	authorizationPayloadKey = "author"
 )
-
-type WriteDetail struct {
-	CreatedBy string
-}
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
@@ -63,25 +57,15 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
+func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Println("Recovering from panic")
-			}
-		}()
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)
 		if !existed {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, util.ErrorResponseString("user has not logged in yet"))
 			return
 		}
-
-		// Casbin enforces policy
-		var obj interface{}
-		c.ShouldBindBodyWith(&obj, binding.JSON)
-
-		ok, err := enforce(val.(*token.Payload), obj, act, adapter)
+		ok, err := authorize.Enforce(val.(*token.Payload), c.Request.URL.Path, c.Request.Method)
 		if err != nil {
 			log.Fatalf("Error occured while authorizing the user %s", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
@@ -93,36 +77,4 @@ func AuthorizeMiddleware(act string, adapter interface{}) gin.HandlerFunc {
 		}
 		c.Next()
 	}
-}
-
-func enforce(sub *token.Payload, abstract interface{}, act string, adapter interface{}) (bool, error) {
-	// Load model configuration file and policy store adapter
-	conf_file_path := "./config/rbac_model.conf"
-	fmt.Println(sub)
-	_, err := os.Stat(conf_file_path)
-	if err != nil {
-		conf_file_path = "." + conf_file_path
-	}
-	enforcer, err := casbin.NewEnforcer(conf_file_path, adapter)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Load policies from DB dynamically
-	err = enforcer.LoadPolicy()
-	if err != nil {
-		return false, fmt.Errorf("failed to load policy from DB: %w", err)
-	}
-
-	// Verify
-	temp := abstract.(map[string]interface{})
-	res, check := temp["CreatedBy"].(string)
-	obj := WriteDetail{}
-	if check {
-		obj.CreatedBy = res
-	} else {
-		obj.CreatedBy = sub.Username
-	}
-
-	ok, err := enforcer.Enforce(sub, obj, act)
-	return ok, err
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 
+	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
@@ -58,21 +59,25 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 }
 
 func TestGetTaskAPI(t *testing.T) {
-	user, _ := randomUser(t, "1")
-	task := randomTask(user.Username)
+	client, _ := randomUser(t, util.ROLES[0])
+	responsible, _ := randomUser(t, util.ROLES[1])
+	project := randomProject(client.Username, responsible.Username)
+	task := randomTask(client.Username, project.Id)
 
 	testCases := []struct {
 		name          string
 		taskID        int64
+		projectID     int64
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:   "OK",
-			taskID: task.Id,
+			name:      "OK",
+			taskID:    task.Id,
+			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -81,13 +86,15 @@ func TestGetTaskAPI(t *testing.T) {
 					Return(task, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				fmt.Println(recorder.Body)
 				require.Equal(t, http.StatusOK, recorder.Code)
 				requiredBodyMatchTask(t, recorder.Body, task)
 			},
 		},
 		{
-			name:   "UnauthorizedUser",
-			taskID: task.Id,
+			name:      "UnauthorizedUser",
+			taskID:    task.Id,
+			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "unauthorized_user", "user", time.Minute)
 			},
@@ -102,8 +109,9 @@ func TestGetTaskAPI(t *testing.T) {
 			},
 		},
 		{
-			name:   "NoAuthorization",
-			taskID: task.Id,
+			name:      "NoAuthorization",
+			taskID:    task.Id,
+			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -117,10 +125,11 @@ func TestGetTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:   "NotFound",
-			taskID: task.Id,
+			name:      "NotFound",
+			taskID:    task.Id,
+			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -134,10 +143,11 @@ func TestGetTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:   "InternalError",
-			taskID: task.Id,
+			name:      "InternalError",
+			taskID:    task.Id,
+			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -150,10 +160,11 @@ func TestGetTaskAPI(t *testing.T) {
 			},
 		},
 		{
-			name:   "InvalidID",
-			taskID: 0,
+			name:      "InvalidID",
+			taskID:    0,
+			projectID: 0,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -177,7 +188,7 @@ func TestGetTaskAPI(t *testing.T) {
 
 			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
-			url := fmt.Sprintf("/tasks/%d", tc.taskID)
+			url := fmt.Sprintf("/projects/%d/tasks/%d", tc.projectID, tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -191,14 +202,19 @@ func TestGetTaskAPI(t *testing.T) {
 }
 
 func TestCreateTaskAPI(t *testing.T) {
-	user, _ := randomUser(t, util.ROLES[3])
-	task := randomTask(user.Username)
+	user, _ := randomUser(t, util.ROLES[1])
+	responsible, _ := randomUser(t, util.ROLES[2])
+	project := randomProject(user.Username, responsible.Username)
+	task := randomTask(user.Username, project.Id)
+	config := loadConfig()
+	authorizationLoaders := generateLoader(*config)
 
 	testCases := []struct {
 		name          string
 		body          gin.H
 		gtask         domain.Task
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		setupAuthorization func(t *testing.T, authorizationLoaders *authorization.Loaders)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -209,12 +225,15 @@ func TestCreateTaskAPI(t *testing.T) {
 				"taskname":  task.TaskName,
 				"createdBy": task.CreatedBy,
 				"budget":    task.Budget,
-				"ProjectId": task.ProjectId,
-				"TaskOrder": task.TaskOrder,
+				"projectId": task.ProjectId,
+				"taskOrder": task.TaskOrder,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+			},
+			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
+				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/projects/%d/tasks/", task.ProjectId), http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
@@ -255,11 +274,12 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := "/tasks/"
+			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
+			tc.setupAuthorization(t, authorizationLoaders)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 
@@ -269,7 +289,25 @@ func TestCreateTaskAPI(t *testing.T) {
 
 }
 
-func randomTask(username string) domain.Task {
+func randomProject(client string, responsible string) domain.Project {
+	return domain.Project{
+		Id:          util.RandomInt(1, 1000),
+		Projectname: util.RandomName(),
+		CreatedOn:   time.Now(),
+		CreatedBy:   util.DEFAULT_ADMIN,
+		Location: domain.Location{
+			util.RandomLatitude(),
+			util.RandomLongitude(),
+		},
+		Address:              util.RandomAddress(),
+		Client:               client,
+		Responsible:          responsible,
+		Budget:               float64(util.RandomInt(1, 100)),
+		CompletionPercentage: float64(util.RandomInt(1, 100)),
+	}
+}
+
+func randomTask(username string, projectId int64) domain.Task {
 
 	name := util.RandomName()
 	budget := util.RandomBudget()
@@ -279,7 +317,7 @@ func randomTask(username string) domain.Task {
 		TaskName:  name,
 		Budget:    budget,
 		CreatedBy: username,
-		ProjectId: util.RandomInt(1, 10),
+		ProjectId: projectId,
 		TaskOrder: util.RandomInt(1, 10),
 	}
 }
@@ -293,17 +331,5 @@ func requiredBodyMatchTask(t *testing.T, body *bytes.Buffer, task domain.Task) {
 	err = json.Unmarshal(data, &gotTask)
 	require.NoError(t, err)
 	require.Equal(t, task.CreatedOn.UnixMilli(), gotTask.CreatedOn.UnixMilli())
-
-}
-
-func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, project domain.Project) {
-	data, err := io.ReadAll(body)
-	require.NoError(t, err)
-
-	var gotProject domain.Project
-
-	err = json.Unmarshal(data, &gotProject)
-	require.NoError(t, err)
-	require.Equal(t, project.CreatedOn.UnixMilli(), gotProject.CreatedOn.UnixMilli())
 
 }

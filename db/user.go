@@ -76,3 +76,9 @@ func (q *Queries) GetUser(ctx context.Context, username string) (domain.User, er
 	)
 	return i, err
 }
+
+const deleteUser = `DELETE FROM users WHERE username = $1`
+func (q *Queries) DeleteUser(ctx context.Context, username string) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, username)
+	return err	
+}

@@ -1,0 +1,1 @@
+insert into users values ('kselvamADMIN', '$2a$10$6nlF3jgvvVTU.uCpA2MFreu7Z5./IT5S2Rgr12KlSKuVHvvd4DRum', 'ADMIN ADMIN', 'admin@chaintask.org', NOW()::timestamp,NOW()::timestamp, 3) on conflict do nothing;

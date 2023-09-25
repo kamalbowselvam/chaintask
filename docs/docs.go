@@ -73,14 +73,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/": {
+        "/projects/{projectId}/tasks/": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a tasks",
+                "description": "Updates a tasks",
                 "consumes": [
                     "application/json"
                 ],
@@ -90,15 +90,15 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Create a Task",
+                "summary": "Update a Task",
                 "parameters": [
                     {
-                        "description": "task creation parameter",
+                        "description": "task update parameter",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.CreateTaskParams"
+                            "$ref": "#/definitions/domain.Task"
                         }
                     }
                 ],
@@ -124,7 +124,50 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}": {
+        "/projects/{projectId}/tasks/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "delete a task by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Delete a Task by its ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/projects/{projectId}/tasks/{taskId}": {
             "get": {
                 "security": [
                     {
@@ -154,47 +197,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.Task"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "delete a task by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tasks"
-                ],
-                "summary": "Delete a Task by its ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Task ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -277,7 +279,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.createUserRequest"
+                            "$ref": "#/definitions/api.loginUserRequest"
                         }
                     }
                 ],
@@ -333,10 +335,38 @@ const docTemplate = `{
                 }
             }
         },
+        "api.loginUserRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "api.loginUserResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
+                    "type": "string"
+                },
+                "access_token_expires_at": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "refresh_token_expires_at": {
+                    "type": "string"
+                },
+                "session_id": {
                     "type": "string"
                 },
                 "user": {
@@ -360,7 +390,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
@@ -374,9 +404,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "client": {
-                    "type": "string"
-                },
-                "createdAt": {
                     "type": "string"
                 },
                 "createdBy": {
@@ -461,7 +488,6 @@ const docTemplate = `{
             }
         },
         "domain.Task": {
-            "description": "User account information with user id and username",
             "type": "object",
             "properties": {
                 "ProjectId": {
@@ -508,11 +534,14 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "fullName": {
+                "full_name": {
                     "type": "string"
                 },
                 "hashed_password": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "role": {
                     "type": "string"

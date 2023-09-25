@@ -1,11 +1,10 @@
 package util
 
+import "strings"
+
 const (
-	READ   = "read"
-	WRITE  = "write"
-	DELETE = "delete"
-	UPDATE = "update"
-	TASK   = "task"
+	PIPE = "|"
+	DEFAULT_ADMIN = "kselvamADMIN"
 )
 
 var (
@@ -21,3 +20,7 @@ var (
 		"ADMIN":         3,
 	}
 )
+
+func GenerateRoleString(roles ...string) string{
+	return strings.Join(roles, PIPE)
+}

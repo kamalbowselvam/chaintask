@@ -117,7 +117,7 @@ type loginUserResponse struct {
 // @Tags         users
 // @Accept       json
 // @Produce      json
-// @Param        request body createUserRequest true "user creation parameters"
+// @Param        request body loginUserRequest true "user creation parameters"
 // @Success      200  {object}  loginUserResponse
 // @Failure      400  {object} error
 // @Failure      404  {object} error
