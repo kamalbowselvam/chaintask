@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
-	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
@@ -106,6 +105,11 @@ func (s *Server) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
 	c.ShouldBindBodyWith(&taskparam, binding.JSON)
 
+	createdBy, existed := c.Get(authorizationPayloadKey)
+	if !existed {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
+	}
+	taskparam.CreatedBy = createdBy.(*token.Payload).Username;
 	task, err := s.service.CreateTask(c, taskparam)
 
 	if err != nil {
@@ -130,9 +134,14 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Router       /projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
-	taskparam := domain.Task{}
+	taskparam := db.UpdateTaskParams{}
 	c.BindJSON(&taskparam)
 	log.Println(taskparam)
+	updatedBy, existed := c.Get(authorizationPayloadKey)
+	if !existed {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
+	}
+	taskparam.UpdatedBy = updatedBy.(*token.Payload).Username;
 
 	task, err := s.service.UpdateTask(c, taskparam)
 

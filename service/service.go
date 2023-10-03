@@ -12,7 +12,7 @@ type TaskService interface {
 	GetTask(context.Context, int64) (domain.Task, error)
 	CreateTask(context.Context, db.CreateTaskParams) (domain.Task, error)
 	DeleteTask(context.Context, int64) error
-	UpdateTask(context.Context, domain.Task) (domain.Task, error)
+	UpdateTask(context.Context, db.UpdateTaskParams) (domain.Task, error)
 
 	CreateUser(context.Context, db.CreateUserParams) (domain.User, error)
 	GetUser(context.Context, string) (domain.User, error)

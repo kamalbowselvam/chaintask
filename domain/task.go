@@ -7,13 +7,14 @@ type Task struct {
 	Id        int64     `json:"id"`
 	TaskName  string    `json:"taskname"`
 	Budget    float64   `json:"budget"`
-	CreatedOn time.Time `json:"createdOn"`
-	CreatedBy string    `json:"createdBy"`
-	UpdatedOn time.Time `json:"updatedOn"`
-	UpdatedBy string    `json:"updatedBy"`
+	CreatedOn time.Time 
+	CreatedBy string    
+	UpdatedOn time.Time 
+	UpdatedBy string   
 	Done      bool      `json:"done"`
 	TaskOrder int64     `json:"taskOrder"`
 	ProjectId int64     `json:"ProjectId"`
+	Version   int64     `json:"Version"`
 }
 
 func NewTask(name string, budget float64, user string, taskorder int64, projectid int64) Task {

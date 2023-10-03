@@ -88,11 +88,18 @@ func TestDeleteTask(t *testing.T) {
 func TestUpdateTaskHelper(t *testing.T) {
 	task1 := generateRandomTask(t)
 	require.NotEmpty(t, task1)
-	g := &task1
-	g.Done = true
-	g.TaskName = "test"
-	require.Equal(t, task1.Done, true)
-	task2, err := testStore.UpdateTask(context.Background(), task1)
+	update := UpdateTaskParams{}
+	update.Budget = task1.Budget
+	update.Done = task1.Done
+	update.ProjectId = task1.ProjectId
+	update.TaskOrder = task1.TaskOrder
+	update.Version = 0
+	update.Id = task1.Id
+	update.UpdatedBy = task1.CreatedBy;
+	update.UpdatedOn = time.Now()
+	update.TaskName = "test"
+	update.Done = true
+	task2, err := testStore.UpdateTask(context.Background(), update)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
 	require.Equal(t, task2.TaskName, "test")

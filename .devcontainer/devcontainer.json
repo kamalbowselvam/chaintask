@@ -23,7 +23,8 @@
 				"rangav.vscode-thunder-client",
 				"tsandall.opa",
 				"wayou.vscode-todo-highlight",
-				"Gruntfuggly.todo-tree"
+				"Gruntfuggly.todo-tree",
+				"WakaTime.vscode-wakatime"
 			]
 		}
 	}
