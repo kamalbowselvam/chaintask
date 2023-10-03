@@ -486,6 +486,9 @@
                 "ProjectId": {
                     "type": "integer"
                 },
+                "Version": {
+                    "type": "integer"
+                },
                 "budget": {
                     "type": "number"
                 },

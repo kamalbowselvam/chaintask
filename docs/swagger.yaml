@@ -124,6 +124,8 @@ definitions:
     properties:
       ProjectId:
         type: integer
+      Version:
+        type: integer
       budget:
         type: number
       createdBy:
