@@ -60,6 +60,7 @@ func EqCreateTaskParams(arg db.CreateTaskParams) gomock.Matcher {
 
 func TestGetTaskAPI(t *testing.T) {
 	client, _ := randomUser(t, util.ROLES[0])
+	aclient, _ := randomUser(t, util.ROLES[0])
 	responsible, _ := randomUser(t, util.ROLES[1])
 	project := randomProject(client.Username, responsible.Username)
 	task := randomTask(client.Username, project.Id)
@@ -96,16 +97,16 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "unauthorized_user", "user", time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, aclient.Username, aclient.Role, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), gomock.Eq(task.Id)).
-					Times(1).
+					Times(0).
 					Return(task, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
 		},
 		{
@@ -141,7 +142,6 @@ func TestGetTaskAPI(t *testing.T) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
-
 		{
 			name:      "InternalError",
 			taskID:    task.Id,
@@ -172,7 +172,7 @@ func TestGetTaskAPI(t *testing.T) {
 					Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
 		},
 	}
@@ -186,7 +186,10 @@ func TestGetTaskAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			server := newTestServer(t, store)
+			server := newTestServerWithEnforcer(t, store, true)
+			//server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
+			server.policies.CreateTaskPolicies(task.Id,project.Id, project.Client)
+
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/projects/%d/tasks/%d", tc.projectID, tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
