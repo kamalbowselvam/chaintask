@@ -1,8 +1,6 @@
 package api
 
 import (
-	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -26,7 +24,7 @@ func (s *Server) CreateProject(c *gin.Context) {
 
 	projectparam := db.CreateProjectParam{}
 	c.ShouldBindBodyWith(&projectparam, binding.JSON)
-	log.Println(projectparam)
+	s.logger.Sugar().Info(projectparam)
 
 	createdBy, existed := c.Get(authorizationPayloadKey)
 	if !existed {
