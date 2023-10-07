@@ -175,7 +175,7 @@ func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) erro
 }
 
 const updateTask = `
- UPDATE tasks set taskname = $1, budget = $2, updated_on = $3, updated_by = $4, done = $5, task_order=$6, project_id=$7, version_id=$9 + 1 where id = $8 and version_id = $9
+ UPDATE tasks set taskname = $1, budget = $2, updated_on = $3, updated_by = $4, done = $5, task_order=$6, project_id=$7, version=$9 + 1 where id = $8 and version = $9
 `
 
 func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
@@ -209,7 +209,7 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 		return fail(err)
 	}
 	if affected != 1{
-		return fail(errors.New("more than 1 row affected"));
+		return fail(errors.New("more than 1 row or 0 affected"));
 	}
 
 	// Commit the transaction.
