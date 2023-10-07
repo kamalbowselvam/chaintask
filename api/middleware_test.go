@@ -168,7 +168,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: task.CreatedBy,
 					ProjectId: task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -182,7 +181,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			body: gin.H{
 				"taskname":  task.TaskName,
 				"budget":    task.Budget,
-				"createdBy": task.CreatedBy,
 				"taskOrder": task.TaskOrder,
 				"projectId": task.ProjectId,
 			},
@@ -200,7 +198,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: task.CreatedBy,
+					CreatedBy: admin.Username,
 					ProjectId: task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -214,7 +212,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			body: gin.H{
 				"taskname":  task.TaskName,
 				"budget":    task.Budget,
-				"createdBy": task.CreatedBy,
 				"taskOrder": task.TaskOrder,
 				"projectId": task.ProjectId,
 			},
@@ -232,7 +229,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: task.CreatedBy,
+					CreatedBy: client.Username,
 					ProjectId: task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -246,7 +243,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			body: gin.H{
 				"taskname":  task.TaskName,
 				"budget":    task.Budget,
-				"createdBy": task.CreatedBy,
 				"taskOrder": task.TaskOrder,
 				"projectId": task.ProjectId,
 			},
@@ -264,7 +260,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: task.CreatedBy,
+					CreatedBy: responsible.Username,
 					ProjectId: task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -278,7 +274,6 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			body: gin.H{
 				"taskname":  task.TaskName,
 				"budget":    task.Budget,
-				"createdBy": task.CreatedBy,
 				"taskOrder": task.TaskOrder,
 				"projectId": task.ProjectId,
 			},
