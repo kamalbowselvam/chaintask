@@ -24,7 +24,8 @@
 				"tsandall.opa",
 				"wayou.vscode-todo-highlight",
 				"Gruntfuggly.todo-tree",
-				"WakaTime.vscode-wakatime"
+				"WakaTime.vscode-wakatime",
+				"eamodio.gitlens"
 			]
 		}
 	}
