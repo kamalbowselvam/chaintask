@@ -131,7 +131,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /projects/{projectId}/tasks/ [post]
+// @Router       /projects/{projectId}/tasks/{taskId} [post]
 // @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}

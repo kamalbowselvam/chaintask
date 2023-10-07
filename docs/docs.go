@@ -79,7 +79,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates a tasks",
+                "description": "Create a tasks",
                 "consumes": [
                     "application/json"
                 ],
@@ -89,15 +89,15 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Update a Task",
+                "summary": "Create a Task",
                 "parameters": [
                     {
-                        "description": "task update parameter",
+                        "description": "task creation parameter",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Task"
+                            "$ref": "#/definitions/db.CreateTaskParams"
                         }
                     }
                 ],
@@ -188,6 +188,55 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a tasks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Update a Task",
+                "parameters": [
+                    {
+                        "description": "task update parameter",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Task"
+                        }
                     }
                 ],
                 "responses": {
@@ -405,9 +454,6 @@ const docTemplate = `{
                 "client": {
                     "type": "string"
                 },
-                "createdBy": {
-                    "type": "string"
-                },
                 "location": {
                     "type": "array",
                     "items": {
@@ -427,9 +473,6 @@ const docTemplate = `{
             "properties": {
                 "budget": {
                     "type": "number"
-                },
-                "createdBy": {
-                    "type": "string"
                 },
                 "projectId": {
                     "type": "integer"

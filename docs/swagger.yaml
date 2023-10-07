@@ -67,8 +67,6 @@ definitions:
         type: string
       client:
         type: string
-      createdBy:
-        type: string
       location:
         items:
           type: number
@@ -82,8 +80,6 @@ definitions:
     properties:
       budget:
         type: number
-      createdBy:
-        type: string
       projectId:
         type: integer
       taskOrder:
@@ -213,14 +209,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Updates a tasks
+      description: Create a tasks
       parameters:
-      - description: task update parameter
+      - description: task creation parameter
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.Task'
+          $ref: '#/definitions/db.CreateTaskParams'
       produces:
       - application/json
       responses:
@@ -239,7 +235,7 @@ paths:
           schema: {}
       security:
       - BearerAuth: []
-      summary: Update a Task
+      summary: Create a Task
       tags:
       - tasks
   /projects/{projectId}/tasks/{id}:
@@ -298,6 +294,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a Task by its ID
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Updates a tasks
+      parameters:
+      - description: task update parameter
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Update a Task
       tags:
       - tasks
   /users/:
