@@ -260,7 +260,7 @@ func (mr *MockGlobalRepositoryMockRecorder) GetUser(arg0, arg1 interface{}) *gom
 }
 
 // UpdateTask mocks base method.
-func (m *MockGlobalRepository) UpdateTask(arg0 context.Context, arg1 domain.Task) (domain.Task, error) {
+func (m *MockGlobalRepository) UpdateTask(arg0 context.Context, arg1 db.UpdateTaskParams) (domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTask", arg0, arg1)
 	ret0, _ := ret[0].(domain.Task)
