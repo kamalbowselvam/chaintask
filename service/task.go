@@ -65,11 +65,11 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	return err
 }
 
-func (srv *service) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
-	task, err := srv.globalRepository.UpdateTask(context.Background(), task)
+func (srv *service) UpdateTask(ctx context.Context, task db.UpdateTaskParams) (domain.Task, error) {
+	full_task, err := srv.globalRepository.UpdateTask(context.Background(), task)
 	if err != nil {
 		srv.logger.Fatal("could not update task in repository", zap.Error(err))
 
 	}
-	return task, err
+	return full_task, err
 }

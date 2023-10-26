@@ -27,7 +27,7 @@ type TaskRepository interface {
 	GetTaskList(context.Context, []int64) ([]domain.Task, error)
 	GetTaskListByProject(context.Context, int64) ([]domain.Task, error)
 	DeleteTask(context.Context, int64) error
-	UpdateTask(context.Context, domain.Task) (domain.Task, error)
+	UpdateTask(context.Context, UpdateTaskParams) (domain.Task, error)
 	DeleteTasksLinkedToProject(context.Context, int64) error
 }
 

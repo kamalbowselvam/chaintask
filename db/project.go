@@ -20,7 +20,7 @@ const createProject = `INSERT INTO projects (
 
 type CreateProjectParam struct {
 	ProjectName string          `json:"projectname"`
-	CreatedBy   string          `json:"createdBy"`
+	CreatedBy   string          `swaggerignore:"true"`
 	Location    domain.Location `json:"location"`
 	Address     string          `json:"address"`
 	Responsible string          `json:"responsible"`

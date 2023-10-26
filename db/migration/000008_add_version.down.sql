@@ -1,0 +1,3 @@
+ALTER TABLE tasks DROP COLUMN if EXISTS "version";
+ALTER TABLE projects DROP COLUMN if EXISTS "version";
+ALTER TABLE users DROP COLUMN if EXISTS "version";

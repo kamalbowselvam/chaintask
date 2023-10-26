@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/lib/pq"
@@ -24,9 +26,21 @@ const createTask = `INSERT INTO tasks (
 type CreateTaskParams struct {
 	TaskName  string  `json:"taskname"`
 	Budget    float64 `json:"budget"`
-	CreatedBy string  `json:"createdBy"`
+	CreatedBy string  `swaggerignore:"true"`
 	TaskOrder int64   `json:"taskOrder"`
 	ProjectId int64   `json:"projectId"`
+}
+
+type UpdateTaskParams struct {
+	Id        int64     `json:"id"`
+	TaskName  string    `json:"taskname"`
+	Budget    float64   `json:"budget"`
+	UpdatedOn time.Time `swaggerignore:"true"`
+	UpdatedBy string    `swaggerignore:"true"`
+	Done      bool      `json:"done"`
+	TaskOrder int64     `json:"taskOrder"`
+	ProjectId int64     `json:"ProjectId"`
+	Version   int64     `json:"Version"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
@@ -161,10 +175,10 @@ func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) erro
 }
 
 const updateTask = `
- UPDATE tasks set taskname = $1, budget = $2, created_on = $3, created_by = $4, updated_on = $5, updated_by = $6, done = $7, task_order=$8, project_id=$9 where id = $10
+ UPDATE tasks set taskname = $1, budget = $2, updated_on = $3, updated_by = $4, done = $5, task_order=$6, project_id=$7, version=$9 + 1 where id = $8 and version = $9
 `
 
-func (q *Queries) UpdateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
+func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
 	// Create a helper function for preparing failure results.
 	fail := func(err error) (domain.Task, error) {
 		return domain.Task{}, fmt.Errorf("could not create Task: %v", err)
@@ -181,9 +195,21 @@ func (q *Queries) UpdateTask(ctx context.Context, task domain.Task) (domain.Task
 		}
 	}()
 	var id = task.Id
-	_, err = tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.CreatedOn, task.CreatedBy, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, id)
+	row := tx.QueryRowContext(ctx, "SELECT id FROM tasks WHERE id=$1 limit 1", id)
+	var oldId int64
+	if err := row.Scan(&oldId); err != nil {
+		return fail(err)
+	}
+	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, id, task.Version)
 	if err != nil {
 		return fail(err)
+	}
+	affected, err  := result.RowsAffected() 
+	if err != nil{
+		return fail(err)
+	}
+	if affected != 1{
+		return fail(errors.New("more than 1 row or 0 affected"));
 	}
 
 	// Commit the transaction.
