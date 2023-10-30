@@ -1,6 +1,7 @@
 package api
 
 import (
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -34,7 +35,7 @@ func (s *Server) CreateProject(c *gin.Context) {
 	task, err := s.service.CreateProject(c, projectparam)
 
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
