@@ -48,6 +48,8 @@ func (server *Server) setupRouter() {
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
 	router.POST("/users/login", server.LoginUser)
+	router.POST("/tokens/renew_access", server.renewAccessToken)
+	router.POST("/users", server.CreateUser)
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
@@ -56,7 +58,7 @@ func (server *Server) setupRouter() {
 		},
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
-	authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
 	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
@@ -69,4 +71,10 @@ func (server *Server) setupRouter() {
 // Start runs the HTTP server on a specific address.
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
+}
+
+func errorResponse(err error) map[string]interface{} {
+
+	return gin.H{"error": err.Error()}
+
 }
