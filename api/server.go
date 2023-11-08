@@ -49,6 +49,7 @@ func (server *Server) setupRouter() {
 	docs.SwaggerInfo.BasePath = "/"
 	router.POST("/users/login", server.LoginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
+	// FIXME
 	router.POST("/users", server.CreateUser)
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 

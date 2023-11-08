@@ -2,9 +2,12 @@ package db
 
 import (
 	"context"
+	"strconv"
+	"sync"
 	"testing"
 	"time"
 
+	"log"
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
@@ -105,4 +108,40 @@ func TestUpdateTaskHelper(t *testing.T) {
 	require.Equal(t, task2.TaskName, "test")
 	require.Equal(t, task2.Done, true)
 
+}
+
+// Taken from https://hackernoon.com/comparing-optimistic-and-pessimistic-locking-with-go-and-postgresql
+func TestOptimistic(t *testing.T){
+	ctx := context.Background()
+	task := generateRandomTask(t)
+	user := generateRandomWorksManager(t, testStore)
+	t.Run("Save in bulk", func(t *testing.T) {
+		start := time.Now()
+		if err := testSaveBulkData(ctx, task, user.Username); (err != nil){
+			t.Errorf("Deposit() error = %v", err)
+		}
+		log.Println("Execution time", time.Since(start))
+	})
+	
+}
+
+func testSaveBulkData(ctx context.Context, task domain.Task, userName string) error {
+	sem := make(chan struct{}, 10)
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go save(ctx, strconv.Itoa((i%100)+1), task, userName, sem, &wg)
+	}
+	wg.Wait()
+	return nil
+}
+
+func save(ctx context.Context, taskName string, task domain.Task, userName string, sem chan struct{}, wg *sync.WaitGroup) {
+	defer wg.Done()
+	sem <- struct{}{}
+	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: task.ProjectId, UpdatedBy: userName})
+	if err != nil {
+		log.Printf("Error %s", err.Error())
+	}
+	<-sem
 }

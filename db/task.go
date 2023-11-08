@@ -181,7 +181,7 @@ const updateTask = `
 func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
 	// Create a helper function for preparing failure results.
 	fail := func(err error) (domain.Task, error) {
-		return domain.Task{}, fmt.Errorf("could not create Task: %v", err)
+		return domain.Task{}, fmt.Errorf("could not update Task: %v", err)
 	}
 	// Get a Tx for making transaction requests.
 	tx, err := q.db.BeginTx(ctx, nil)
