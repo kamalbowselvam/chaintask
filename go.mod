@@ -6,9 +6,11 @@ require (
 	github.com/aead/chacha20poly1305 v0.0.0-20201124145622-1a5aba2a8b29
 	github.com/casbin/casbin-pg-adapter v1.2.1
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.9
+	github.com/mattn/go-colorable v0.1.13
 	github.com/o1egl/paseto v1.0.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
@@ -28,10 +30,11 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/go-pg/pg/v10 v10.9.1 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mmcloughlin/meow v0.0.0-20181112033425-871e50784daf // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -44,6 +47,7 @@ require (
 	go.opentelemetry.io/otel v0.19.0 // indirect
 	go.opentelemetry.io/otel/metric v0.19.0 // indirect
 	go.opentelemetry.io/otel/trace v0.19.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
