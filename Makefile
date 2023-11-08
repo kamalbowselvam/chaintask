@@ -1,6 +1,6 @@
 DB_URL=postgresql://root:secret@localhost:5432/chain_task?sslmode=disable
 
-run: 
+server: 
 	go run main.go
 
 docker:
@@ -34,4 +34,4 @@ mock:
 	mockgen -package mockdb --build_flags=--mod=mod -destination mock/store.go github.com/kamalbowselvam/chaintask/db GlobalRepository
 
 
-.PHONY: run network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown swagger
+.PHONY: server network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown swagger
