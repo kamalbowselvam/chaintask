@@ -115,13 +115,12 @@ func TestOptimistic(t *testing.T){
 	ctx := context.Background()
 	task := generateRandomTask(t)
 	user := generateRandomWorksManager(t, testStore)
-	t.Run("Save in bulk", func(t *testing.T) {
-		start := time.Now()
-		if err := testSaveBulkData(ctx, task, user.Username); (err != nil){
-			t.Errorf("Deposit() error = %v", err)
-		}
-		log.Println("Execution time", time.Since(start))
-	})
+
+	start := time.Now()
+	if err := testSaveBulkData(ctx, task, user.Username); (err != nil){
+		t.Errorf("Deposit() error = %v", err)
+	}
+	log.Println("Execution time", time.Since(start))
 	
 }
 
@@ -139,6 +138,8 @@ func testSaveBulkData(ctx context.Context, task domain.Task, userName string) er
 func save(ctx context.Context, taskName string, task domain.Task, userName string, sem chan struct{}, wg *sync.WaitGroup) {
 	defer wg.Done()
 	sem <- struct{}{}
+	// Logging here seems important, otherwise the go routine go in timeout. There is something shaddy to explore a bit further
+	log.Println("Trying to update tasks")
 	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: task.ProjectId, UpdatedBy: userName})
 	if err != nil {
 		log.Printf("Error %s", err.Error())
