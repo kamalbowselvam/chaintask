@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func (s *Server) CreateProject(c *gin.Context) {
 
 	projectparam := db.CreateProjectParam{}
 	c.ShouldBindBodyWith(&projectparam, binding.JSON)
-	log.Println(projectparam)
+	s.logger.Sugar().Info(projectparam)
 
 	createdBy, existed := c.Get(authorizationPayloadKey)
 	if !existed {
@@ -36,7 +35,7 @@ func (s *Server) CreateProject(c *gin.Context) {
 	task, err := s.service.CreateProject(c, projectparam)
 
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 

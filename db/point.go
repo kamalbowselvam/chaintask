@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -18,9 +17,7 @@ func (p *Point) String() string {
 
 // Scan implements the sql.Scanner interface.
 func (p *Point) Scan(val interface{}) error {
-	log.Println("going over there")
 	temp := string(val.([]uint8))
-	log.Println(temp)
 	temp = strings.TrimRight(temp, ")")
 	temp = strings.TrimLeft(temp, "(")
 	parts := strings.Split(temp, ",")
@@ -68,6 +65,5 @@ func (p *Point) Scan(val interface{}) error {
 
 // Value impl.
 func (p Point) Value() (driver.Value, error) {
-	log.Println("going over here")
 	return p.String(), nil
 }

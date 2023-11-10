@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -136,12 +135,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}
 	c.BindJSON(&taskparam)
-	log.Println(taskparam)
-	updatedBy, existed := c.Get(authorizationPayloadKey)
-	if !existed {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
-	}
-	taskparam.UpdatedBy = updatedBy.(*token.Payload).Username;
+	s.logger.Sugar().Info(taskparam)
 
 	task, err := s.service.UpdateTask(c, taskparam)
 

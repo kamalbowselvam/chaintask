@@ -81,7 +81,7 @@ func main() {
 	taskService := service.NewTaskService(taskRepository, policyManagementService, logger)
 	logger.Info("Starting Chain Task SaaS Application")
 
-	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
+	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService, logger)
 	server.Start(":8080")
 }
 

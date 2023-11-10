@@ -16,7 +16,7 @@ const createProject = `INSERT INTO projects (
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, projectname, created_on, created_by, location, address, responsible, client;`
+  RETURNING id, projectname, created_at, created_by, location, address, responsible, client;`
 
 type CreateProjectParam struct {
 	ProjectName string          `json:"projectname"`
@@ -67,7 +67,7 @@ func (q *Queries) DeleteProject(ctx context.Context, projectId int64) (error){
 	return err
 }
 
-const getProject = `select projectname, created_on, created_by, location, address, responsible, client FROM projects where id = $1`
+const getProject = `select projectname, created_at, created_by, location, address, responsible, client FROM projects where id = $1`
 func (q *Queries) GetProject(ctx context.Context, projectId int64) (domain.Project, error){
 	row := q.db.QueryRowContext(ctx, getProject, projectId)
 	var i domain.Project

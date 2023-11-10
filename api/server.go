@@ -12,6 +12,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/util"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -21,10 +22,11 @@ type Server struct {
 	service    service.TaskService
 	tokenMaker token.Maker
 	router     *gin.Engine
+	logger     *zap.Logger
 }
 
 // NewServer creates a new HTTP server and set up routing.
-func NewServer(config util.Config, service service.TaskService, authorize authorization.AuthorizationService, policies authorization.PolicyManagementService) (*Server, error) {
+func NewServer(config util.Config, service service.TaskService, authorize authorization.AuthorizationService, policies authorization.PolicyManagementService, logger *zap.Logger) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
@@ -36,6 +38,7 @@ func NewServer(config util.Config, service service.TaskService, authorize author
 		config:     config,
 		service:    service,
 		tokenMaker: tokenMaker,
+		logger: logger,
 	}
 
 	server.setupRouter()
@@ -58,7 +61,7 @@ func (server *Server) setupRouter() {
 			ctx.JSON(http.StatusOK, gin.H{})
 		},
 	)
-	authorizeMid := AuthorizeMiddleware(server.authorize)
+	authorizeMid := AuthorizeMiddleware(server.authorize, *server.logger)
 	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
