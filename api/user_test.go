@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"io"
-	"log"
 	"time"
 
 	"encoding/json"
@@ -93,13 +92,6 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 
 func TestCreateUserAPI(t *testing.T) {
 	config, err := util.LoadConfig("../")
-	if err != nil {
-		log.Fatal("Failed to load the config file")
-	}
-	testDB, err := sql.Open(config.DBDriver, config.DBSource)
-	if err != nil {
-		log.Fatal("cannot connet to db: ", err)
-	}
 	aa := zap.NewDevelopmentEncoderConfig()
 	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
@@ -108,6 +100,14 @@ func TestCreateUserAPI(t *testing.T) {
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
 	 ))
+	if err != nil {
+		logger.Fatal("Failed to load the config file")
+	}
+	testDB, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		logger.Fatal("cannot connet to db: ", zap.Error(err))
+	}
+
 
 	testStore = db.NewStore(testDB, logger)
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])

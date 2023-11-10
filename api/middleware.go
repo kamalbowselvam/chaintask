@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"go.uber.org/zap"
 )
 
 const (
@@ -57,7 +57,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.HandlerFunc {
+func AuthorizeMiddleware(authorize authorization.AuthorizationService, logger zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)
@@ -67,7 +67,7 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 		}
 		ok, err := authorize.Enforce(val.(*token.Payload), c.Request.URL.Path, c.Request.Method)
 		if err != nil {
-			log.Fatalf("Error occured while authorizing the user %s", err)
+			logger.Warn("Error occured while authorizing the user ", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, util.ErrorResponse(err))
 			return
 		}

@@ -46,7 +46,7 @@ func newTestServerWithEnforcerAndLoaders(t *testing.T, service service.TaskServi
 	if err != nil {
 		panic(err)
 	}
-	server, err := NewServer(config, service, authorizationService, policyManagementService)
+	server, err := NewServer(config, service, authorizationService, policyManagementService, &loaders.Logger)
 	require.NoError(t, err)
 	return server
 }

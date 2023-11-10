@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"log"
 	"os"
 	"testing"
 
@@ -20,14 +19,6 @@ var testStore Store
 
 func TestMain(m *testing.M) {
 	config, err := util.LoadConfig("../")
-	if err != nil {
-		log.Fatal("Failed to load the config file")
-	}
-	testDB, err := sql.Open(config.DBDriver, config.DBSource)
-	if err != nil {
-		log.Fatal("cannot connet to db: ", err)
-	}
-
 	aa := zap.NewDevelopmentEncoderConfig()
 	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
@@ -36,6 +27,15 @@ func TestMain(m *testing.M) {
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
 	 ))
+	if err != nil {
+		logger.Fatal("Failed to load the config file")
+	}
+	testDB, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		logger.Fatal("cannot connet to db: ", zap.Error(err))
+	}
+
+
 
 	testStore = NewStore(testDB, logger)
 	os.Exit(m.Run())
