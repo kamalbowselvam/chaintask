@@ -3,6 +3,9 @@ package main
 import (
 	"database/sql"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
@@ -55,6 +58,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	runDBMigration(config.MigrationURL, config.DBSource, logger)
+
 	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
 	if err != nil {
 		panic(err)
@@ -77,4 +83,19 @@ func main() {
 
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService, logger)
 	server.Start(":8080")
+}
+
+func runDBMigration(migrationURL string, dbSource string, logger *zap.Logger) {
+	migration, err := migrate.New(migrationURL, dbSource)
+
+	if err != nil {
+		logger.Info(err.Error())
+		logger.Fatal("Cannot create a new migrate instance:")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		logger.Fatal("Failed to run migrate up ")
+	}
+
+	logger.Info("DB migration Successful")
 }
