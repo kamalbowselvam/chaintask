@@ -52,7 +52,7 @@ func (server *Server) setupRouter() {
 	docs.SwaggerInfo.BasePath = "/"
 	router.POST("/users/login", server.LoginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
-	router.POST("/users", server.CreateUser)
+	// router.POST("/users", server.CreateUser)
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
