@@ -52,7 +52,8 @@ func (server *Server) setupRouter() {
 	docs.SwaggerInfo.BasePath = "/"
 	router.POST("/users/login", server.LoginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
-	// router.POST("/users", server.CreateUser)
+	// FIXME
+	router.POST("/users", server.CreateUser)
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
@@ -61,7 +62,7 @@ func (server *Server) setupRouter() {
 		},
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize, *server.logger)
-	authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
 	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)

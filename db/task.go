@@ -181,7 +181,7 @@ const updateTask = `
 func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
 	// Create a helper function for preparing failure results.
 	fail := func(err error) (domain.Task, error) {
-		return domain.Task{}, fmt.Errorf("could not create Task: %v", err)
+		return domain.Task{}, fmt.Errorf("could not update Task: %v", err)
 	}
 	// Get a Tx for making transaction requests.
 	tx, err := q.db.BeginTx(ctx, nil)
@@ -195,11 +195,13 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 		}
 	}()
 	var id = task.Id
+	q.logger.Debug("Starting to update a task")
 	row := tx.QueryRowContext(ctx, "SELECT id FROM tasks WHERE id=$1 limit 1", id)
 	var oldId int64
 	if err := row.Scan(&oldId); err != nil {
 		return fail(err)
 	}
+	q.logger.Debug("Starting to actually update a task")
 	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, id, task.Version)
 	if err != nil {
 		return fail(err)
@@ -216,5 +218,6 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 	if err = tx.Commit(); err != nil {
 		return fail(err)
 	}
+	q.logger.Debug("Update Task Done")
 	return q.GetTask(ctx, id)
 }
