@@ -11,6 +11,7 @@ type GlobalRepository interface {
 	TaskRepository
 	UserRepository
 	ProjectRepository
+	CompanyRepository
 }
 
 type UserRepository interface {
@@ -36,6 +37,10 @@ type ProjectRepository interface {
 	GetClientAndResponsibleByProject(context.Context, int64) (string, string, error)
 	DeleteProject(context.Context, int64) error
 	GetProject(context.Context, int64) (domain.Project, error)
+}
+
+type CompanyRepository interface {
+	CreateCompany(context.Context, CreateCompanyParams) (domain.Company, error)
 }
 
 var _ GlobalRepository = (*Queries)(nil)

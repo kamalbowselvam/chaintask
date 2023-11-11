@@ -87,6 +87,23 @@ definitions:
       taskname:
         type: string
     type: object
+  domain.Company:
+    properties:
+      address:
+        type: string
+      companyname:
+        type: string
+      createdBy:
+        type: string
+      createdOn:
+        type: string
+      id:
+        type: integer
+      updatedBy:
+        type: string
+      updatedOn:
+        type: string
+    type: object
   domain.Project:
     properties:
       address:
@@ -174,6 +191,39 @@ info:
   title: Swagger ChainTasks API
   version: "1.0"
 paths:
+  /companies:
+    post:
+      consumes:
+      - application/json
+      description: Creates a company
+      parameters:
+      - description: company creation parameter
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Company'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Company'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Create a company
+      tags:
+      - company
   /projects/:
     post:
       description: create a  project
