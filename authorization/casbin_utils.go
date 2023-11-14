@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/casbin/casbin/v2/util"
+	"github.com/go-pg/pg/v10"
 	"go.uber.org/zap"
 )
 
@@ -27,7 +28,11 @@ var singleInstance *Loaders
 func Load(source string, conf string, logger zap.Logger) (*Loaders, error) {
 	if singleInstance == nil {
 
-		adapter, err := pgadapter.NewAdapter(source, "d8p077445kq414", "casbin_rule")
+		opts, _ := pg.ParseURL(source)
+		db := pg.Connect(opts)
+		//defer db.Close()
+
+		adapter, err := pgadapter.NewAdapterByDB(db)
 		if err != nil {
 			panic(err)
 		}
