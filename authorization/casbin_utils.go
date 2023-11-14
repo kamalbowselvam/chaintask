@@ -13,7 +13,7 @@ import (
 type Loaders struct {
 	Adapter  *pgadapter.Adapter
 	Enforcer *casbin.Enforcer
-	Logger zap.Logger
+	Logger   zap.Logger
 }
 
 type FakeLoader struct {
@@ -27,8 +27,7 @@ var singleInstance *Loaders
 func Load(source string, conf string, logger zap.Logger) (*Loaders, error) {
 	if singleInstance == nil {
 
-		nums := []string{"d8p077445kq414"}
-		adapter, err := pgadapter.NewAdapter(source, nums...)
+		adapter, err := pgadapter.NewAdapter(source, "d8p077445kq414", "casbin_rule")
 		if err != nil {
 			panic(err)
 		}
@@ -50,7 +49,7 @@ func Load(source string, conf string, logger zap.Logger) (*Loaders, error) {
 		singleInstance = &Loaders{
 			Adapter:  adapter,
 			Enforcer: enforcer,
-			Logger: logger,
+			Logger:   logger,
 		}
 	}
 	return singleInstance, nil
