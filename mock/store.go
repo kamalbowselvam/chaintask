@@ -37,6 +37,21 @@ func (m *MockGlobalRepository) EXPECT() *MockGlobalRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateCompany mocks base method.
+func (m *MockGlobalRepository) CreateCompany(arg0 context.Context, arg1 db.CreateCompanyParams) (domain.Company, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCompany", arg0, arg1)
+	ret0, _ := ret[0].(domain.Company)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCompany indicates an expected call of CreateCompany.
+func (mr *MockGlobalRepositoryMockRecorder) CreateCompany(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCompany", reflect.TypeOf((*MockGlobalRepository)(nil).CreateCompany), arg0, arg1)
+}
+
 // CreateProject mocks base method.
 func (m *MockGlobalRepository) CreateProject(arg0 context.Context, arg1 db.CreateProjectParam) (domain.Project, error) {
 	m.ctrl.T.Helper()

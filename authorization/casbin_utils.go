@@ -8,7 +8,7 @@ import (
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/casbin/casbin/v2/util"
 	"github.com/kamalbowselvam/chaintask/logger"
-	"go.uber.org/zap"
+	"github.com/go-pg/pg/v10"
 )
 
 type Loaders struct {
@@ -27,7 +27,12 @@ var singleInstance *Loaders
 
 func Load(source string, conf string) (*Loaders, error) {
 	if singleInstance == nil {
-		adapter, err := pgadapter.NewAdapter(source)
+
+		opts, _ := pg.ParseURL(source)
+		db := pg.Connect(opts)
+		//defer db.Close()
+
+		adapter, err := pgadapter.NewAdapterByDB(db)
 		if err != nil {
 			panic(err)
 		}
@@ -53,6 +58,7 @@ func Load(source string, conf string) (*Loaders, error) {
 			Adapter:  adapter,
 			Enforcer: enforcer,
 			//Logger: logger,
+
 		}
 	}
 	return singleInstance, nil
