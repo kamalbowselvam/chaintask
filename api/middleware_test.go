@@ -46,11 +46,14 @@ func AddAuthorization(
 ){
 	authorizationLoaders.Enforcer.EnableEnforce(true)
 	// Beware, wipes all entries from casbin DB
-	authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
+	_, err := authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
+	if err!= nil{
+		authorizationLoaders.Logger.Sugar().Warn(err.Error())
+	}
 	rules := [][]string{
 		{username, resource, rights},
 	}
-	_, err  := authorizationLoaders.Enforcer.AddPoliciesEx(rules)
+	_, err  = authorizationLoaders.Enforcer.AddPoliciesEx(rules)
 	require.NoError(t, err)
 }
 
