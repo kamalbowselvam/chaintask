@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -82,7 +83,13 @@ func main() {
 	logger.Info("Starting Chain Task SaaS Application")
 
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService, logger)
-	server.Start(":8080")
+
+
+	port := os.Getenv("PORT")
+	if port == "" {
+    	port = "9000" // Default port if not specified
+	}
+	server.Start(":"+ port)
 }
 
 func runDBMigration(migrationURL string, dbSource string, logger *zap.Logger) {
