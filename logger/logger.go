@@ -1,22 +1,34 @@
 package logger
 
-
 import (
-    "go.uber.org/zap"
-    "go.uber.org/zap/zapcore"
+	"github.com/mattn/go-colorable"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var zapLog *zap.Logger
 
 func init() {
     var err error
-    config := zap.NewProductionConfig()
-    enccoderConfig := zap.NewProductionEncoderConfig()
-    zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
-    enccoderConfig.StacktraceKey = "" // to hide stacktrace info
-    config.EncoderConfig = enccoderConfig
+    // config := zap.NewProductionConfig()
+    enccoderConfig := zap.NewDevelopmentEncoderConfig()
+    enccoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-    zapLog, err = config.Build(zap.AddCallerSkip(1))
+    //zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
+    //zapcore.AddSync(colorable.NewColorableStdout())
+    //zapcore.NewConsoleEncoder(enccoderConfig)
+
+    //enccoderConfig.StacktraceKey = "" // to hide stacktrace info
+    //config.EncoderConfig = enccoderConfig
+    //zapLog, err = config.Build(zap.AddCallerSkip(1))
+
+
+    zapLog = zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(enccoderConfig),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	))
+
     if err != nil {
         panic(err)
     }
