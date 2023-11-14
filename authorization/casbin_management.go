@@ -22,7 +22,7 @@ func NewCasbinManagement(loader Loaders) (PolicyManagementService, error) {
 	management := &CasbinManagement{
 		Adapter:  loader.Adapter,
 		Enforcer: loader.Enforcer,
-		Logger: loader.Logger,
+		//Logger: loader.Logger,
 	}
 
 	return management, nil

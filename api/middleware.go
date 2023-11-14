@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/authorization"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 	"go.uber.org/zap"
@@ -57,7 +58,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 }
 
 // Authorize determines if current subject has been authorized to take an action on an object.
-func AuthorizeMiddleware(authorize authorization.AuthorizationService, logger zap.Logger) gin.HandlerFunc {
+func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get current user/subject
 		val, existed := c.Get(authorizationPayloadKey)

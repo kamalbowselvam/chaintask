@@ -9,12 +9,10 @@ import (
 	"github.com/kamalbowselvam/chaintask/api"
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
-	"github.com/mattn/go-colorable"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 // @title           Swagger ChainTasks API
@@ -40,14 +38,14 @@ func main() {
 	var dbconn *sql.DB
 	var err error
 
-	aa := zap.NewDevelopmentEncoderConfig()
-	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	//aa := zap.NewDevelopmentEncoderConfig()
+	//aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-	logger := zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(aa),
-		zapcore.AddSync(colorable.NewColorableStdout()),
-		zapcore.DebugLevel,
-	))
+	//logger := zap.New(zapcore.NewCore(
+	//	zapcore.NewConsoleEncoder(aa),
+	//	zapcore.AddSync(colorable.NewColorableStdout()),
+	//	zapcore.DebugLevel,
+	//))
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
@@ -59,9 +57,9 @@ func main() {
 		panic(err)
 	}
 
-	runDBMigration(config.MigrationURL, config.DBSource, logger)
+	runDBMigration(config.MigrationURL, config.DBSource)
 
-	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
+	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf")
 	if err != nil {
 		panic(err)
 	}
@@ -77,15 +75,15 @@ func main() {
 		panic(err)
 	}
 
-	taskRepository := db.NewStore(dbconn, logger)
-	taskService := service.NewTaskService(taskRepository, policyManagementService, logger)
+	taskRepository := db.NewStore(dbconn)
+	taskService := service.NewTaskService(taskRepository, policyManagementService)
 	logger.Info("Starting Chain Task SaaS Application")
 
-	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService, logger)
+	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 	server.Start(":8080")
 }
 
-func runDBMigration(migrationURL string, dbSource string, logger *zap.Logger) {
+func runDBMigration(migrationURL string, dbSource string) {
 	migration, err := migrate.New(migrationURL, dbSource)
 
 	if err != nil {
