@@ -26,7 +26,9 @@ var singleInstance *Loaders
 
 func Load(source string, conf string, logger zap.Logger) (*Loaders, error) {
 	if singleInstance == nil {
-		adapter, err := pgadapter.NewAdapter(source, "d8p077445kq414")
+
+		nums := []string{"d8p077445kq414"}
+		adapter, err := pgadapter.NewAdapter(source, nums...)
 		if err != nil {
 			panic(err)
 		}
