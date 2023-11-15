@@ -12,6 +12,8 @@ type GlobalRepository interface {
 	UserRepository
 	ProjectRepository
 	CompanyRepository
+	ResourceRepository
+	PayeeRepository
 }
 
 type UserRepository interface {
@@ -41,6 +43,15 @@ type ProjectRepository interface {
 
 type CompanyRepository interface {
 	CreateCompany(context.Context, CreateCompanyParams) (domain.Company, error)
+}
+
+type ResourceRepository interface {
+	CreateResource(context.Context, CreateResourceParams) (domain.Resource, error)
+}
+
+
+type PayeeRepository interface {
+	CreatePayee(context.Context, CreatePayeeParams) (domain.Payee, error)
 }
 
 var _ GlobalRepository = (*Queries)(nil)

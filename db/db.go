@@ -10,6 +10,7 @@ func New(db *sql.DB, logger *zap.Logger) *Queries {
 	return &Queries{
 		db:     db,
 		logger: logger,
+
 	}
 }
 
