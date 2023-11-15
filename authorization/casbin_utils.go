@@ -52,7 +52,6 @@ func Load(source string, conf string) (*Loaders, error) {
 		singleInstance = &Loaders{
 			Adapter:  adapter,
 			Enforcer: enforcer,
-			//Logger: logger,
 		}
 	}
 	return singleInstance, nil

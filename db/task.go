@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -44,9 +45,9 @@ type UpdateTaskParams struct {
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
-	q.logger.Info("saving tasks")
+	logger.Info("saving tasks")
 	
-	q.logger.Debug("Argument to Create task", zap.String("task_name",arg.TaskName),
+	logger.Debug("Argument to Create task", zap.String("task_name",arg.TaskName),
 	zap.Float64("budget",arg.Budget),
 	zap.String("task_name",arg.CreatedBy),
 	zap.Int64("task_name",arg.TaskOrder),
@@ -195,13 +196,13 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 		}
 	}()
 	var id = task.Id
-	q.logger.Debug("Starting to update a task")
+	logger.Debug("Starting to update a task")
 	row := tx.QueryRowContext(ctx, "SELECT id FROM tasks WHERE id=$1 limit 1", id)
 	var oldId int64
 	if err := row.Scan(&oldId); err != nil {
 		return fail(err)
 	}
-	q.logger.Debug("Starting to actually update a task")
+	logger.Debug("Starting to actually update a task")
 	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, id, task.Version)
 	if err != nil {
 		return fail(err)
@@ -218,6 +219,6 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 	if err = tx.Commit(); err != nil {
 		return fail(err)
 	}
-	q.logger.Debug("Update Task Done")
+	logger.Debug("Update Task Done")
 	return q.GetTask(ctx, id)
 }

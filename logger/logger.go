@@ -7,27 +7,33 @@ import (
 )
 
 var zapLog *zap.Logger
+var sugar *zap.SugaredLogger
 
 func init() {
     var err error
-    // config := zap.NewProductionConfig()
+
+
+
+    config := zap.NewDevelopmentConfig()
     enccoderConfig := zap.NewDevelopmentEncoderConfig()
-    enccoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-    //zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
-    //zapcore.AddSync(colorable.NewColorableStdout())
-    //zapcore.NewConsoleEncoder(enccoderConfig)
+    zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
+    zapcore.AddSync(colorable.NewColorableStdout())
+    zapcore.NewConsoleEncoder(enccoderConfig)
 
-    //enccoderConfig.StacktraceKey = "" // to hide stacktrace info
-    //config.EncoderConfig = enccoderConfig
-    //zapLog, err = config.Build(zap.AddCallerSkip(1))
+    enccoderConfig.StacktraceKey = "" // to hide stacktrace info
+    config.EncoderConfig = enccoderConfig
+    config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+    zapLog, err = config.Build(zap.AddCallerSkip(1))
 
 
-    zapLog = zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(enccoderConfig),
-		zapcore.AddSync(colorable.NewColorableStdout()),
-		zapcore.DebugLevel,
-	))
+    //zapLog = zap.New(zapcore.NewCore(
+	//	zapcore.NewConsoleEncoder(enccoderConfig),
+	//	zapcore.AddSync(colorable.NewColorableStdout()),
+	//	zapcore.DebugLevel,
+	//))
+
+    sugar = zapLog.Sugar()
 
     if err != nil {
         panic(err)
@@ -53,4 +59,9 @@ func Error(message string, fields ...zap.Field) {
 
 func Fatal(message string, fields ...zap.Field) {
     zapLog.Fatal(message, fields...)
+}
+
+
+func Warnf(message string,  args ...interface {}) {
+    sugar.Warnf(message, args)
 }

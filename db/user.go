@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
-
 
 const createUser = `INSERT INTO users (
 	username, 
@@ -30,14 +30,12 @@ type CreateUserParams struct {
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
 
-	q.logger.Debug("Arguments to create user", 
-				zap.String("user_name", arg.Username),
-				zap.String("hashed_password", arg.HashedPassword),
-				zap.String("full_name", arg.FullName),
-				zap.String("email", arg.Email), 
-				zap.String("role", arg.Role),)
-
-
+	logger.Debug("Arguments to create user",
+		zap.String("user_name", arg.Username),
+		zap.String("hashed_password", arg.HashedPassword),
+		zap.String("full_name", arg.FullName),
+		zap.String("email", arg.Email),
+		zap.String("role", arg.Role))
 
 	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email, arg.Role)
 	var i domain.User
@@ -53,9 +51,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.
 
 	return i, err
 }
-
-
-
 
 const getUser = `-- name: GetUser :one
 SELECT username, hashed_password, full_name, email, password_changed_at, created_at, role_id as role FROM users left join roles on role_id = roles.id 
@@ -78,7 +73,8 @@ func (q *Queries) GetUser(ctx context.Context, username string) (domain.User, er
 }
 
 const deleteUser = `DELETE FROM users WHERE username = $1`
+
 func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, username)
-	return err	
+	return err
 }
