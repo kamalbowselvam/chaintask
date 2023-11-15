@@ -27,4 +27,6 @@ type TaskService interface {
 	DeleteProject(context.Context, int64) error
 	//FIXME Think about arguments that will go into this service
 	//UpdateProject(context.Context, domain.Project) (domain.Project, error)
+
+	CreateCompany(context.Context, db.CreateCompanyParams) (domain.Company, error)
 }

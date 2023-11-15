@@ -66,6 +66,7 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
 	authRoutes.PUT("/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
 	authRoutes.DELETE("/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
+	authRoutes.POST("/companies/", authorizeMid, server.CreateCompany)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	server.router = router
 }

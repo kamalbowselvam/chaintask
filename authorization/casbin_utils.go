@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/casbin/casbin/v2/util"
+	"github.com/go-pg/pg/v10"
 	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
@@ -14,20 +15,23 @@ import (
 type Loaders struct {
 	Adapter  *pgadapter.Adapter
 	Enforcer *casbin.Enforcer
-	//Logger zap.Logger
 }
 
 type FakeLoader struct {
 	Adapter  *fileadapter.Adapter
 	Enforcer *casbin.Enforcer
-	//Logger   zap.Logger
 }
 
 var singleInstance *Loaders
 
 func Load(source string, conf string) (*Loaders, error) {
 	if singleInstance == nil {
-		adapter, err := pgadapter.NewAdapter(source)
+
+		opts, _ := pg.ParseURL(source)
+		db := pg.Connect(opts)
+		//defer db.Close()
+
+		adapter, err := pgadapter.NewAdapterByDB(db)
 		if err != nil {
 			panic(err)
 		}
@@ -38,7 +42,7 @@ func Load(source string, conf string) (*Loaders, error) {
 		}
 		enforcer, err := casbin.NewEnforcer(conf, adapter)
 		if err != nil {
-			
+
 			logger.Fatal("", zap.Error(err))
 			return nil, err
 		}
@@ -48,10 +52,10 @@ func Load(source string, conf string) (*Loaders, error) {
 		//casbin_logger := NewCasbinLogger(true)
 		//enforcer.SetLogger(casbin_logger)
 
-
 		singleInstance = &Loaders{
 			Adapter:  adapter,
 			Enforcer: enforcer,
+
 		}
 	}
 	return singleInstance, nil
