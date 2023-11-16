@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 
 
 
-	testStore = NewStore(testDB, logger)
+	testStore = NewStore(testDB)
 	os.Exit(m.Run())
 
 }

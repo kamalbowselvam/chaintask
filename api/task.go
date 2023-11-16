@@ -135,7 +135,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}
 	c.BindJSON(&taskparam)
-	s.logger.Sugar().Info(taskparam)
+	//s.logger.Sugar().Info(taskparam)
 
 	task, err := s.service.UpdateTask(c, taskparam)
 

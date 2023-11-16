@@ -25,7 +25,7 @@ func TestCreatePolicies(t *testing.T) {
 	if err != nil {
 		logger.Fatal("Can't load the configuration file")
 	}
-	loaders, err := Load(config.DBSource, "./config/rbac_model.conf", *logger)
+	loaders, err := Load(config.DBSource, "./config/rbac_model.conf")
 	if err != nil {
 		panic(err)
 	}

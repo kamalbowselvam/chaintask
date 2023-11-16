@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	"go.uber.org/zap"
+	"github.com/kamalbowselvam/chaintask/logger"
 )
 
 // Store defines all functions to execute db queries and transactions
@@ -18,11 +18,11 @@ type SQLStore struct {
 }
 
 // NewStore creates a new store
-func NewStore(connPool *sql.DB, logger *zap.Logger) Store {
+func NewStore(connPool *sql.DB) Store {
 
 	logger.Info("Starting the Database connection")
 	return &SQLStore{
 		connPool: connPool,
-		Queries:  New(connPool, logger),
+		Queries:  New(connPool),
 	}
 }

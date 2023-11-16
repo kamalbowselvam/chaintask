@@ -6,10 +6,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func New(db *sql.DB, logger *zap.Logger) *Queries {
+func New(db *sql.DB) *Queries {
 	return &Queries{
 		db:     db,
-		logger: logger,
 	}
 }
 

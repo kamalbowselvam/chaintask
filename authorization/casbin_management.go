@@ -8,6 +8,7 @@ import (
 
 	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/casbin/casbin/v2"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/util"
 	"go.uber.org/zap"
 )
@@ -15,14 +16,12 @@ import (
 type CasbinManagement struct {
 	Adapter  *pgadapter.Adapter
 	Enforcer *casbin.Enforcer
-	Logger   zap.Logger
 }
 
 func NewCasbinManagement(loader Loaders) (PolicyManagementService, error) {
 	management := &CasbinManagement{
 		Adapter:  loader.Adapter,
 		Enforcer: loader.Enforcer,
-		Logger: loader.Logger,
 	}
 
 	return management, nil
@@ -36,14 +35,14 @@ func (management *CasbinManagement) CreateAdminPolicies(adminName string) error 
 
 	_, err := management.Enforcer.AddPoliciesEx(rules)
 	if err != nil {
-		management.Logger.Warn("", zap.Error(err))
+		logger.Warn("", zap.Error(err))
 	}
 	return err
 }
 func (management *CasbinManagement) RemoveUserPolicies(username string) error {
 	affected, err := management.Enforcer.DeleteUser(username)
 	if !affected {
-		management.Logger.Sugar().Warnf("%s not present in policies", username)
+		logger.Warnf("%s not present in policies", username)
 	}
 	return err
 }
@@ -77,7 +76,7 @@ func (management *CasbinManagement) RemovePolicies(resource string, username str
 	}
 	affected, err := management.Enforcer.RemovePolicies(policiesToRemove)
 	if !affected {
-		management.Logger.Sugar().Warnf("problem while removing policies %s due to %s", policiesToRemove, err)
+		logger.Warnf("problem while removing policies %s due to %s", policiesToRemove, err)
 	}
 	return err
 }
@@ -87,7 +86,7 @@ func (management *CasbinManagement) AddPolicies(resource string, username string
 	}
 	_, err := management.Enforcer.AddPoliciesEx(rules)
 	if err != nil {
-		management.Logger.Sugar().Warnf("could not create policies %s", err)
+		logger.Warnf("could not create policies %s", err)
 	}
 	return err
 }

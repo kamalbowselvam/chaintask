@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 )
 
 const createProject = `INSERT INTO projects (
@@ -28,7 +29,7 @@ type CreateProjectParam struct {
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
-	q.logger.Info("saving projects")
+	logger.Info("saving projects")
 
 	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project

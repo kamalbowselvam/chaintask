@@ -109,7 +109,7 @@ func TestCreateUserAPI(t *testing.T) {
 	}
 
 
-	testStore = db.NewStore(testDB, logger)
+	testStore = db.NewStore(testDB)
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])
 
 	user, password := randomUser(t, util.ROLES[3])
