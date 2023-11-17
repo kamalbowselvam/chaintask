@@ -10,7 +10,7 @@ type User struct {
 	Email             string    `json:"email"`
 	CreatedAt         time.Time `json:"CreatedAt"`
 	PasswordChangedAt time.Time `json:"PasswordChangedAt"`
-	Role              string    `json:"role"`
+	UserRole          string    `json:"user_role"`
 }
 
 func NewUser(username string, hpassord string, fname string, email string, role string) User {
@@ -20,6 +20,6 @@ func NewUser(username string, hpassord string, fname string, email string, role 
 		HashedPassword: hpassord,
 		FullName:       fname,
 		Email:          email,
-		Role:           role,
+		UserRole:       role,
 	}
 }

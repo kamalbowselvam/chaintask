@@ -37,7 +37,7 @@ func randomUser(t *testing.T, role string) (user domain.User, password string) {
 		HashedPassword: hashedPassword,
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
-		Role:           role,
+		UserRole:       role,
 	}
 	return
 
@@ -81,7 +81,7 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 		HashedPassword: hpassword,
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
-		Role:           role,
+		UserRole:       role,
 	}
 	user, err := testStore.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -99,7 +99,7 @@ func TestCreateUserAPI(t *testing.T) {
 		zapcore.NewConsoleEncoder(aa),
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
-	 ))
+	))
 	if err != nil {
 		logger.Fatal("Failed to load the config file")
 	}
@@ -107,7 +107,6 @@ func TestCreateUserAPI(t *testing.T) {
 	if err != nil {
 		logger.Fatal("cannot connet to db: ", zap.Error(err))
 	}
-
 
 	testStore = db.NewStore(testDB, logger)
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])
@@ -129,7 +128,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 
@@ -138,7 +137,7 @@ func TestCreateUserAPI(t *testing.T) {
 					HashedPassword: user.HashedPassword,
 					FullName:       user.FullName,
 					Email:          user.Email,
-					Role:           user.Role,
+					UserRole:       user.UserRole,
 				}
 				fmt.Println(arg)
 				store.EXPECT().
@@ -151,9 +150,10 @@ func TestCreateUserAPI(t *testing.T) {
 				requireBodyMatchUser(t, recorder.Body, user)
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
+		
 		{
 			name: "InternalError",
 			body: gin.H{
@@ -161,7 +161,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -173,7 +173,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
 
@@ -184,7 +184,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -197,7 +197,7 @@ func TestCreateUserAPI(t *testing.T) {
 
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
 
@@ -208,7 +208,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -220,7 +220,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
 
@@ -231,7 +231,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     "invalid-email",
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -242,7 +242,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
 		{
@@ -252,7 +252,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"password":  "123",
 				"full_name": user.FullName,
 				"email":     user.Email,
-				"role":      user.Role,
+				"user_role": user.UserRole,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -263,9 +263,10 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.Role, time.Hour)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
+		
 	}
 
 	for i := range testCases {
@@ -410,7 +411,6 @@ func TestLoginUserAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
-			
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(recorder)
 		})

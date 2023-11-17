@@ -5,6 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+
 	"github.com/kamalbowselvam/chaintask/authorization"
 	docs "github.com/kamalbowselvam/chaintask/docs"
 	"github.com/kamalbowselvam/chaintask/service"
@@ -38,7 +41,11 @@ func NewServer(config util.Config, service service.TaskService, authorize author
 		config:     config,
 		service:    service,
 		tokenMaker: tokenMaker,
-		logger: logger,
+		logger:     logger,
+	}
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("user_role", validRole)
 	}
 
 	server.setupRouter()

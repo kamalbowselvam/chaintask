@@ -83,7 +83,7 @@ func TestCreateCompanyAPI(t *testing.T) {
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.UserRole, time.Minute)
 			},
 			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
 				AddAuthorization(t, *authorizationLoaders, admin.Username, "/companies*", http.MethodPost)
