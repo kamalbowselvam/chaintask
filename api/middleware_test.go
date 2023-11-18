@@ -47,6 +47,8 @@ func AddAuthorization(
 ){
 	authorizationLoaders.Enforcer.EnableEnforce(true)
 	// Beware, wipes all entries from casbin DB
+	// this line should actually be _, err := authorizationLoaders.Enforcer.RemoveFilteredNamedPolicy("p", 0, "");
+	// but see with Kamal if it affect his workflow
 	_, err := authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
 	if err!= nil{
 		logger.Warn(err.Error())
