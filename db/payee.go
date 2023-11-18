@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +21,7 @@ type CreatePayeeParams struct {
 
 func (q *Queries) CreatePayee(ctx context.Context, arg CreatePayeeParams) (domain.Payee, error) {
 
-	q.logger.Debug("Argument to Create a resource", zap.String("company_name", arg.PayeeName),
+	logger.Debug("Argument to Create a resource", zap.String("company_name", arg.PayeeName),
 		zap.String("address", arg.Address),
 	)
 

@@ -52,6 +52,21 @@ func (mr *MockGlobalRepositoryMockRecorder) CreateCompany(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCompany", reflect.TypeOf((*MockGlobalRepository)(nil).CreateCompany), arg0, arg1)
 }
 
+// CreatePayee mocks base method.
+func (m *MockGlobalRepository) CreatePayee(arg0 context.Context, arg1 db.CreatePayeeParams) (domain.Payee, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePayee", arg0, arg1)
+	ret0, _ := ret[0].(domain.Payee)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePayee indicates an expected call of CreatePayee.
+func (mr *MockGlobalRepositoryMockRecorder) CreatePayee(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePayee", reflect.TypeOf((*MockGlobalRepository)(nil).CreatePayee), arg0, arg1)
+}
+
 // CreateProject mocks base method.
 func (m *MockGlobalRepository) CreateProject(arg0 context.Context, arg1 db.CreateProjectParam) (domain.Project, error) {
 	m.ctrl.T.Helper()
@@ -65,6 +80,21 @@ func (m *MockGlobalRepository) CreateProject(arg0 context.Context, arg1 db.Creat
 func (mr *MockGlobalRepositoryMockRecorder) CreateProject(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProject", reflect.TypeOf((*MockGlobalRepository)(nil).CreateProject), arg0, arg1)
+}
+
+// CreateResource mocks base method.
+func (m *MockGlobalRepository) CreateResource(arg0 context.Context, arg1 db.CreateResourceParams) (domain.Resource, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateResource", arg0, arg1)
+	ret0, _ := ret[0].(domain.Resource)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateResource indicates an expected call of CreateResource.
+func (mr *MockGlobalRepositoryMockRecorder) CreateResource(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateResource", reflect.TypeOf((*MockGlobalRepository)(nil).CreateResource), arg0, arg1)
 }
 
 // CreateSession mocks base method.
