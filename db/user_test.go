@@ -29,6 +29,6 @@ func TestGetUser(t *testing.T) {
 
 
 func TestCreateUserPersistence(t *testing.T) {
-	generateRandomUserWithRole(t,util.ROLES[1])
+	generateRandomUserWithRole(t,"ADMIN")
 
 }

@@ -38,6 +38,7 @@ func RandomName() string {
 }
 
 func RandomRole() int64 {
+
 	return RandomInt(1, 3)
 }
 

@@ -78,7 +78,7 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -97,7 +97,7 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, aclient.Username, aclient.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, aclient.Username, aclient.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -130,7 +130,7 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -147,7 +147,7 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    task.Id,
 			projectID: task.ProjectId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -164,7 +164,7 @@ func TestGetTaskAPI(t *testing.T) {
 			taskID:    0,
 			projectID: 0,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -233,7 +233,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.UserRole, time.Minute)
 			},
 			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
 				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/projects/%d/tasks/", task.ProjectId), http.MethodPost)

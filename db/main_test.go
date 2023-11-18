@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 		zapcore.NewConsoleEncoder(aa),
 		zapcore.AddSync(colorable.NewColorableStdout()),
 		zapcore.DebugLevel,
-	 ))
+	))
 	if err != nil {
 		logger.Fatal("Failed to load the config file")
 	}
@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 
 
 
-	testStore = NewStore(testDB, logger)
+	testStore = NewStore(testDB)
 	os.Exit(m.Run())
 
 }
@@ -50,7 +50,7 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 		HashedPassword: hpassword,
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
-		Role:           role,
+		UserRole:       role,
 	}
 	user, err := testStore.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -60,11 +60,11 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 }
 
 func generateRandomWorksManager(t *testing.T, store GlobalRepository) domain.User {
-	return generateRandomUserWithRole(t, util.ROLES[2])
+	return generateRandomUserWithRole(t, "RESPONSIBLE")
 }
 
 func generateRandomClient(t *testing.T, store GlobalRepository) domain.User {
-	return generateRandomUserWithRole(t, util.ROLES[1])
+	return generateRandomUserWithRole(t, "CLIENT")
 }
 
 func generateRandomLocation() domain.Location {
