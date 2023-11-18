@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +30,7 @@ type CreateUserParams struct {
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
 
-	q.logger.Debug("Arguments to create user",
+	logger.Debug("Arguments to create user",
 		zap.String("user_name", arg.Username),
 		zap.String("hashed_password", arg.HashedPassword),
 		zap.String("full_name", arg.FullName),

@@ -16,11 +16,10 @@ type service struct {
 	logger             *zap.Logger
 }
 
-func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService, logger *zap.Logger) *service {
+func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService) *service {
 	return &service{
 		globalRepository:   globalRepository,
 		policiesRepository: policiesRepository,
-		logger:             logger,
 	}
 }
 

@@ -35,7 +35,9 @@ func TestMain(m *testing.M) {
 		logger.Fatal("cannot connet to db: ", zap.Error(err))
 	}
 
-	testStore = NewStore(testDB, logger)
+
+
+	testStore = NewStore(testDB)
 	os.Exit(m.Run())
 
 }

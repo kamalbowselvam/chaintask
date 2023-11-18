@@ -14,6 +14,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
@@ -48,7 +49,7 @@ func AddAuthorization(
 	// Beware, wipes all entries from casbin DB
 	_, err := authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
 	if err!= nil{
-		authorizationLoaders.Logger.Sugar().Warn(err.Error())
+		logger.Warn(err.Error())
 	}
 	rules := [][]string{
 		{username, resource, rights},

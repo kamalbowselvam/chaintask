@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
@@ -19,9 +20,9 @@ type CreateCompanyParams struct {
 }
 
 func (q *Queries) CreateCompany(ctx context.Context, arg CreateCompanyParams) (domain.Company, error){
-	q.logger.Info("saving comapny")
+	logger.Info("saving comapny")
 	
-	q.logger.Debug("Argument to Create a company", zap.String("company_name",arg.CompanyName),
+	logger.Debug("Argument to Create a company", zap.String("company_name",arg.CompanyName),
 	zap.String("address",arg.Address),
 	)
 	

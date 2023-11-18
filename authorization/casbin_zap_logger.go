@@ -2,7 +2,6 @@ package authorization
 
 import (
 	"sync/atomic"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

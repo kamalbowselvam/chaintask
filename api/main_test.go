@@ -9,10 +9,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
-	"github.com/mattn/go-colorable"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 func loadConfig() *util.Config {
@@ -24,15 +21,15 @@ func loadConfig() *util.Config {
 }
 
 func generateLoader(config util.Config) *authorization.Loaders{
-	aa := zap.NewDevelopmentEncoderConfig()
-	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	//aa := zap.NewDevelopmentEncoderConfig()
+	//aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-	logger := zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(aa),
-		zapcore.AddSync(colorable.NewColorableStdout()),
-		zapcore.DebugLevel,
-	))
-	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf", *logger)
+	//logger := zap.New(zapcore.NewCore(
+	//	zapcore.NewConsoleEncoder(aa),
+	//	zapcore.AddSync(colorable.NewColorableStdout()),
+	//	zapcore.DebugLevel,
+	//))
+	loaders, err := authorization.Load(config.DBSource, "./config/rbac_model.conf")
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +43,7 @@ func newTestServerWithEnforcerAndLoaders(t *testing.T, service service.TaskServi
 	if err != nil {
 		panic(err)
 	}
-	server, err := NewServer(config, service, authorizationService, policyManagementService, &loaders.Logger)
+	server, err := NewServer(config, service, authorizationService, policyManagementService)
 	require.NoError(t, err)
 	return server
 }
