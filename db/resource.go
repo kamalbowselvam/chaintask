@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +21,7 @@ type CreateResourceParams struct {
 
 func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (domain.Resource, error){
 	
-	q.logger.Debug("Argument to Create a resource", zap.String("company_name",arg.ResourceName),
+	logger.Debug("Argument to Create a resource", zap.String("company_name",arg.ResourceName),
 	zap.Float64("availed",arg.Availed),
 	)
 	
