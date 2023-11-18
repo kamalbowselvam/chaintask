@@ -21,7 +21,7 @@ type createUserRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
-	Role     string `json:"role" binding:"required"`
+	UserRole     string `json:"user_role" binding:"required,user_role"`
 }
 
 type userResponse struct {
@@ -30,7 +30,7 @@ type userResponse struct {
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
-	Role              string    `json:"role"`
+	UserRole              string    `json:"user_role"`
 }
 
 func newUserResponse(user domain.User) userResponse {
@@ -41,7 +41,7 @@ func newUserResponse(user domain.User) userResponse {
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
-		Role:              user.Role,
+		UserRole:              user.UserRole,
 	}
 
 	return rsp
@@ -77,7 +77,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		HashedPassword: hashedPassword,
 		FullName:       req.FullName,
 		Email:          req.Email,
-		Role:           req.Role,
+		UserRole:       req.UserRole,
 	}
 
 	user, err := s.service.CreateUser(ctx, arg)
@@ -151,7 +151,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
 		user.Username,
-		util.ROLES_INVERT[user.Role],
+		user.UserRole,
 		s.config.AccessTokenDuration,
 	)
 
@@ -162,7 +162,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 
 	refreshToken, refreshPayload, err := s.tokenMaker.CreateToken(
 		user.Username,
-		util.ROLES_INVERT[user.Role],
+		user.UserRole,
 		s.config.RefreshTokenDuration,
 	)
 

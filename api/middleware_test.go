@@ -27,10 +27,10 @@ func addAuthentification(
 	tokenMaker token.Maker,
 	authentificationType string,
 	username string,
-	role string,
+	user_role string,
 	duration time.Duration,
 ) {
-	token, payload, err := tokenMaker.CreateToken(username, util.ROLES_INVERT[role], duration)
+	token, payload, err := tokenMaker.CreateToken(username, user_role, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, payload)
 
@@ -163,7 +163,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "NOK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.UserRole, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
@@ -193,7 +193,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.UserRole, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -224,7 +224,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -255,7 +255,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, responsible.Username, responsible.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, responsible.Username, responsible.UserRole, time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)

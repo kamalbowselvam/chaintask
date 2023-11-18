@@ -13,11 +13,11 @@ const createUser = `INSERT INTO users (
 	hashed_password, 
 	full_name, 
 	email,
-	role_id 
+	user_role
 ) VALUES ( 
-	$1, $2, $3, $4, (select id from roles where userRole=UPPER($5))
+	$1, $2, $3, $4, UPPER($5)
 ) 
-RETURNING username, hashed_password, full_name, email, created_at, role_id
+RETURNING username, hashed_password, full_name, email, created_at, user_role
 `
 
 type CreateUserParams struct {
@@ -25,7 +25,7 @@ type CreateUserParams struct {
 	HashedPassword string `json:"hashed_password"`
 	FullName       string `json:"full_name"`
 	Email          string `json:"email"`
-	Role           string `json:"role"`
+	UserRole       string `json:"user_role"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
@@ -35,9 +35,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.
 		zap.String("hashed_password", arg.HashedPassword),
 		zap.String("full_name", arg.FullName),
 		zap.String("email", arg.Email),
-		zap.String("role", arg.Role))
+		zap.String("user_role", arg.UserRole))
 
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email, arg.Role)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.HashedPassword, arg.FullName, arg.Email, arg.UserRole)
 	var i domain.User
 
 	err := row.Scan(
@@ -46,14 +46,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.
 		&i.FullName,
 		&i.Email,
 		&i.CreatedAt,
-		&i.Role,
+		&i.UserRole,
 	)
 
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT username, hashed_password, full_name, email, password_changed_at, created_at, role_id as role FROM users left join roles on role_id = roles.id 
+SELECT username, hashed_password, full_name, email, password_changed_at, created_at, user_role FROM users 
 WHERE username = $1 LIMIT 1
 `
 
@@ -67,7 +67,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (domain.User, er
 		&i.Email,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
-		&i.Role,
+		&i.UserRole,
 	)
 	return i, err
 }
