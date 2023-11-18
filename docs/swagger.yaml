@@ -2,6 +2,8 @@ basePath: /api/v1
 definitions:
   api.createUserRequest:
     properties:
+      company_id:
+        type: integer
       email:
         type: string
       full_name:
@@ -9,15 +11,16 @@ definitions:
       password:
         minLength: 6
         type: string
-      role:
+      user_role:
         type: string
       username:
         type: string
     required:
+    - company_id
     - email
     - full_name
     - password
-    - role
+    - user_role
     - username
     type: object
   api.loginUserRequest:
@@ -48,6 +51,8 @@ definitions:
     type: object
   api.userResponse:
     properties:
+      company_id:
+        type: integer
       created_at:
         type: string
       email:
@@ -56,7 +61,7 @@ definitions:
         type: string
       password_changed_at:
         type: string
-      role:
+      user_role:
         type: string
       username:
         type: string
@@ -80,12 +85,17 @@ definitions:
     properties:
       budget:
         type: number
-      projectId:
+      project_id:
         type: integer
-      taskOrder:
+      task_order:
         type: integer
       taskname:
         type: string
+    required:
+    - budget
+    - project_id
+    - task_order
+    - taskname
     type: object
   domain.Company:
     properties:
@@ -160,9 +170,9 @@ definitions:
     type: object
   domain.User:
     properties:
-      CreatedAt:
-        type: string
-      PasswordChangedAt:
+      company_id:
+        type: integer
+      created_at:
         type: string
       email:
         type: string
@@ -172,7 +182,9 @@ definitions:
         type: string
       id:
         type: integer
-      role:
+      password_changed_at:
+        type: string
+      user_role:
         type: string
       username:
         type: string
@@ -224,38 +236,7 @@ paths:
       summary: Create a company
       tags:
       - company
-  /projects/:
-    post:
-      description: create a  project
-      parameters:
-      - description: project creation parameters
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/db.CreateProjectParam'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.Project'
-        "400":
-          description: Bad Request
-          schema: {}
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      security:
-      - BearerAuth: []
-      summary: Create a project
-      tags:
-      - projects
-  /projects/{projectId}/tasks/:
+  /company/{companyID}/projects/{projectId}/tasks/:
     post:
       consumes:
       - application/json
@@ -288,7 +269,7 @@ paths:
       summary: Create a Task
       tags:
       - tasks
-  /projects/{projectId}/tasks/{id}:
+  /company/{companyID}/projects/{projectId}/tasks/{id}:
     delete:
       description: delete a task by its ID
       parameters:
@@ -316,7 +297,7 @@ paths:
       summary: Delete a Task by its ID
       tags:
       - tasks
-  /projects/{projectId}/tasks/{taskId}:
+  /company/{companyID}/projects/{projectId}/tasks/{taskId}:
     get:
       description: get a task by its ID
       parameters:
@@ -346,6 +327,38 @@ paths:
       summary: Get a Task by its ID
       tags:
       - tasks
+  /company/{companyId}/projects/:
+    post:
+      description: create a  project
+      parameters:
+      - description: project creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateProjectParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Project'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Create a project
+      tags:
+      - projects
+  /company/{companyId}/projects/{projectId}/tasks/{taskId}:
     post:
       consumes:
       - application/json

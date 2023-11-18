@@ -98,3 +98,13 @@ func (management *CasbinManagement) RemoveTaskPolicies(taskId int64, projectId i
 	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
 	return management.RemovePolicies(resource, author)
 }
+
+func (management *CasbinManagement) CreateCompanyPolicies(companyId int64, user string) error {
+	resource := fmt.Sprintf("/company/%d", companyId)
+	return management.AddPolicies(resource, user, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete))
+}
+
+func (management *CasbinManagement) RemoveCompanyPolicies(companyId int64, user string) error {
+	resource := fmt.Sprintf("/company/%d", companyId)
+	return management.RemovePolicies(resource, user)
+}

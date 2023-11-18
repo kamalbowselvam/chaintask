@@ -22,7 +22,7 @@ import (
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /projects/{projectId}/tasks/{taskId} [get]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/{taskId} [get]
 // @Security BearerAuth
 func (s *Server) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -65,7 +65,7 @@ func (s *Server) GetTask(c *gin.Context) {
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /projects/{projectId}/tasks/{id} [delete]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/{id} [delete]
 // @Security BearerAuth
 func (s *Server) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -98,7 +98,7 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /projects/{projectId}/tasks/ [post]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
@@ -130,7 +130,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /projects/{projectId}/tasks/{taskId} [post]
+// @Router       /company/{companyId}/projects/{projectId}/tasks/{taskId} [post]
 // @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}

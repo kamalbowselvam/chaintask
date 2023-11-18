@@ -8,4 +8,6 @@ type PolicyManagementService interface {
 	CreateProjectPolicies(int64, string, string) error
 	CreateTaskPolicies(int64, int64, string) error
 	RemoveTaskPolicies(int64, int64, string) error
+	CreateCompanyPolicies(int64, string) error
+	RemoveCompanyPolicies(int64, string) error
 }

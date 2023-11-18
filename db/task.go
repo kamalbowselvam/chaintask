@@ -25,23 +25,23 @@ const createTask = `INSERT INTO tasks (
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
-	TaskName  string  `json:"taskname"`
-	Budget    float64 `json:"budget"`
+	TaskName  string  `json:"taskname" binding:"required"`
+	Budget    float64 `json:"budget" binding:"required,number"`
 	CreatedBy string  `swaggerignore:"true"`
-	TaskOrder int64   `json:"taskOrder"`
-	ProjectId int64   `json:"projectId"`
+	TaskOrder int64   `json:"task_order" binding:"required,number"`
+	ProjectId int64   `json:"project_id" binding:"required,number"`
 }
 
 type UpdateTaskParams struct {
 	Id        int64     `json:"id"`
-	TaskName  string    `json:"taskname"`
-	Budget    float64   `json:"budget"`
+	TaskName  string    `json:"taskname" binding:"required"`
+	Budget    float64   `json:"budget" binding:"required,number"`
 	UpdatedOn time.Time `swaggerignore:"true"`
 	UpdatedBy string    `swaggerignore:"true"`
-	Done      bool      `json:"done"`
-	TaskOrder int64     `json:"taskOrder"`
-	ProjectId int64     `json:"ProjectId"`
-	Version   int64     `json:"Version"`
+	Done      bool      `json:"done" binding:"required,boolean"`
+	TaskOrder int64     `json:"task_order"`
+	ProjectId int64     `json:"project_id" binding:"required,number"`
+	Version   int64     `json:"version" binding:"required,number"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {

@@ -75,55 +75,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/projects/": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "create a  project",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projects"
-                ],
-                "summary": "Create a project",
-                "parameters": [
-                    {
-                        "description": "project creation parameters",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.CreateProjectParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Project"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/projects/{projectId}/tasks/": {
+        "/company/{companyID}/projects/{projectId}/tasks/": {
             "post": {
                 "security": [
                     {
@@ -174,7 +126,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/projects/{projectId}/tasks/{id}": {
+        "/company/{companyID}/projects/{projectId}/tasks/{id}": {
             "delete": {
                 "security": [
                     {
@@ -217,7 +169,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/projects/{projectId}/tasks/{taskId}": {
+        "/company/{companyID}/projects/{projectId}/tasks/{taskId}": {
             "get": {
                 "security": [
                     {
@@ -261,7 +213,57 @@ const docTemplate = `{
                         "schema": {}
                     }
                 }
-            },
+            }
+        },
+        "/company/{companyId}/projects/": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "create a  project",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Create a project",
+                "parameters": [
+                    {
+                        "description": "project creation parameters",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.CreateProjectParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Project"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/company/{companyId}/projects/{projectId}/tasks/{taskId}": {
             "post": {
                 "security": [
                     {
@@ -409,13 +411,17 @@ const docTemplate = `{
         "api.createUserRequest": {
             "type": "object",
             "required": [
+                "company_id",
                 "email",
                 "full_name",
                 "password",
-                "role",
+                "user_role",
                 "username"
             ],
             "properties": {
+                "company_id": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -426,7 +432,7 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 6
                 },
-                "role": {
+                "user_role": {
                     "type": "string"
                 },
                 "username": {
@@ -476,6 +482,9 @@ const docTemplate = `{
         "api.userResponse": {
             "type": "object",
             "properties": {
+                "company_id": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -488,7 +497,7 @@ const docTemplate = `{
                 "password_changed_at": {
                     "type": "string"
                 },
-                "role": {
+                "user_role": {
                     "type": "string"
                 },
                 "username": {
@@ -521,14 +530,20 @@ const docTemplate = `{
         },
         "db.CreateTaskParams": {
             "type": "object",
+            "required": [
+                "budget",
+                "project_id",
+                "task_order",
+                "taskname"
+            ],
             "properties": {
                 "budget": {
                     "type": "number"
                 },
-                "projectId": {
+                "project_id": {
                     "type": "integer"
                 },
-                "taskOrder": {
+                "task_order": {
                     "type": "integer"
                 },
                 "taskname": {
@@ -647,10 +662,10 @@ const docTemplate = `{
         "domain.User": {
             "type": "object",
             "properties": {
-                "CreatedAt": {
-                    "type": "string"
+                "company_id": {
+                    "type": "integer"
                 },
-                "PasswordChangedAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "email": {
@@ -665,7 +680,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "role": {
+                "password_changed_at": {
+                    "type": "string"
+                },
+                "user_role": {
                     "type": "string"
                 },
                 "username": {
