@@ -1,1 +1,0 @@
-ALTER TABLE projects ADD COLUMN company_id BIGINT REFERENCES company(id) NOT NULL;
