@@ -22,7 +22,7 @@ const createTask = `INSERT INTO tasks (
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, taskname, budget, created_by, created_at, updated_by, updated_on, done, task_order, project_id;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
 	TaskName  string  `json:"taskname"`
@@ -72,7 +72,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 
 }
 
-const getTask = `SELECT id, taskname, budget, created_at, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 	WHERE id = $1 LIMIT 1
 	`
 
@@ -99,7 +99,7 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 }
 
 const getTaskList = `
-SELECT id, taskname, budget, created_at, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 WHERE id=any($1)
 `
 
@@ -130,7 +130,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 }
 
 const getTaskListByProject = `
-SELECT id, taskname, budget, created_at, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
 WHERE project_id=$1 ORDER BY task_order ASC
 `
 
