@@ -116,6 +116,7 @@ func TestCreateUserAPI(t *testing.T) {
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])
 
 	user, password := randomUser(t, util.ROLES[3])
+	user.CompanyId = adminUser.CompanyId
 
 	testCases := []struct {
 		name          string
@@ -128,11 +129,12 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "OK",
 			body: gin.H{
-				"username":  user.Username,
+				"user_name":  user.Username,
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 
@@ -142,6 +144,7 @@ func TestCreateUserAPI(t *testing.T) {
 					FullName:       user.FullName,
 					Email:          user.Email,
 					UserRole:       user.UserRole,
+					CompanyId:      user.CompanyId,
 				}
 				fmt.Println(arg)
 				store.EXPECT().
@@ -161,11 +164,12 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InternalError",
 			body: gin.H{
-				"username":  user.Username,
+				"user_name":  user.Username,
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -184,11 +188,12 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "DuplicateUsername",
 			body: gin.H{
-				"username":  user.Username,
+				"user_name":  user.Username,
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -208,11 +213,12 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InvalidUsername",
 			body: gin.H{
-				"username":  "invalid-user#1",
+				"user_name":  "invalid-user#1",
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     user.Email,
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -231,11 +237,12 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "InvalidEmail",
 			body: gin.H{
-				"username":  user.Username,
+				"user_name":  user.Username,
 				"password":  password,
 				"full_name": user.FullName,
 				"email":     "invalid-email",
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -257,6 +264,7 @@ func TestCreateUserAPI(t *testing.T) {
 				"full_name": user.FullName,
 				"email":     user.Email,
 				"user_role": user.UserRole,
+				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
