@@ -72,7 +72,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 
 }
 
-const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 	WHERE id = $1 LIMIT 1
 	`
 
@@ -94,12 +94,13 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 		&t.Done,
 		&t.TaskOrder,
 		&t.ProjectId,
+		&t.CompanyId,
 	)
 	return t, err
 }
 
 const getTaskList = `
-SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 WHERE id=any($1)
 `
 
@@ -123,6 +124,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 			&t.Done,
 			&t.TaskOrder,
 			&t.ProjectId,
+			&t.CompanyId,
 		)
 		res = append(res, t)
 	}
@@ -130,7 +132,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 }
 
 const getTaskListByProject = `
-SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 WHERE project_id=$1 ORDER BY task_order ASC
 `
 
@@ -154,6 +156,7 @@ func (q *Queries) GetTaskListByProject(ctx context.Context, project_id int64) ([
 			&t.Done,
 			&t.TaskOrder,
 			&t.ProjectId,
+			&t.CompanyId,
 		)
 		res = append(res, t)
 	}

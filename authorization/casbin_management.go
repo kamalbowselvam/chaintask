@@ -26,11 +26,26 @@ func NewCasbinManagement(loader Loaders) (PolicyManagementService, error) {
 
 	return management, nil
 }
-func (management *CasbinManagement) CreateAdminPolicies(adminName string) error {
+func (management *CasbinManagement) CreateSuperAdminPolicies(superAdminName string) error {
 	rights := strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut}, util.PIPE)
 	rules := [][]string{
-		{adminName, "/users*", rights},
-		{adminName, "/projects*", rights},
+		{superAdminName, "/users*", rights},
+		{superAdminName, "/projects*", rights},
+		{superAdminName, "/companies*", rights},
+		{superAdminName, "/company*", rights},
+	}
+
+	_, err := management.Enforcer.AddPoliciesEx(rules)
+	if err != nil {
+		logger.Warn("", zap.Error(err))
+	}
+	return err
+}
+func (management *CasbinManagement) CreateAdminPolicies(adminName string, companyId int64) error {
+	rights := strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut}, util.PIPE)
+	rules := [][]string{
+		{adminName, fmt.Sprintf("/company/%d/users*", companyId), rights},
+		{adminName, fmt.Sprintf("/company/%d/projects*", companyId), rights},
 	}
 
 	_, err := management.Enforcer.AddPoliciesEx(rules)
@@ -46,22 +61,22 @@ func (management *CasbinManagement) RemoveUserPolicies(username string) error {
 	}
 	return err
 }
-func (management *CasbinManagement) RemoveProjectPolicies(projectId int64, client string, responsible string) error {
-	resource := fmt.Sprintf("/projects/%d*", projectId)
+func (management *CasbinManagement) RemoveProjectPolicies(projectId int64, client string, responsible string, companyId int64) error {
+	resource := fmt.Sprintf("/company/%d/projects/%d*", companyId, projectId)
 	return errors.Join(management.RemovePolicies(resource, client), management.RemovePolicies(resource, responsible))
 }
-func (management *CasbinManagement) CreateUserPolicies(username string, role string) error {
+func (management *CasbinManagement) CreateUserPolicies(username string, role string, companyId int64) error {
 	var err error
 	if role != util.ROLES[3] {
 		resource := fmt.Sprintf("/users/%s", username)
 		err = management.AddPolicies(resource, username, util.GenerateRoleString(http.MethodGet, http.MethodPut))
 	} else {
-		err = management.CreateAdminPolicies(username)
+		err = management.CreateAdminPolicies(username, companyId)
 	}
 	return err
 }
-func (management *CasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string) error {
-	resource := fmt.Sprintf("/projects/%d/tasks/", projectId)
+func (management *CasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string, companyId int64) error {
+	resource := fmt.Sprintf("/company/%d/projects/%d/tasks/", companyId, projectId)
 	return errors.Join(management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
 	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)))
 
@@ -90,12 +105,12 @@ func (management *CasbinManagement) AddPolicies(resource string, username string
 	}
 	return err
 }
-func (management *CasbinManagement) CreateTaskPolicies(taskId int64, projectId int64, author string) error {
-	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+func (management *CasbinManagement) CreateTaskPolicies(taskId int64, projectId int64, author string, companyId int64) error {
+	resource := fmt.Sprintf("/company/%d/projects/%d/tasks/%d", companyId, projectId, taskId)
 	return management.AddPolicies(resource, author, util.GenerateRoleString(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete))
 }
-func (management *CasbinManagement) RemoveTaskPolicies(taskId int64, projectId int64, author string) error {
-	resource := fmt.Sprintf("/projects/%d/tasks/%d", projectId, taskId)
+func (management *CasbinManagement) RemoveTaskPolicies(taskId int64, projectId int64, author string, companyId int64) error {
+	resource := fmt.Sprintf("/company/%d/projects/%d/tasks/%d", companyId, projectId, taskId)
 	return management.RemovePolicies(resource, author)
 }
 

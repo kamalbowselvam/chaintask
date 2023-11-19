@@ -12,9 +12,10 @@ type Task struct {
 	UpdatedOn time.Time 
 	UpdatedBy string   
 	Done      bool      `json:"done"`
-	TaskOrder int64     `json:"taskOrder"`
-	ProjectId int64     `json:"ProjectId"`
-	Version   int64     `json:"Version"`
+	TaskOrder int64     `json:"task_order"`
+	ProjectId int64     `json:"project_id"`
+	Version   int64     `json:"version"`
+	CompanyId int64     `json:"company_id"`
 }
 
 func NewTask(name string, budget float64, user string, taskorder int64, projectid int64) Task {
