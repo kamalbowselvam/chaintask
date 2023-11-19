@@ -11,17 +11,17 @@ definitions:
       password:
         minLength: 6
         type: string
-      user_role:
+      user_name:
         type: string
-      username:
+      user_role:
         type: string
     required:
     - company_id
     - email
     - full_name
     - password
+    - user_name
     - user_role
-    - username
     type: object
   api.loginUserRequest:
     properties:
@@ -61,9 +61,9 @@ definitions:
         type: string
       password_changed_at:
         type: string
-      user_role:
+      user_name:
         type: string
-      username:
+      user_role:
         type: string
     type: object
   db.CreateProjectParam:
@@ -72,14 +72,18 @@ definitions:
         type: string
       client:
         type: string
-      location:
-        items:
-          type: number
-        type: array
-      projectname:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      project_name:
         type: string
       responsible:
         type: string
+    required:
+    - client
+    - project_name
+    - responsible
     type: object
   db.CreateTaskParams:
     properties:
@@ -87,15 +91,15 @@ definitions:
         type: number
       project_id:
         type: integer
+      task_name:
+        type: string
       task_order:
         type: integer
-      taskname:
-        type: string
     required:
     - budget
     - project_id
+    - task_name
     - task_order
-    - taskname
     type: object
   domain.Company:
     properties:
@@ -122,19 +126,21 @@ definitions:
         type: number
       client:
         type: string
+      company_id:
+        type: integer
       completion_percentage:
         type: number
-      createdBy:
+      created_by:
         type: string
-      createdOn:
+      created_on:
         type: string
       id:
         type: integer
-      location:
-        items:
-          type: number
-        type: array
-      projectname:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      project_name:
         type: string
       responsible:
         type: string
@@ -145,12 +151,10 @@ definitions:
     type: object
   domain.Task:
     properties:
-      ProjectId:
-        type: integer
-      Version:
-        type: integer
       budget:
         type: number
+      company_id:
+        type: integer
       createdBy:
         type: string
       createdOn:
@@ -159,7 +163,9 @@ definitions:
         type: boolean
       id:
         type: integer
-      taskOrder:
+      project_id:
+        type: integer
+      task_order:
         type: integer
       taskname:
         type: string
@@ -167,6 +173,8 @@ definitions:
         type: string
       updatedOn:
         type: string
+      version:
+        type: integer
     type: object
   domain.User:
     properties:
@@ -184,9 +192,9 @@ definitions:
         type: integer
       password_changed_at:
         type: string
-      user_role:
+      user_name:
         type: string
-      username:
+      user_role:
         type: string
     type: object
 host: localhost:8080

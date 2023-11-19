@@ -415,8 +415,8 @@ const docTemplate = `{
                 "email",
                 "full_name",
                 "password",
-                "user_role",
-                "username"
+                "user_name",
+                "user_role"
             ],
             "properties": {
                 "company_id": {
@@ -432,10 +432,10 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 6
                 },
-                "user_role": {
+                "user_name": {
                     "type": "string"
                 },
-                "username": {
+                "user_role": {
                     "type": "string"
                 }
             }
@@ -497,16 +497,21 @@ const docTemplate = `{
                 "password_changed_at": {
                     "type": "string"
                 },
-                "user_role": {
+                "user_name": {
                     "type": "string"
                 },
-                "username": {
+                "user_role": {
                     "type": "string"
                 }
             }
         },
         "db.CreateProjectParam": {
             "type": "object",
+            "required": [
+                "client",
+                "project_name",
+                "responsible"
+            ],
             "properties": {
                 "address": {
                     "type": "string"
@@ -514,13 +519,13 @@ const docTemplate = `{
                 "client": {
                     "type": "string"
                 },
-                "location": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
+                "latitude": {
+                    "type": "number"
                 },
-                "projectname": {
+                "longitude": {
+                    "type": "number"
+                },
+                "project_name": {
                     "type": "string"
                 },
                 "responsible": {
@@ -533,8 +538,8 @@ const docTemplate = `{
             "required": [
                 "budget",
                 "project_id",
-                "task_order",
-                "taskname"
+                "task_name",
+                "task_order"
             ],
             "properties": {
                 "budget": {
@@ -543,11 +548,11 @@ const docTemplate = `{
                 "project_id": {
                     "type": "integer"
                 },
+                "task_name": {
+                    "type": "string"
+                },
                 "task_order": {
                     "type": "integer"
-                },
-                "taskname": {
-                    "type": "string"
                 }
             }
         },
@@ -589,25 +594,28 @@ const docTemplate = `{
                 "client": {
                     "type": "string"
                 },
+                "company_id": {
+                    "type": "integer"
+                },
                 "completion_percentage": {
                     "type": "number"
                 },
-                "createdBy": {
+                "created_by": {
                     "type": "string"
                 },
-                "createdOn": {
+                "created_on": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "location": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
+                "latitude": {
+                    "type": "number"
                 },
-                "projectname": {
+                "longitude": {
+                    "type": "number"
+                },
+                "project_name": {
                     "type": "string"
                 },
                 "responsible": {
@@ -624,14 +632,11 @@ const docTemplate = `{
         "domain.Task": {
             "type": "object",
             "properties": {
-                "ProjectId": {
-                    "type": "integer"
-                },
-                "Version": {
-                    "type": "integer"
-                },
                 "budget": {
                     "type": "number"
+                },
+                "company_id": {
+                    "type": "integer"
                 },
                 "createdBy": {
                     "type": "string"
@@ -645,7 +650,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "taskOrder": {
+                "project_id": {
+                    "type": "integer"
+                },
+                "task_order": {
                     "type": "integer"
                 },
                 "taskname": {
@@ -656,6 +664,9 @@ const docTemplate = `{
                 },
                 "updatedOn": {
                     "type": "string"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
@@ -683,10 +694,10 @@ const docTemplate = `{
                 "password_changed_at": {
                     "type": "string"
                 },
-                "user_role": {
+                "user_name": {
                     "type": "string"
                 },
-                "username": {
+                "user_role": {
                     "type": "string"
                 }
             }
