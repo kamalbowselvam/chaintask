@@ -45,15 +45,9 @@ type UpdateTaskParams struct {
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
-	logger.Info("saving tasks")
-	
-	logger.Debug("Argument to Create task", zap.String("task_name",arg.TaskName),
-	zap.Float64("budget",arg.Budget),
-	zap.String("task_name",arg.CreatedBy),
-	zap.Int64("task_name",arg.TaskOrder),
-	zap.Int64("task_name",arg.ProjectId),
-	)
-	
+
+	logger.Debug("saving tasks", zap.String("task","hello"))
+
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)
 	var i domain.Task
 	err := row.Scan(
@@ -172,7 +166,6 @@ func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 
 const deleteTaskFromProject = `DELETE FROM tasks WHERE project_id = $1`
 
-
 func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteTaskFromProject, id)
 	return err
@@ -210,12 +203,12 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 	if err != nil {
 		return fail(err)
 	}
-	affected, err  := result.RowsAffected() 
-	if err != nil{
+	affected, err := result.RowsAffected()
+	if err != nil {
 		return fail(err)
 	}
-	if affected != 1{
-		return fail(errors.New("more than 1 row or 0 affected"));
+	if affected != 1 {
+		return fail(errors.New("more than 1 row or 0 affected"))
 	}
 
 	// Commit the transaction.
