@@ -65,8 +65,7 @@ func generateRandomCompany(t *testing.T) domain.Company {
 }
 
 func generateRandomUserWithRoleAndCompany(t *testing.T, role string, company int64) domain.User{
-	user := generateRandomUserWithRole(t, role);
-	user.CompanyId = company
+	user := generateRandomUserWithRoleWithinCompany(t, role, company);
 	return user;
 
 }
@@ -86,6 +85,25 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 	return user
 
 }
+
+func generateRandomUserWithRoleWithinCompany(t *testing.T, role string, company int64) domain.User {
+
+	hpassword, _ := util.HashPassword(util.RandomString(32))
+	arg := CreateUserParams{
+		Username:       util.RandomName(),
+		HashedPassword: hpassword,
+		FullName:       util.RandomName(),
+		Email:          util.RandomEmail(),
+		UserRole:       role,
+		CompanyId:      company,
+	}
+	user, err := testStore.CreateUser(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, user)
+	return user
+
+}
+
 
 func generateRandomWorksManager(t *testing.T) domain.User {
 	return generateRandomUserWithRole(t, "RESPONSIBLE")

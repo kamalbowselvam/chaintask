@@ -13,7 +13,7 @@ const createProject = `INSERT INTO projects (
 	location,
 	address,
 	responsible,
-	client,
+	client
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
