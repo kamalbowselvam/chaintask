@@ -172,10 +172,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -203,10 +203,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -234,10 +234,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -265,10 +265,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
