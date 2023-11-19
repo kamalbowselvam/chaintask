@@ -316,6 +316,12 @@ func randomProject(client string, responsible string) domain.Project {
 	}
 }
 
+func randomProjectWithinCompany(client string, responsible string, companyId int64) domain.Project {
+	project := randomProject(client, responsible)
+	project.CompanyId = companyId
+	return project
+}
+
 func randomTask(username string, projectId int64) domain.Task {
 
 	name := util.RandomName()

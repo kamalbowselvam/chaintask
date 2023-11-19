@@ -14,26 +14,24 @@ const createProject = `INSERT INTO projects (
 	address,
 	responsible,
 	client,
-	company_id
   ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7
+	$1, $2, $3, $4, $5, $6
   )
   RETURNING id, projectname, created_at, created_by, location, address, responsible, client, company_id;`
 
 type CreateProjectParam struct {
-	ProjectName string          `json:"projectname" `
+	ProjectName string          `json:"project_name" binding:"required,number"`
 	CreatedBy   string          `swaggerignore:"true"`
 	Location    domain.Location `json:"location"`
 	Address     string          `json:"address"`
-	Responsible string          `json:"responsible"`
-	Client      string          `json:"client"`
-	CompanyId   int64           `json:"company_id"`
+	Responsible string          `json:"responsible" binding:"required"`
+	Client      string          `json:"client" binding:"required"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
 	logger.Info("saving projects")
 
-	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client, arg.CompanyId)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project
 	var p Point
 	err := row.Scan(

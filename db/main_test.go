@@ -120,7 +120,6 @@ func generateRandomProject(t *testing.T) domain.Project {
 		Responsible: resp.Username,
 		Address:     util.RandomAddress(),
 		Location:    generateRandomLocation(),
-		CompanyId: resp.CompanyId,
 	}
 
 	project, err := testStore.CreateProject(context.Background(), arg)

@@ -43,6 +43,12 @@ func randomUser(t *testing.T, role string) (user domain.User, password string) {
 
 }
 
+func randomUserWithinCompany(t *testing.T, role string, companyId int64) (domain.User, string) {
+	user, pass := randomUser(t, role)
+	user.CompanyId = companyId
+	return user, pass
+}
+
 type eqCreateUserParamsMatcher struct {
 	arg      db.CreateUserParams
 	password string
@@ -84,7 +90,7 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
 		UserRole:       role,
-		CompanyId: company.Id,
+		CompanyId:      company.Id,
 	}
 	user, err := testStore.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
@@ -111,7 +117,6 @@ func TestCreateUserAPI(t *testing.T) {
 		logger.Fatal("cannot connet to db: ", zap.Error(err))
 	}
 
-
 	testStore = db.NewStore(testDB)
 	adminUser := generateRandomUserWithRole(t, util.ROLES[3])
 
@@ -130,10 +135,10 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "OK",
 			body: gin.H{
 				"user_name":  user.Username,
-				"password":  password,
-				"full_name": user.FullName,
-				"email":     user.Email,
-				"user_role": user.UserRole,
+				"password":   password,
+				"full_name":  user.FullName,
+				"email":      user.Email,
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -160,15 +165,15 @@ func TestCreateUserAPI(t *testing.T) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
-		
+
 		{
 			name: "InternalError",
 			body: gin.H{
 				"user_name":  user.Username,
-				"password":  password,
-				"full_name": user.FullName,
-				"email":     user.Email,
-				"user_role": user.UserRole,
+				"password":   password,
+				"full_name":  user.FullName,
+				"email":      user.Email,
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -189,10 +194,10 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "DuplicateUsername",
 			body: gin.H{
 				"user_name":  user.Username,
-				"password":  password,
-				"full_name": user.FullName,
-				"email":     user.Email,
-				"user_role": user.UserRole,
+				"password":   password,
+				"full_name":  user.FullName,
+				"email":      user.Email,
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -214,10 +219,10 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "InvalidUsername",
 			body: gin.H{
 				"user_name":  "invalid-user#1",
-				"password":  password,
-				"full_name": user.FullName,
-				"email":     user.Email,
-				"user_role": user.UserRole,
+				"password":   password,
+				"full_name":  user.FullName,
+				"email":      user.Email,
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -238,10 +243,10 @@ func TestCreateUserAPI(t *testing.T) {
 			name: "InvalidEmail",
 			body: gin.H{
 				"user_name":  user.Username,
-				"password":  password,
-				"full_name": user.FullName,
-				"email":     "invalid-email",
-				"user_role": user.UserRole,
+				"password":   password,
+				"full_name":  user.FullName,
+				"email":      "invalid-email",
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -259,11 +264,11 @@ func TestCreateUserAPI(t *testing.T) {
 		{
 			name: "TooShortPassword",
 			body: gin.H{
-				"username":  user.Username,
-				"password":  "123",
-				"full_name": user.FullName,
-				"email":     user.Email,
-				"user_role": user.UserRole,
+				"username":   user.Username,
+				"password":   "123",
+				"full_name":  user.FullName,
+				"email":      user.Email,
+				"user_role":  user.UserRole,
 				"company_id": user.CompanyId,
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -278,7 +283,6 @@ func TestCreateUserAPI(t *testing.T) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, adminUser.Username, adminUser.UserRole, time.Hour)
 			},
 		},
-		
 	}
 
 	for i := range testCases {
