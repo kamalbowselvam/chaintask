@@ -46,7 +46,10 @@ type UpdateTaskParams struct {
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
 
-	logger.Debug("saving tasks", zap.String("task","hello"))
+	logger.Debug("Creating task",
+		zap.String("package", "db"),
+		zap.String("function", "CreateTask"),
+	)
 
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)
 	var i domain.Task

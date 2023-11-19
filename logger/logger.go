@@ -13,6 +13,8 @@ func init() {
 	var err error
 
 	config := zap.NewDevelopmentConfig()
+	config.Encoding = "json"
+
 	enccoderConfig := zap.NewDevelopmentEncoderConfig()
 
 	zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
