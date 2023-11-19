@@ -3,7 +3,8 @@ CREATE TABLE "projects" (
   "projectname" VARCHAR NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "created_by" VARCHAR NOT NULL,
-  "location" Point NOT NULL,
+  "longitude" REAL,
+  "latitude" REAL,
   "address" VARCHAR NOT NULL,
   "responsible" VARCHAR NOT NULL,
   "client" VARCHAR NOT NULL

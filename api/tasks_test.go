@@ -304,10 +304,8 @@ func randomProject(client string, responsible string) domain.Project {
 		Projectname: util.RandomName(),
 		CreatedOn:   time.Now(),
 		CreatedBy:   util.DEFAULT_SUPER_ADMIN,
-		Location: domain.Location{
-			util.RandomLatitude(),
-			util.RandomLongitude(),
-		},
+		Longitude: util.RandomLongitude(),
+		Latitude: util.RandomLatitude(),
 		Address:              util.RandomAddress(),
 		Client:               client,
 		Responsible:          responsible,

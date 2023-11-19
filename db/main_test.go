@@ -113,18 +113,8 @@ func generateRandomWorksManagerWithinCompany(t *testing.T, company int64) domain
 	return generateRandomUserWithRoleAndCompany(t, "RESPONSIBLE", company)
 }
 
-/*
-func generateRandomClient(t *testing.T) domain.User {
-	return generateRandomUserWithRole(t, "CLIENT")
-}*/
-
 func generateRandomClientWithinCompany(t *testing.T, company int64) domain.User {
 	return generateRandomUserWithRoleAndCompany(t, "CLIENT", company)
-}
-
-func generateRandomLocation() domain.Location {
-	return domain.Location{
-		util.RandomLatitude(), util.RandomLongitude()}
 }
 
 func generateRandomProject(t *testing.T) domain.Project {
@@ -137,7 +127,8 @@ func generateRandomProject(t *testing.T) domain.Project {
 		Client:      client.Username,
 		Responsible: resp.Username,
 		Address:     util.RandomAddress(),
-		Location:    generateRandomLocation(),
+		Longitude: util.RandomLongitude(),
+		Latitude: util.RandomLatitude(),
 	}
 
 	project, err := testStore.CreateProject(context.Background(), arg)
