@@ -1,9 +1,10 @@
 package api
 
-/*
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,30 +19,32 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func randomProject(t *testing.T, client domain.User, responsible domain.User, admin domain.User) (project domain.Project) {
 
-	project = domain.Project{
-		Id : util.RandomInt(0,1000),
-		Projectname: util.RandomString(10),
-		CreatedBy:   admin.Username,
-		Location:    domain.Location{util.RandomLatitude(), util.RandomLongitude()},
-		Responsible: responsible.Username,
-		Client:      client.Username,
-		Address:     util.RandomAddress(),
-	}
-	return
+func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, task domain.Project) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotTask domain.Project
+
+	err = json.Unmarshal(data, &gotTask)
+	require.NoError(t, err)
+	require.Equal(t, task.CreatedOn.UnixMilli(), gotTask.CreatedOn.UnixMilli())
+
 }
+
+
 
 func TestCreateProjectAPI(t *testing.T) {
 	client, _ := randomUser(t, util.ROLES[1])
 	responsible, _ := randomUser(t, util.ROLES[2])
 	admin, _ := randomUser(t, util.ROLES[3])
 
-	project := randomProject(t, client, responsible, admin)
+	project := randomProject(client.Username, responsible.Username)
 
 	testCases := []struct {
 		name          string
 		projectID     int64
+		companyID     int64
 		body          gin.H
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
@@ -50,12 +53,13 @@ func TestCreateProjectAPI(t *testing.T) {
 		{
 			name:   "OK",
 			projectID: project.Id,
+			companyID: project.CompanyId,
 			body: gin.H{
 				"projectname":  project.Projectname,
 				"createdBy": project.CreatedBy,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.UserRole, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -79,27 +83,18 @@ func TestCreateProjectAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			taskHandler := NewTestHandler(t, store)
-			router := gin.New()
-			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
+			server := newTestServerWithEnforcer(t, store, true)
+			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible,  project.CompanyId)
 
-			authRoutes.POST("/projects/", taskHandler.CreateProject)
 			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/company/%d/projects/", tc.companyID)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
 
-			data, err := json.Marshal(tc.body)
-			require.NoError(t, err)
-			url := "/projects/"
-			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
-			require.NoError(t, err)
-			tc.setupAuth(t, request, taskHandler.tokenMaker)
-			router.ServeHTTP(recorder, request)
+			tc.setupAuth(t, request, server.tokenMaker)
+			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
-
 		})
-
 	}
-
-
-
 }
-*/
+
