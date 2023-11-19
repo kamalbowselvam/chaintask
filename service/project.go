@@ -19,7 +19,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	project.CompletionPercentage = 0
 	project.Budget = 0
 	if err == nil {
-		err = srv.policiesRepository.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
+		err = srv.policiesRepository.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 		if err != nil {
 			err = srv.DeleteProject(ctx, project.Id)
 			if err != nil {
@@ -36,9 +36,9 @@ func (srv *service) DeleteProject(ctx context.Context, id int64) error {
 	if err != nil {
 		return nil
 	}
-	srv.policiesRepository.RemoveProjectPolicies(project.Id, project.Client, project.Responsible)
+	srv.policiesRepository.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 	for _, task := range project.Tasks{
-		srv.policiesRepository.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy)
+		srv.policiesRepository.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, project.CompanyId)
 	}
 	err = srv.globalRepository.DeleteTasksLinkedToProject(ctx, id)
 	if err != nil {

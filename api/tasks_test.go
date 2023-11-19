@@ -69,6 +69,7 @@ func TestGetTaskAPI(t *testing.T) {
 		name          string
 		taskID        int64
 		projectID     int64
+		companyID     int64
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
@@ -77,6 +78,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "OK",
 			taskID:    task.Id,
 			projectID: task.ProjectId,
+			companyID: project.CompanyId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
@@ -96,6 +98,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "UnauthorizedUser",
 			taskID:    task.Id,
 			projectID: task.ProjectId,
+			companyID: project.CompanyId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, aclient.Username, aclient.UserRole, time.Minute)
 			},
@@ -113,6 +116,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "NoAuthorization",
 			taskID:    task.Id,
 			projectID: task.ProjectId,
+			companyID: project.CompanyId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -129,6 +133,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "NotFound",
 			taskID:    task.Id,
 			projectID: task.ProjectId,
+			companyID: project.CompanyId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
@@ -146,6 +151,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "InternalError",
 			taskID:    task.Id,
 			projectID: task.ProjectId,
+			companyID: project.CompanyId,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
@@ -163,6 +169,7 @@ func TestGetTaskAPI(t *testing.T) {
 			name:      "InvalidID",
 			taskID:    0,
 			projectID: 0,
+			companyID: 0,
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
 			},
@@ -187,11 +194,10 @@ func TestGetTaskAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			server := newTestServerWithEnforcer(t, store, true)
-			//server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
-			server.policies.CreateTaskPolicies(task.Id,project.Id, project.Client)
+			server.policies.CreateTaskPolicies(task.Id,project.Id, project.Client, project.CompanyId)
 
 			recorder := httptest.NewRecorder()
-			url := fmt.Sprintf("/projects/%d/tasks/%d", tc.projectID, tc.taskID)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/%d", tc.companyID, tc.projectID, tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -209,6 +215,7 @@ func TestCreateTaskAPI(t *testing.T) {
 	responsible, _ := randomUser(t, util.ROLES[2])
 	project := randomProject(user.Username, responsible.Username)
 	task := randomTask(user.Username, project.Id)
+	task.CompanyId = project.CompanyId
 	config := loadConfig()
 	authorizationLoaders := generateLoader(*config)
 
@@ -225,18 +232,17 @@ func TestCreateTaskAPI(t *testing.T) {
 			name:  "OK",
 			gtask: task,
 			body: gin.H{
-				"taskname":  task.TaskName,
-				"createdBy": task.CreatedBy,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"projectId": task.ProjectId,
-				"taskOrder": task.TaskOrder,
+				"project_id": task.ProjectId,
+				"task_order": task.TaskOrder,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.UserRole, time.Minute)
 			},
 			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
-				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/projects/%d/tasks/", task.ProjectId), http.MethodPost)
+				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/company/%d/projects/%d/tasks/", project.CompanyId, task.ProjectId), http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
@@ -277,7 +283,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", task.CompanyId, tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
@@ -297,17 +303,21 @@ func randomProject(client string, responsible string) domain.Project {
 		Id:          util.RandomInt(1, 1000),
 		Projectname: util.RandomName(),
 		CreatedOn:   time.Now(),
-		CreatedBy:   util.DEFAULT_ADMIN,
-		Location: domain.Location{
-			util.RandomLatitude(),
-			util.RandomLongitude(),
-		},
+		CreatedBy:   util.DEFAULT_SUPER_ADMIN,
+		Longitude: util.RandomLongitude(),
+		Latitude: util.RandomLatitude(),
 		Address:              util.RandomAddress(),
 		Client:               client,
 		Responsible:          responsible,
 		Budget:               float64(util.RandomInt(1, 100)),
 		CompletionPercentage: float64(util.RandomInt(1, 100)),
 	}
+}
+
+func randomProjectWithinCompany(client string, responsible string, companyId int64) domain.Project {
+	project := randomProject(client, responsible)
+	project.CompanyId = companyId
+	return project
 }
 
 func randomTask(username string, projectId int64) domain.Task {

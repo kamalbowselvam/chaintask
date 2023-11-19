@@ -1,8 +1,6 @@
 package api
 
 import (
-	//	"database/sql"
-	//	"errors"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -17,20 +15,22 @@ import (
 )
 
 type createUserRequest struct {
-	Username string `json:"username" binding:"required,alphanum"`
+	Username string `json:"user_name" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	UserRole     string `json:"user_role" binding:"required,user_role"`
+	CompanyId   int64   `json:"company_id" binding:"required,number"`
 }
 
 type userResponse struct {
-	Username          string    `json:"username"`
+	Username          string    `json:"user_name"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 	UserRole              string    `json:"user_role"`
+	ComapnyId             int64  `json:"company_id"`
 }
 
 func newUserResponse(user domain.User) userResponse {
@@ -42,6 +42,7 @@ func newUserResponse(user domain.User) userResponse {
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 		UserRole:              user.UserRole,
+		ComapnyId: user.CompanyId,
 	}
 
 	return rsp
@@ -78,6 +79,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		FullName:       req.FullName,
 		Email:          req.Email,
 		UserRole:       req.UserRole,
+		CompanyId: req.CompanyId,
 	}
 
 	user, err := s.service.CreateUser(ctx, arg)

@@ -34,7 +34,7 @@ func TestCreatePolicies(t *testing.T) {
 		panic(err)
 	}
 	name := util.RandomName()
-	err = policyManagementService.CreateAdminPolicies(name)
+	err = policyManagementService.CreateSuperAdminPolicies(name)
 	require.NoError(t, err)
 	right, err2 := loaders.Enforcer.Enforce(name, "/projects", http.MethodPost)
 	require.True(t, right)

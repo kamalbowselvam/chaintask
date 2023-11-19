@@ -4,7 +4,7 @@ import "strings"
 
 const (
 	PIPE = "|"
-	DEFAULT_ADMIN = "kselvamADMIN"
+	DEFAULT_SUPER_ADMIN = "kselvamADMIN"
 )
 
 

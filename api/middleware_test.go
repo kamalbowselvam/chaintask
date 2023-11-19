@@ -47,6 +47,8 @@ func AddAuthorization(
 ){
 	authorizationLoaders.Enforcer.EnableEnforce(true)
 	// Beware, wipes all entries from casbin DB
+	// this line should actually be _, err := authorizationLoaders.Enforcer.RemoveFilteredNamedPolicy("p", 0, "");
+	// but see with Kamal if it affects his workflow
 	_, err := authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
 	if err!= nil{
 		logger.Warn(err.Error())
@@ -120,20 +122,6 @@ func TestAuthMiddleware(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 
 			server := newTestServer(t, store)
-			/*
-				hdlr := NewTestHandler(t, nil)
-				router := gin.Default()
-
-				authPath := "/auth"
-				router.GET(
-					authPath,
-					AuthMiddleware(hdlr.tokenMaker),
-					func(ctx *gin.Context) {
-						ctx.JSON(http.StatusOK, gin.H{})
-					},
-				)
-			*/
-
 			recorder := httptest.NewRecorder()
 			request, err := http.NewRequest(http.MethodGet, "/auth", nil)
 			require.NoError(t, err)
@@ -150,6 +138,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 	user, _ := randomUser(t, util.ROLES[1])
 	responsible, _ := randomUser(t, util.ROLES[2])
 	project := randomProject(client.Username, responsible.Username)
+	companyId := project.CompanyId
 	task := randomTask(client.Username, project.Id)
 
 	testCases := []struct {
@@ -183,10 +172,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -214,10 +203,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -245,10 +234,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -276,10 +265,10 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			},
 			body: gin.H{
-				"taskname":  task.TaskName,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"taskOrder": task.TaskOrder,
-				"projectId": task.ProjectId,
+				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 			gtask: task,
 		},
@@ -295,14 +284,14 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			tc.buildStubs(store)
 
 			server := newTestServerWithEnforcer(t, store, true)
-			server.policies.CreateAdminPolicies(admin.Username)
-			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible)
+			server.policies.CreateAdminPolicies(admin.Username, admin.CompanyId)
+			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 			recorder := httptest.NewRecorder()
 			data, err := json.Marshal(tc.body)
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", companyId, tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 

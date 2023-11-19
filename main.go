@@ -70,7 +70,7 @@ func main() {
 		panic(err)
 	}
 	// Just assuring that the casbin has at least policies for admin
-	policyManagementService.CreateAdminPolicies(util.DEFAULT_ADMIN)
+	policyManagementService.CreateSuperAdminPolicies(util.DEFAULT_SUPER_ADMIN)
 
 	if err = dbconn.Ping(); err != nil {
 		panic(err)

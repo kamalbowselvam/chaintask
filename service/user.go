@@ -12,7 +12,7 @@ func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (do
 
 	user, err := srv.globalRepository.CreateUser(context.Background(), arg)
 	if err == nil {
-		err = srv.policiesRepository.CreateUserPolicies(arg.Username, arg.UserRole)
+		err = srv.policiesRepository.CreateUserPolicies(arg.Username, arg.UserRole, arg.CompanyId)
 		if err != nil {
 			err = srv.DeleteUser(ctx, arg.Username)
 			if err != nil {

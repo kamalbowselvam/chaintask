@@ -114,7 +114,7 @@ func TestUpdateTaskHelper(t *testing.T) {
 func TestOptimistic(t *testing.T){
 	ctx := context.Background()
 	task := generateRandomTask(t)
-	user := generateRandomWorksManager(t, testStore)
+	user := generateRandomWorksManager(t)
 
 	start := time.Now()
 	if err := testSaveBulkData(ctx, task, user.Username); (err != nil){

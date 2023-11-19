@@ -10,41 +10,43 @@ import (
 const createProject = `INSERT INTO projects (
 	projectname,
 	created_by,
-	location,
+	longitude,
+	latitude,
 	address,
 	responsible,
 	client
   ) VALUES (
-	$1, $2, $3, $4, $5, $6
+	$1, $2, $3, $4, $5, $6, $7
   )
-  RETURNING id, projectname, created_at, created_by, location, address, responsible, client;`
+  RETURNING id, projectname, created_at, created_by, longitude, latitude, address, responsible, client, company_id;`
 
 type CreateProjectParam struct {
-	ProjectName string          `json:"projectname"`
+	ProjectName string          `json:"project_name" binding:"required,number"`
 	CreatedBy   string          `swaggerignore:"true"`
-	Location    domain.Location `json:"location"`
+	Longitude   float64         `json:"longitude"`
+	Latitude    float64         `json:"latitude"`
 	Address     string          `json:"address"`
-	Responsible string          `json:"responsible"`
-	Client      string          `json:"client"`
+	Responsible string          `json:"responsible" binding:"required"`
+	Client      string          `json:"client" binding:"required"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
 	logger.Info("saving projects")
 
-	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, Point{arg.Location[0], arg.Location[1]}, arg.Address, arg.Responsible, arg.Client)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, arg.Longitude, arg.Latitude, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project
-	var p Point
 	err := row.Scan(
 		&i.Id,
 		&i.Projectname,
 		&i.CreatedOn,
 		&i.CreatedBy,
-		&p,
+		&i.Longitude,
+		&i.Latitude,
 		&i.Address,
 		&i.Responsible,
 		&i.Client,
+		&i.CompanyId,
 	)
-	i.Location = domain.Location{p[0], p[1]}
 	return i, err
 
 }
@@ -68,21 +70,21 @@ func (q *Queries) DeleteProject(ctx context.Context, projectId int64) (error){
 	return err
 }
 
-const getProject = `select projectname, created_at, created_by, location, address, responsible, client FROM projects where id = $1`
+const getProject = `select projectname, created_at, created_by, longitude, latitude, address, responsible, client, company_id FROM projects where id = $1`
 func (q *Queries) GetProject(ctx context.Context, projectId int64) (domain.Project, error){
 	row := q.db.QueryRowContext(ctx, getProject, projectId)
 	var i domain.Project
-	var p Point
 	err := row.Scan(
 		&i.Id,
 		&i.Projectname,
 		&i.CreatedOn,
 		&i.CreatedBy,
-		&p,
+		&i.Longitude,
+		&i.Latitude,
 		&i.Address,
 		&i.Responsible,
 		&i.Client,
+		&i.CompanyId,
 	)
-	i.Location = domain.Location{p[0], p[1]}
 	return i, err
 }

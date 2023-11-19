@@ -25,23 +25,23 @@ const createTask = `INSERT INTO tasks (
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
-	TaskName  string  `json:"taskname"`
-	Budget    float64 `json:"budget"`
+	TaskName  string  `json:"task_name" binding:"required"`
+	Budget    float64 `json:"budget" binding:"required,number"`
 	CreatedBy string  `swaggerignore:"true"`
-	TaskOrder int64   `json:"taskOrder"`
-	ProjectId int64   `json:"projectId"`
+	TaskOrder int64   `json:"task_order" binding:"required,number"`
+	ProjectId int64   `json:"project_id" binding:"required,number"`
 }
 
 type UpdateTaskParams struct {
 	Id        int64     `json:"id"`
-	TaskName  string    `json:"taskname"`
-	Budget    float64   `json:"budget"`
+	TaskName  string    `json:"task_name" binding:"required"`
+	Budget    float64   `json:"budget" binding:"required,number"`
 	UpdatedOn time.Time `swaggerignore:"true"`
 	UpdatedBy string    `swaggerignore:"true"`
-	Done      bool      `json:"done"`
-	TaskOrder int64     `json:"taskOrder"`
-	ProjectId int64     `json:"ProjectId"`
-	Version   int64     `json:"Version"`
+	Done      bool      `json:"done" binding:"required,boolean"`
+	TaskOrder int64     `json:"task_order"`
+	ProjectId int64     `json:"project_id" binding:"required,number"`
+	Version   int64     `json:"version" binding:"required,number"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
@@ -72,7 +72,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 
 }
 
-const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 	WHERE id = $1 LIMIT 1
 	`
 
@@ -94,12 +94,13 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 		&t.Done,
 		&t.TaskOrder,
 		&t.ProjectId,
+		&t.CompanyId,
 	)
 	return t, err
 }
 
 const getTaskList = `
-SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 WHERE id=any($1)
 `
 
@@ -123,6 +124,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 			&t.Done,
 			&t.TaskOrder,
 			&t.ProjectId,
+			&t.CompanyId,
 		)
 		res = append(res, t)
 	}
@@ -130,7 +132,7 @@ func (q *Queries) GetTaskList(ctx context.Context, ids []int64) ([]domain.Task, 
 }
 
 const getTaskListByProject = `
-SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id FROM tasks
+SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id FROM tasks
 WHERE project_id=$1 ORDER BY task_order ASC
 `
 
@@ -154,6 +156,7 @@ func (q *Queries) GetTaskListByProject(ctx context.Context, project_id int64) ([
 			&t.Done,
 			&t.TaskOrder,
 			&t.ProjectId,
+			&t.CompanyId,
 		)
 		res = append(res, t)
 	}

@@ -34,7 +34,7 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 		srv.logger.Fatal("Could not save the task in repository", zap.Error(err))
 		return task, err
 	}
-	err = srv.policiesRepository.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy)
+	err = srv.policiesRepository.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 	if err != nil {
 		srv.logger.Fatal("could not create policy for task", zap.Int64("id", task.Id), zap.String(" due to ", err.Error()))
 		err := srv.DeleteTask(ctx, task.Id)
@@ -56,7 +56,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 	if err != nil {
 		srv.logger.Fatal("could not delete task in repository", zap.Error(err))
 	}
-	err2 := srv.policiesRepository.RemoveTaskPolicies(id, task.ProjectId, task.CreatedBy)
+	err2 := srv.policiesRepository.RemoveTaskPolicies(id, task.ProjectId, task.CreatedBy, task.CompanyId)
 	if err2 != nil {
 		srv.logger.Fatal("could not delete policies linked to tasks", zap.Error(err2))
 

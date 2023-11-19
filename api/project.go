@@ -19,7 +19,7 @@ import (
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /projects/ [post]
+// @Router       /company/{companyId}/projects/ [post]
 // @Security BearerAuth
 func (s *Server) CreateProject(c *gin.Context) {
 

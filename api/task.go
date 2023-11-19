@@ -8,8 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"go.uber.org/zap"
 )
 
 // GetTask godoc
@@ -22,7 +24,7 @@ import (
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /projects/{projectId}/tasks/{taskId} [get]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/{taskId} [get]
 // @Security BearerAuth
 func (s *Server) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -65,7 +67,7 @@ func (s *Server) GetTask(c *gin.Context) {
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /projects/{projectId}/tasks/{id} [delete]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/{id} [delete]
 // @Security BearerAuth
 func (s *Server) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -98,7 +100,7 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /projects/{projectId}/tasks/ [post]
+// @Router       /company/{companyID}/projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
@@ -109,6 +111,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	}
 	taskparam.CreatedBy = createdBy.(*token.Payload).Username;
+	logger.Debug("task", zap.String("task_name", taskparam.TaskName), zap.Float64("budget", taskparam.Budget), zap.Int64("task_order", taskparam.TaskOrder), zap.Int64("project_id", taskparam.ProjectId))
 	task, err := s.service.CreateTask(c, taskparam)
 
 	if err != nil {
@@ -130,7 +133,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /projects/{projectId}/tasks/{taskId} [post]
+// @Router       /company/{companyId}/projects/{projectId}/tasks/{taskId} [post]
 // @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}

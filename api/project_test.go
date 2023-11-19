@@ -1,9 +1,11 @@
 package api
 
-/*
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,51 +13,82 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/kamalbowselvam/chaintask/authorization"
+	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
 	mockdb "github.com/kamalbowselvam/chaintask/mock"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"github.com/mattn/go-colorable"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-func randomProject(t *testing.T, client domain.User, responsible domain.User, admin domain.User) (project domain.Project) {
 
-	project = domain.Project{
-		Id : util.RandomInt(0,1000),
-		Projectname: util.RandomString(10),
-		CreatedBy:   admin.Username,
-		Location:    domain.Location{util.RandomLatitude(), util.RandomLongitude()},
-		Responsible: responsible.Username,
-		Client:      client.Username,
-		Address:     util.RandomAddress(),
-	}
-	return
+func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, task domain.Project) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotTask domain.Project
+
+	err = json.Unmarshal(data, &gotTask)
+	require.NoError(t, err)
+	require.Equal(t, task.CreatedOn.UnixMilli(), gotTask.CreatedOn.UnixMilli())
+
 }
 
-func TestCreateProjectAPI(t *testing.T) {
-	client, _ := randomUser(t, util.ROLES[1])
-	responsible, _ := randomUser(t, util.ROLES[2])
-	admin, _ := randomUser(t, util.ROLES[3])
 
-	project := randomProject(t, client, responsible, admin)
+
+func TestCreateProjectAPI(t *testing.T) {
+	config, err := util.LoadConfig("../")
+	aa := zap.NewDevelopmentEncoderConfig()
+	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(aa),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	))
+	if err != nil {
+		logger.Fatal("Failed to load the config file")
+	}
+	testDB, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		logger.Fatal("cannot connet to db: ", zap.Error(err))
+	}
+
+	testStore = db.NewStore(testDB)
+	company := generateRandomCompany(t)
+	client, _ := randomUserWithinCompany(t, util.ROLES[1], company.Id)
+	responsible, _ := randomUserWithinCompany(t, util.ROLES[2], company.Id)
+	admin, _ := randomUserWithinCompany(t, util.ROLES[3], company.Id)
+
+	project := randomProjectWithinCompany(client.Username, responsible.Username, company.Id)
 
 	testCases := []struct {
 		name          string
 		projectID     int64
+		companyID     int64
 		body          gin.H
 		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		setupAuthorization func(t *testing.T, authorizationLoaders *authorization.Loaders)
 		buildStubs    func(store *mockdb.MockGlobalRepository)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			projectID: project.Id,
+			companyID: project.CompanyId,
 			body: gin.H{
 				"projectname":  project.Projectname,
 				"createdBy": project.CreatedBy,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.Role, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.UserRole, time.Minute)
+			},
+			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
+				AddAuthorization(t, *authorizationLoaders, admin.Username, fmt.Sprintf("/company/%d/projects", admin.CompanyId), http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -79,27 +112,20 @@ func TestCreateProjectAPI(t *testing.T) {
 			store := mockdb.NewMockGlobalRepository(ctrl)
 			tc.buildStubs(store)
 
-			taskHandler := NewTestHandler(t, store)
-			router := gin.New()
-			authRoutes := router.Group("/").Use(AuthMiddleware(taskHandler.tokenMaker))
+			server := newTestServer(t, store)
 
-			authRoutes.POST("/projects/", taskHandler.CreateProject)
 			recorder := httptest.NewRecorder()
-
 			data, err := json.Marshal(tc.body)
+
 			require.NoError(t, err)
-			url := "/projects/"
+			url := fmt.Sprintf("/company/%d/projects/", tc.companyID)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
-			tc.setupAuth(t, request, taskHandler.tokenMaker)
-			router.ServeHTTP(recorder, request)
+
+			tc.setupAuth(t, request, server.tokenMaker)
+			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
-
 		})
-
 	}
-
-
-
 }
-*/
+
