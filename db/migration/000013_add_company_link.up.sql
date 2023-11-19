@@ -10,10 +10,10 @@ INSERT INTO users VALUES ('kselvamADMIN', '$2a$10$6nlF3jgvvVTU.uCpA2MFreu7Z5./IT
 
 CREATE OR REPLACE FUNCTION put_company_id() RETURNS trigger AS $put_company_id$
   DECLARE
-    company_id projects.company_id%TYPE;
+    company_id_var projects.company_id%TYPE;
   BEGIN
-    SELECT company_id INTO company_id FROM projects where id=NEW.project_id;
-    NEW.company_id = company_id;
+    SELECT company_id INTO company_id_var FROM projects where id=NEW.project_id;
+    NEW.company_id = company_id_var;
     RETURN NEW;
   END;
 
