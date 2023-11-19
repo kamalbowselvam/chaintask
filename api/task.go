@@ -8,8 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"go.uber.org/zap"
 )
 
 // GetTask godoc
@@ -109,6 +111,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	}
 	taskparam.CreatedBy = createdBy.(*token.Payload).Username;
+	logger.Debug("task", zap.String("task_name", taskparam.TaskName), zap.Float64("budget", taskparam.Budget), zap.Int64("task_order", taskparam.TaskOrder), zap.Int64("project_id", taskparam.ProjectId))
 	task, err := s.service.CreateTask(c, taskparam)
 
 	if err != nil {

@@ -215,6 +215,7 @@ func TestCreateTaskAPI(t *testing.T) {
 	responsible, _ := randomUser(t, util.ROLES[2])
 	project := randomProject(user.Username, responsible.Username)
 	task := randomTask(user.Username, project.Id)
+	task.CompanyId = project.CompanyId
 	config := loadConfig()
 	authorizationLoaders := generateLoader(*config)
 
@@ -231,11 +232,10 @@ func TestCreateTaskAPI(t *testing.T) {
 			name:  "OK",
 			gtask: task,
 			body: gin.H{
-				"taskname":  task.TaskName,
-				"createdBy": task.CreatedBy,
+				"task_name":  task.TaskName,
 				"budget":    task.Budget,
-				"projectId": task.ProjectId,
-				"taskOrder": task.TaskOrder,
+				"project_id": task.ProjectId,
+				"task_order": task.TaskOrder,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -283,7 +283,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/projects/%d/tasks/", tc.gtask.ProjectId)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", task.CompanyId, tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 

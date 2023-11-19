@@ -25,7 +25,7 @@ const createTask = `INSERT INTO tasks (
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
-	TaskName  string  `json:"taskname" binding:"required"`
+	TaskName  string  `json:"task_name" binding:"required"`
 	Budget    float64 `json:"budget" binding:"required,number"`
 	CreatedBy string  `swaggerignore:"true"`
 	TaskOrder int64   `json:"task_order" binding:"required,number"`
@@ -34,7 +34,7 @@ type CreateTaskParams struct {
 
 type UpdateTaskParams struct {
 	Id        int64     `json:"id"`
-	TaskName  string    `json:"taskname" binding:"required"`
+	TaskName  string    `json:"task_name" binding:"required"`
 	Budget    float64   `json:"budget" binding:"required,number"`
 	UpdatedOn time.Time `swaggerignore:"true"`
 	UpdatedBy string    `swaggerignore:"true"`
