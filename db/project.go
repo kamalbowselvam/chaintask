@@ -16,7 +16,7 @@ const createProject = `INSERT INTO projects (
 	client,
 	company_id
   ) VALUES (
-	$1, $2, $3, $4, $5, $6
+	$1, $2, $3, $4, $5, $6, $7
   )
   RETURNING id, projectname, created_at, created_by, location, address, responsible, client, company_id;`
 

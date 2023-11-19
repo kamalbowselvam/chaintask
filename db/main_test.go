@@ -42,6 +42,34 @@ func TestMain(m *testing.M) {
 
 }
 
+func generateRandomCompany(t *testing.T) domain.Company {
+	arg := CreateCompanyParams{
+		CompanyName: util.RandomName(),
+		Address: util.RandomAddress(),
+		CreatedBy: util.RandomName(),
+	}
+
+	company, err := testStore.CreateCompany(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, company)
+	require.Equal(t, arg.CompanyName, company.CompanyName)
+	require.Equal(t, arg.Address, company.Address)
+	require.Equal(t, arg.CreatedBy, company.CreatedBy)
+	require.Equal(t, arg.CreatedBy, company.UpdatedBy)
+
+	require.NotZero(t, company.Id)
+	require.NotZero(t, company.CreatedOn)
+	require.NotZero(t, company.UpdatedOn)
+
+	return company
+}
+
+func generateRandomUserWithRoleAndCompany(t *testing.T, role string, company int64) domain.User{
+	user := generateRandomUserWithRole(t, role);
+	user.CompanyId = company
+	return user;
+
+}
 func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 
 	hpassword, _ := util.HashPassword(util.RandomString(32))
@@ -59,12 +87,21 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 
 }
 
-func generateRandomWorksManager(t *testing.T, store GlobalRepository) domain.User {
+func generateRandomWorksManager(t *testing.T) domain.User {
 	return generateRandomUserWithRole(t, "RESPONSIBLE")
 }
 
-func generateRandomClient(t *testing.T, store GlobalRepository) domain.User {
+func generateRandomWorksManagerWithinCompany(t *testing.T, company int64) domain.User {
+	return generateRandomUserWithRoleAndCompany(t, "RESPONSIBLE", company)
+}
+
+/*
+func generateRandomClient(t *testing.T) domain.User {
 	return generateRandomUserWithRole(t, "CLIENT")
+}*/
+
+func generateRandomClientWithinCompany(t *testing.T, company int64) domain.User {
+	return generateRandomUserWithRoleAndCompany(t, "CLIENT", company)
 }
 
 func generateRandomLocation() domain.Location {
@@ -73,8 +110,9 @@ func generateRandomLocation() domain.Location {
 }
 
 func generateRandomProject(t *testing.T) domain.Project {
-	resp := generateRandomWorksManager(t, testStore)
-	client := generateRandomClient(t, testStore)
+	company := generateRandomCompany(t)
+	resp := generateRandomWorksManagerWithinCompany(t, company.Id)
+	client := generateRandomClientWithinCompany(t, company.Id)
 	arg := CreateProjectParam{
 		ProjectName: util.RandomName(),
 		CreatedBy:   resp.Username,
@@ -82,6 +120,7 @@ func generateRandomProject(t *testing.T) domain.Project {
 		Responsible: resp.Username,
 		Address:     util.RandomAddress(),
 		Location:    generateRandomLocation(),
+		CompanyId: resp.CompanyId,
 	}
 
 	project, err := testStore.CreateProject(context.Background(), arg)
@@ -93,5 +132,6 @@ func generateRandomProject(t *testing.T) domain.Project {
 	require.Equal(t, arg.Responsible, project.Responsible)
 	require.NotZero(t, project.Id)
 	require.NotZero(t, project.CreatedOn)
+	require.NotZero(t, project.CompanyId)
 	return project
 }

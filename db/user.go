@@ -13,9 +13,10 @@ const createUser = `INSERT INTO users (
 	hashed_password, 
 	full_name, 
 	email,
-	user_role
+	user_role,
+	company_id
 ) VALUES ( 
-	$1, $2, $3, $4, UPPER($5)
+	$1, $2, $3, $4, UPPER($5), $6
 ) 
 RETURNING username, hashed_password, full_name, email, created_at, user_role, company_id
 `

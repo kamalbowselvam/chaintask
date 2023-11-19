@@ -75,6 +75,8 @@ var testStore db.Store
 
 func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 
+	company := generateRandomCompany(t)
+
 	hpassword, _ := util.HashPassword(util.RandomString(32))
 	arg := db.CreateUserParams{
 		Username:       util.RandomName(),
@@ -82,6 +84,7 @@ func generateRandomUserWithRole(t *testing.T, role string) domain.User {
 		FullName:       util.RandomName(),
 		Email:          util.RandomEmail(),
 		UserRole:       role,
+		CompanyId: company.Id,
 	}
 	user, err := testStore.CreateUser(context.Background(), arg)
 	require.NoError(t, err)

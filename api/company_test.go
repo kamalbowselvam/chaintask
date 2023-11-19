@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +28,28 @@ func randomCompany(t *testing.T) domain.Company{
 		CompanyName: util.RandomString(10),
 		Address: util.RandomAddress(),
 	}
+}
+
+func generateRandomCompany(t *testing.T) domain.Company {
+	arg := db.CreateCompanyParams{
+		CompanyName: util.RandomName(),
+		Address: util.RandomAddress(),
+		CreatedBy: util.RandomName(),
+	}
+
+	company, err := testStore.CreateCompany(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, company)
+	require.Equal(t, arg.CompanyName, company.CompanyName)
+	require.Equal(t, arg.Address, company.Address)
+	require.Equal(t, arg.CreatedBy, company.CreatedBy)
+	require.Equal(t, arg.CreatedBy, company.UpdatedBy)
+
+	require.NotZero(t, company.Id)
+	require.NotZero(t, company.CreatedOn)
+	require.NotZero(t, company.UpdatedOn)
+
+	return company
 }
 
 type eqCreateCompanyParamsMatcher struct {
