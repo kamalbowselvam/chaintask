@@ -25,6 +25,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type taskParams struct {
+	TaskName  string `json:"task_name" binding:"required"`
+	CreatedBy string `swaggerignore:"true"`
+	TaskOrder int64  `json:"task_order" binding:"required,number"`
+	ProjectId int64  `json:"project_id" binding:"required,number"`
+}
+
 type eqCreateTaskParamsMatcher struct {
 	arg db.CreateTaskParams
 }
@@ -35,7 +42,7 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	if  !(e.arg.Budget.Equal(arg.Budget)) {
+	if !(e.arg.Budget.Equal(arg.Budget)) {
 		return false
 	}
 
@@ -47,7 +54,24 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	return reflect.DeepEqual(e.arg, arg)
+	// this conversion without budget is done to avoid doing deep comparison of Decimal (Budget object) 
+	// which causes error due to Exponentional 
+
+	// If given argument is Decimal(473,1) --> Which is 4730
+	// Request param is unmarshalled as Decimal(4730,0) --> Which is also 4730 
+	// but deepequal throws error for the object 
+
+	eparam := taskParams{TaskName: e.arg.TaskName,
+		CreatedBy: e.arg.CreatedBy,
+		ProjectId: e.arg.ProjectId,
+		TaskOrder: e.arg.TaskOrder}
+
+	argparam := taskParams{TaskName: arg.TaskName,
+		CreatedBy: arg.CreatedBy,
+		ProjectId: arg.ProjectId,
+		TaskOrder: arg.TaskOrder}
+
+	return reflect.DeepEqual(eparam, argparam)
 }
 
 func (e eqCreateTaskParamsMatcher) String() string {
@@ -194,7 +218,7 @@ func TestGetTaskAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			server := newTestServerWithEnforcer(t, store, true)
-			server.policies.CreateTaskPolicies(task.Id,project.Id, project.Client, project.CompanyId)
+			server.policies.CreateTaskPolicies(task.Id, project.Id, project.Client, project.CompanyId)
 
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/company/%d/projects/%d/tasks/%d", tc.companyID, tc.projectID, tc.taskID)
@@ -220,20 +244,20 @@ func TestCreateTaskAPI(t *testing.T) {
 	authorizationLoaders := generateLoader(*config)
 
 	testCases := []struct {
-		name          string
-		body          gin.H
-		gtask         domain.Task
-		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		name               string
+		body               gin.H
+		gtask              domain.Task
+		setupAuth          func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		setupAuthorization func(t *testing.T, authorizationLoaders *authorization.Loaders)
-		buildStubs    func(store *mockdb.MockGlobalRepository)
-		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+		buildStubs         func(store *mockdb.MockGlobalRepository)
+		checkResponse      func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:  "OK",
 			gtask: task,
 			body: gin.H{
 				"task_name":  task.TaskName,
-				"budget":    task.Budget,
+				"budget":     task.Budget,
 				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
 			},
@@ -241,7 +265,7 @@ func TestCreateTaskAPI(t *testing.T) {
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, user.Username, user.UserRole, time.Minute)
 			},
-			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
+			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders) {
 				AddAuthorization(t, *authorizationLoaders, user.Username, fmt.Sprintf("/company/%d/projects/%d/tasks/", project.CompanyId, task.ProjectId), http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -279,6 +303,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
+
 			data, err := json.Marshal(tc.body)
 
 			require.NoError(t, err)
@@ -300,12 +325,12 @@ func TestCreateTaskAPI(t *testing.T) {
 
 func randomProject(client string, responsible string) domain.Project {
 	return domain.Project{
-		Id:          util.RandomInt(1, 1000),
-		Projectname: util.RandomName(),
-		CreatedOn:   time.Now(),
-		CreatedBy:   util.DEFAULT_SUPER_ADMIN,
-		Longitude: util.RandomLongitude(),
-		Latitude: util.RandomLatitude(),
+		Id:                   util.RandomInt(1, 1000),
+		Projectname:          util.RandomName(),
+		CreatedOn:            time.Now(),
+		CreatedBy:            util.DEFAULT_SUPER_ADMIN,
+		Longitude:            util.RandomLongitude(),
+		Latitude:             util.RandomLatitude(),
 		Address:              util.RandomAddress(),
 		Client:               client,
 		Responsible:          responsible,
