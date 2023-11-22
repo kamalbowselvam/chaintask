@@ -12,7 +12,7 @@ import (
 func generateRandomResource(t *testing.T) domain.Resource {
 	arg := CreateResourceParams{
 		ResourceName: util.RandomName(),
-		Availed:      float64(util.RandomInt(10000, 1000000)),
+		Availed:      util.RandomBudget(),
 		CreatedBy:    util.RandomString(10),
 	}
 

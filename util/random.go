@@ -49,7 +49,7 @@ func RandomRoleString() string {
 }
 
 func RandomBudget() decimal.Decimal {
-	return decimal.NewFromInt(RandomInt(0, 100000))
+	return decimal.NewFromFloat(float64(RandomInt(0, 100000)/RandomInt(1, 10)))
 }
 
 func RandomEmail() string {
