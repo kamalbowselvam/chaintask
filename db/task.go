@@ -9,6 +9,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
@@ -25,30 +26,31 @@ const createTask = `INSERT INTO tasks (
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
-	TaskName  string  `json:"task_name" binding:"required"`
-	Budget    float64 `json:"budget" binding:"required,number"`
-	CreatedBy string  `swaggerignore:"true"`
-	TaskOrder int64   `json:"task_order" binding:"required,number"`
-	ProjectId int64   `json:"project_id" binding:"required,number"`
+	TaskName  string          `json:"task_name" binding:"required"`
+	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
+	CreatedBy string          `swaggerignore:"true"`
+	TaskOrder int64           `json:"task_order" binding:"required,number"`
+	ProjectId int64           `json:"project_id" binding:"required,number"`
 }
 
 type UpdateTaskParams struct {
-	Id        int64     `json:"id"`
-	TaskName  string    `json:"task_name" binding:"required"`
-	Budget    float64   `json:"budget" binding:"required,number"`
-	UpdatedOn time.Time `swaggerignore:"true"`
-	UpdatedBy string    `swaggerignore:"true"`
-	Done      bool      `json:"done" binding:"required,boolean"`
-	TaskOrder int64     `json:"task_order"`
-	ProjectId int64     `json:"project_id" binding:"required,number"`
-	Version   int64     `json:"version" binding:"required,number"`
+	Id        int64           `json:"id"`
+	TaskName  string          `json:"task_name" binding:"required"`
+	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
+	UpdatedOn time.Time       `swaggerignore:"true"`
+	UpdatedBy string          `swaggerignore:"true"`
+	Done      bool            `json:"done" binding:"required,boolean"`
+	TaskOrder int64           `json:"task_order"`
+	ProjectId int64           `json:"project_id" binding:"required,number"`
+	Version   int64           `json:"version" binding:"required,number"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
 
-	logger.Debug("Creating task",
+	logger.Debug("Creating a task",
 		zap.String("package", "db"),
 		zap.String("function", "CreateTask"),
+		zap.Any("param", arg),
 	)
 
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)

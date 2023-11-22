@@ -111,10 +111,22 @@ func (s *Server) CreateTask(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	}
 	taskparam.CreatedBy = createdBy.(*token.Payload).Username;
-	logger.Debug("task", zap.String("task_name", taskparam.TaskName), zap.Float64("budget", taskparam.Budget), zap.Int64("task_order", taskparam.TaskOrder), zap.Int64("project_id", taskparam.ProjectId))
+
+	logger.Debug("Creating a task",
+		zap.String("package", "api"),
+		zap.String("function", "CreateTask"),
+		zap.Any("param",taskparam),
+	)
+
 	task, err := s.service.CreateTask(c, taskparam)
 
 	if err != nil {
+
+		logger.Error("Creating a task",
+			zap.String("package", "api"),
+			zap.String("function", "CreateTask"),
+			zap.Any("param",taskparam),
+		)
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
 	}

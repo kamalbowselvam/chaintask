@@ -35,7 +35,7 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	if e.arg.Budget != arg.Budget {
+	if  !(e.arg.Budget.Equal(arg.Budget)) {
 		return false
 	}
 

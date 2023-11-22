@@ -121,6 +121,7 @@ func generateRandomProject(t *testing.T) domain.Project {
 	company := generateRandomCompany(t)
 	resp := generateRandomWorksManagerWithinCompany(t, company.Id)
 	client := generateRandomClientWithinCompany(t, company.Id)
+	
 	arg := CreateProjectParam{
 		ProjectName: util.RandomName(),
 		CreatedBy:   resp.Username,

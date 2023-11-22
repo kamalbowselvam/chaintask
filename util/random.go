@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -46,8 +48,8 @@ func RandomRoleString() string {
 	return ROLES[RandomRole()]
 }
 
-func RandomBudget() float64 {
-	return float64(RandomInt(0, 100000))
+func RandomBudget() decimal.Decimal {
+	return decimal.NewFromInt(RandomInt(0, 100000))
 }
 
 func RandomEmail() string {

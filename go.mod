@@ -7,13 +7,13 @@ require (
 	github.com/casbin/casbin-pg-adapter v1.2.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-pg/pg/v10 v10.9.1
-	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-colorable v0.1.13
 	github.com/o1egl/paseto v1.0.0
+	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/files v1.0.1
@@ -51,7 +51,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
 
