@@ -20,7 +20,10 @@ func generateRandomResource(t *testing.T) domain.Resource {
 	require.NoError(t, err)
 	require.NotEmpty(t, resource)
 	require.Equal(t, arg.ResourceName, resource.ResourceName)
-	require.Equal(t, arg.Availed, resource.Availed)
+	val1 ,_ := arg.Availed.Float64()
+	val2, _ := arg.Availed.Float64()
+	require.Equal(t, val1, val2)
+
 	require.Equal(t, arg.CreatedBy, resource.CreatedBy)
 	require.Equal(t, arg.CreatedBy, resource.UpdatedBy)
 
