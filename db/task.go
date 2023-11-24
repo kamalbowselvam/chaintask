@@ -9,6 +9,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
@@ -25,35 +26,33 @@ const createTask = `INSERT INTO tasks (
   RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
 
 type CreateTaskParams struct {
-	TaskName  string  `json:"task_name" binding:"required"`
-	Budget    float64 `json:"budget" binding:"required,number"`
-	CreatedBy string  `swaggerignore:"true"`
-	TaskOrder int64   `json:"task_order" binding:"required,number"`
-	ProjectId int64   `json:"project_id" binding:"required,number"`
+	TaskName  string          `json:"task_name" binding:"required"`
+	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
+	CreatedBy string          `swaggerignore:"true"`
+	TaskOrder int64           `json:"task_order" binding:"required,number"`
+	ProjectId int64           `json:"project_id" binding:"required,number"`
 }
 
 type UpdateTaskParams struct {
-	Id        int64     `json:"id"`
-	TaskName  string    `json:"task_name" binding:"required"`
-	Budget    float64   `json:"budget" binding:"required,number"`
-	UpdatedOn time.Time `swaggerignore:"true"`
-	UpdatedBy string    `swaggerignore:"true"`
-	Done      bool      `json:"done" binding:"required,boolean"`
-	TaskOrder int64     `json:"task_order"`
-	ProjectId int64     `json:"project_id" binding:"required,number"`
-	Version   int64     `json:"version" binding:"required,number"`
+	Id        int64           `json:"id"`
+	TaskName  string          `json:"task_name" binding:"required"`
+	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
+	UpdatedOn time.Time       `swaggerignore:"true"`
+	UpdatedBy string          `swaggerignore:"true"`
+	Done      bool            `json:"done" binding:"required,boolean"`
+	TaskOrder int64           `json:"task_order"`
+	ProjectId int64           `json:"project_id" binding:"required,number"`
+	Version   int64           `json:"version" binding:"required,number"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
-	logger.Info("saving tasks")
-	
-	logger.Debug("Argument to Create task", zap.String("task_name",arg.TaskName),
-	zap.Float64("budget",arg.Budget),
-	zap.String("task_name",arg.CreatedBy),
-	zap.Int64("task_name",arg.TaskOrder),
-	zap.Int64("task_name",arg.ProjectId),
+
+	logger.Debug("Creating a task",
+		zap.String("package", "db"),
+		zap.String("function", "CreateTask"),
+		zap.Any("param", arg),
 	)
-	
+
 	row := q.db.QueryRowContext(ctx, createTask, arg.TaskName, arg.Budget, arg.CreatedBy, arg.CreatedBy, arg.TaskOrder, arg.ProjectId)
 	var i domain.Task
 	err := row.Scan(
@@ -172,7 +171,6 @@ func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
 
 const deleteTaskFromProject = `DELETE FROM tasks WHERE project_id = $1`
 
-
 func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteTaskFromProject, id)
 	return err
@@ -210,12 +208,12 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 	if err != nil {
 		return fail(err)
 	}
-	affected, err  := result.RowsAffected() 
-	if err != nil{
+	affected, err := result.RowsAffected()
+	if err != nil {
 		return fail(err)
 	}
-	if affected != 1{
-		return fail(errors.New("more than 1 row or 0 affected"));
+	if affected != 1 {
+		return fail(errors.New("more than 1 row or 0 affected"))
 	}
 
 	// Commit the transaction.

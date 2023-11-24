@@ -35,8 +35,6 @@ func TestMain(m *testing.M) {
 		logger.Fatal("cannot connet to db: ", zap.Error(err))
 	}
 
-
-
 	testStore = NewStore(testDB)
 	os.Exit(m.Run())
 
@@ -45,8 +43,8 @@ func TestMain(m *testing.M) {
 func generateRandomCompany(t *testing.T) domain.Company {
 	arg := CreateCompanyParams{
 		CompanyName: util.RandomName(),
-		Address: util.RandomAddress(),
-		CreatedBy: util.RandomName(),
+		Address:     util.RandomAddress(),
+		CreatedBy:   util.RandomName(),
 	}
 
 	company, err := testStore.CreateCompany(context.Background(), arg)
@@ -64,9 +62,9 @@ func generateRandomCompany(t *testing.T) domain.Company {
 	return company
 }
 
-func generateRandomUserWithRoleAndCompany(t *testing.T, role string, company int64) domain.User{
-	user := generateRandomUserWithRoleWithinCompany(t, role, company);
-	return user;
+func generateRandomUserWithRoleAndCompany(t *testing.T, role string, company int64) domain.User {
+	user := generateRandomUserWithRoleWithinCompany(t, role, company)
+	return user
 
 }
 func generateRandomUserWithRole(t *testing.T, role string) domain.User {
@@ -104,7 +102,6 @@ func generateRandomUserWithRoleWithinCompany(t *testing.T, role string, company 
 
 }
 
-
 func generateRandomWorksManager(t *testing.T) domain.User {
 	return generateRandomUserWithRole(t, "RESPONSIBLE")
 }
@@ -121,14 +118,15 @@ func generateRandomProject(t *testing.T) domain.Project {
 	company := generateRandomCompany(t)
 	resp := generateRandomWorksManagerWithinCompany(t, company.Id)
 	client := generateRandomClientWithinCompany(t, company.Id)
+
 	arg := CreateProjectParam{
 		ProjectName: util.RandomName(),
 		CreatedBy:   resp.Username,
 		Client:      client.Username,
 		Responsible: resp.Username,
 		Address:     util.RandomAddress(),
-		Longitude: util.RandomLongitude(),
-		Latitude: util.RandomLatitude(),
+		Longitude:   util.RandomLongitude(),
+		Latitude:    util.RandomLatitude(),
 	}
 
 	project, err := testStore.CreateProject(context.Background(), arg)

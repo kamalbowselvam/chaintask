@@ -1,24 +1,27 @@
 package domain
 
-import "time"
+import (
+	"time"
 
+	"github.com/shopspring/decimal"
+)
 
 type Task struct {
-	Id        int64     `json:"id"`
-	TaskName  string    `json:"taskname"`
-	Budget    float64   `json:"budget"`
-	CreatedOn time.Time 
-	CreatedBy string    
-	UpdatedOn time.Time 
-	UpdatedBy string   
-	Done      bool      `json:"done"`
-	TaskOrder int64     `json:"task_order"`
-	ProjectId int64     `json:"project_id"`
-	Version   int64     `json:"version"`
-	CompanyId int64     `json:"company_id"`
+	Id        int64           `json:"id"`
+	TaskName  string          `json:"taskname"`
+	Budget    decimal.Decimal `json:"budget"`
+	CreatedOn time.Time
+	CreatedBy string
+	UpdatedOn time.Time
+	UpdatedBy string
+	Done      bool  `json:"done"`
+	TaskOrder int64 `json:"task_order"`
+	ProjectId int64 `json:"project_id"`
+	Version   int64 `json:"version"`
+	CompanyId int64 `json:"company_id"`
 }
 
-func NewTask(name string, budget float64, user string, taskorder int64, projectid int64) Task {
+func NewTask(name string, budget decimal.Decimal, user string, taskorder int64, projectid int64) Task {
 
 	t := Task{
 		TaskName:  name,
@@ -38,7 +41,7 @@ func (task *Task) GetTaskName() string {
 	return task.TaskName
 }
 
-func (task *Task) GetBudget() float64 {
+func (task *Task) GetBudget() decimal.Decimal {
 	return task.Budget
 }
 

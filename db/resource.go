@@ -5,6 +5,7 @@ import (
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/logger"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
@@ -14,17 +15,15 @@ const createResource = `
 `
 
 type CreateResourceParams struct {
-	ResourceName string  `json:"resource_name"`
-	Availed 	float64  `json:"availed"`
-	CreatedBy   string
+	ResourceName string          `json:"resource_name"`
+	Availed      decimal.Decimal `json:"availed"`
+	CreatedBy    string
 }
 
-func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (domain.Resource, error){
-	
-	logger.Debug("Argument to Create a resource", zap.String("company_name",arg.ResourceName),
-	zap.Float64("availed",arg.Availed),
-	)
-	
+func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (domain.Resource, error) {
+
+	logger.Debug("Argument to Create a resource", zap.String("company_name", arg.ResourceName))
+
 	row := q.db.QueryRowContext(ctx, createResource, arg.ResourceName, arg.Availed, arg.CreatedBy)
 	var i domain.Resource
 	err := row.Scan(
