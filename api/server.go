@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -55,6 +56,10 @@ func (server *Server) setupRouter() {
 
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
+	host := (os.Getenv("HOST_URL"))
+	if host != ""{
+		docs.SwaggerInfo.Host = host
+	}
 	router.POST("/users/login", server.LoginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
 	// FIXME
