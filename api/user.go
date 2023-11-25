@@ -20,7 +20,7 @@ type createUserRequest struct {
 	FullName  string `json:"full_name" binding:"required"`
 	Email     string `json:"email" binding:"required,email"`
 	UserRole  string `json:"user_role" binding:"required,user_role"`
-	CompanyId int64  `json:"company_id" binding:"required,number"`
+	CompanyId *int64 `json:"company_id" binding:"required,number"`
 }
 
 type userResponse struct {
@@ -79,7 +79,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		FullName:       req.FullName,
 		Email:          req.Email,
 		UserRole:       req.UserRole,
-		CompanyId:      req.CompanyId,
+		CompanyId:      *req.CompanyId,
 	}
 
 	user, err := s.service.CreateUser(ctx, arg)
