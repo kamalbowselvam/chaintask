@@ -7,10 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"log"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func generateRandomTask(t *testing.T) domain.Task {
@@ -124,7 +125,7 @@ func TestOptimistic(t *testing.T){
 	if err := testSaveBulkData(ctx, task, user.Username); (err != nil){
 		t.Errorf("Deposit() error = %v", err)
 	}
-	log.Println("Execution time", time.Since(start))
+	logger.Info("Execution time", zap.Any("Exceution Time",  time.Since(start)))
 	
 }
 
@@ -143,10 +144,10 @@ func save(ctx context.Context, taskName string, task domain.Task, userName strin
 	defer wg.Done()
 	sem <- struct{}{}
 	// Logging here seems important, otherwise the go routine go in timeout. There is something shaddy to explore a bit further
-	log.Println("Trying to update tasks")
+	logger.Debug("Trying to update tasks")
 	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: task.ProjectId, UpdatedBy: userName})
 	if err != nil {
-		log.Printf("Error %s", err.Error())
+		logger.Warnf("Error %s", err.Error())
 	}
 	<-sem
 }
