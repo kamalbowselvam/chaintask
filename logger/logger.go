@@ -1,7 +1,11 @@
 package logger
 
 import (
+	"context"
+	"os"
+
 	"github.com/mattn/go-colorable"
+	//"gopkg.in/natefinch/lumberjack.v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -9,8 +13,10 @@ import (
 var zapLog *zap.Logger
 var sugar *zap.SugaredLogger
 
+type ctxKey struct{}
+
 func init() {
-	var err error
+	//var err error
 
 	/*
 	config := zap.NewDevelopmentConfig()
@@ -33,7 +39,7 @@ func init() {
 	//	zapcore.DebugLevel,
 	//))
 
-	aa := zap.NewDevelopmentEncoderConfig()
+	/*aa := zap.NewDevelopmentEncoderConfig()
 	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	zapLog = zap.New(zapcore.NewCore(
 		zapcore.NewConsoleEncoder(aa),
@@ -45,7 +51,25 @@ func init() {
 
 	if err != nil {
 		panic(err)
+	}*/
+	encoderConfig := zap.NewDevelopmentEncoderConfig()
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	encoder :=  zapcore.NewConsoleEncoder(encoderConfig)
+	if os.Getenv("APP_ENV") == "production" {
+		encoderConfig = zap.NewProductionEncoderConfig()
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	}
+	core := zapcore.NewCore(
+		encoder,
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zap.DebugLevel,
+	)
+	zapLog = zap.New(core)
+	sugar = zapLog.Sugar()
+}
+
+func Get() *zap.Logger {
+	return zapLog
 }
 
 func Info(message string, fields ...zap.Field) {
@@ -78,4 +102,30 @@ func DPanic(message string, fields ...zap.Field) {
 
 func Warnf(message string, args ...interface{}) {
 	sugar.Warnf(message, args)
+}
+
+
+// FromCtx returns the Logger associated with the ctx. If no logger
+// is associated, the default logger is returned, unless it is nil
+// in which case a disabled logger is returned.
+func FromCtx(ctx context.Context) *zap.Logger {
+	if l, ok := ctx.Value(ctxKey{}).(*zap.Logger); ok {
+		return l
+	} else if l := zapLog; l != nil {
+		return l
+	}
+
+	return zap.NewNop()
+}
+
+// WithCtx returns a copy of ctx with the Logger attached.
+func WithCtx(ctx context.Context, l *zap.Logger) context.Context {
+	if lp, ok := ctx.Value(ctxKey{}).(*zap.Logger); ok {
+		if lp == l {
+			// Do not store same logger.
+			return ctx
+		}
+	}
+
+	return context.WithValue(ctx, ctxKey{}, l)
 }

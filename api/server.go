@@ -55,11 +55,10 @@ func (server *Server) setupRouter() {
 
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
-	router.POST("/users/login", server.LoginUser)
-	router.POST("/tokens/renew_access", server.renewAccessToken)
-	// FIXME
-	router.POST("/users", server.CreateUser)
-	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
+	logGroup := router.Group("/").Use(requestLogger())
+	logGroup.POST("/users/login", server.LoginUser)
+	logGroup.POST("/tokens/renew_access", server.renewAccessToken)
+	authRoutes := logGroup.Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
 		func(ctx *gin.Context) {
@@ -67,7 +66,7 @@ func (server *Server) setupRouter() {
 		},
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
-	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/company/:companyId/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/company/:companyId/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
 	authRoutes.GET("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)

@@ -27,6 +27,8 @@ import (
 // @Router       /company/{companyID}/projects/{projectId}/tasks/{taskId} [get]
 // @Security BearerAuth
 func (s *Server) GetTask(c *gin.Context) {
+	logger := logger.FromCtx(c.Request.Context())
+	logger.Info("toto")
 	var req db.GetTaskParams
 	err := c.ShouldBindUri(&req)
 	if err != nil {
