@@ -5,8 +5,8 @@ ALTER TABLE projects ADD COLUMN company_id BIGINT REFERENCES company(id) NOT NUL
 ALTER TABLE users ADD COLUMN company_id BIGINT REFERENCES company(id) NOT NULL;
 ALTER TABLE tasks ADD COLUMN company_id BIGINT REFERENCES company(id) NOT NULL;
 
-INSERT INTO company VALUES (0, 'default_company', 'somewhere in Toulouse', NOW()::timestamp, 'Chaintask', NOW()::timestamp, 'Chaintask');
-INSERT INTO users VALUES ('Chaintask', '$2a$10$5mK/GLFloYLgYcFnLgzkhOhrEJGJhMjRRod4UaCHm7b9qPyjF8yvO', 'ADMIN ADMIN', 'admin@chaintask.org', 'SUPERADMIN', NOW()::timestamp,NOW()::timestamp, 0, 0) on conflict do nothing;
+INSERT INTO company VALUES (0, 'default_company', 'somewhere in Toulouse', NOW()::timestamp, 'chaintask', NOW()::timestamp, 'chaintask');
+INSERT INTO users VALUES ('chaintask', '$2a$10$N7WhS5uML.Zxu/TtxjRANeR517k1SQEnsXP96bn1sh4FQHlqs0I8K', 'ADMIN ADMIN', 'admin@chaintask.org', 'SUPERADMIN', NOW()::timestamp,NOW()::timestamp, 0, 0) on conflict do nothing;
 
 CREATE OR REPLACE FUNCTION put_company_id_for_tasks() RETURNS trigger AS $put_company_id_for_tasks$
   DECLARE
