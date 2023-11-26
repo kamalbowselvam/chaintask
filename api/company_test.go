@@ -101,7 +101,7 @@ func TestCreateCompanyAPI(t *testing.T) {
 			name:  "OK",
 			gtask: company,
 			body: gin.H{
-				"companyname":  company.CompanyName,
+				"company_name":  company.CompanyName,
 				"address" : company.Address,
 			},
 

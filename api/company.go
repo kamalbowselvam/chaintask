@@ -16,7 +16,7 @@ import (
 // @Tags         company
 // @Accept       json
 // @Produce      json
-// @Param        request body domain.Company true "company creation parameter"
+// @Param        request body db.CreateCompanyParams true "company creation parameter"
 // @Success      200  {object}  domain.Company
 // @Failure      400  {object} error
 // @Failure      404  {object} error

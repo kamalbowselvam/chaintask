@@ -19,12 +19,14 @@ import (
 // @Description  get a task by its ID
 // @Tags         tasks
 // @Produce      json
-// @Param        id   path      int  true  "Task ID"
+// @Param        taskId   path      int  true  "Task ID"
+// @Param        projectId path     int true   "Project ID"
+// @Param        companyId path     int true   "Company ID"
 // @Success      200  {object}  domain.Task
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /company/{companyID}/projects/{projectId}/tasks/{taskId} [get]
+// @Router       /company/{companyId}/projects/{projectId}/tasks/{taskId} [get]
 // @Security BearerAuth
 func (s *Server) GetTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -62,12 +64,14 @@ func (s *Server) GetTask(c *gin.Context) {
 // @Description  delete a task by its ID
 // @Tags         tasks
 // @Produce      json
-// @Param        id   path      int  true  "Task ID"
+// @Param        taskId   path      int  true  "Task ID"
+// @Param        projectId path     int true   "Project ID"
+// @Param        companyId path     int true   "Company ID"
 // @Success      202
 // @Failure      400  {object}  error
 // @Failure      404  {object}  error
 // @Failure      500  {object}  error
-// @Router       /company/{companyID}/projects/{projectId}/tasks/{id} [delete]
+// @Router       /company/{companyId}/projects/{projectId}/tasks/{taskId} [delete]
 // @Security BearerAuth
 func (s *Server) DeleteTask(c *gin.Context) {
 	var req db.GetTaskParams
@@ -95,12 +99,14 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Tags         tasks
 // @Accept       json
 // @Produce      json
+// @Param        projectId path     int true   "Project ID"
+// @Param        companyId path     int true   "Company ID"
 // @Param        request body db.CreateTaskParams true "task creation parameter"
 // @Success      200  {object}  domain.Task
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /company/{companyID}/projects/{projectId}/tasks/ [post]
+// @Router       /company/{companyId}/projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
 	taskparam := db.CreateTaskParams{}
@@ -140,7 +146,10 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Tags         tasks
 // @Accept       json
 // @Produce      json
-// @Param        request body domain.Task true "task update parameter"
+// @Param        taskId   path      int  true  "Task ID"
+// @Param        projectId path     int true   "Project ID"
+// @Param        companyId path     int true   "Company ID"
+// @Param        request body db.UpdateTaskParams true "task update parameter"
 // @Success      200  {object}  domain.Task
 // @Failure      400  {object} error
 // @Failure      404  {object} error
