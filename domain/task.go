@@ -8,7 +8,7 @@ import (
 
 type Task struct {
 	Id        int64           `json:"id"`
-	TaskName  string          `json:"taskname"`
+	TaskName  string          `json:"task_name"`
 	Budget    decimal.Decimal `json:"budget"`
 	CreatedOn time.Time
 	CreatedBy string

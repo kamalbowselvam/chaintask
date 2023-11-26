@@ -14,9 +14,9 @@ const createCompany = `
 `
 
 type CreateCompanyParams struct {
-	CompanyName string  `json:"companyname"`
+	CompanyName string  `json:"company_name"`
 	Address     string  `json:"address"`
-	CreatedBy   string
+	CreatedBy   string  `swaggerignore:"true"`
 }
 
 func (q *Queries) CreateCompany(ctx context.Context, arg CreateCompanyParams) (domain.Company, error){
