@@ -19,6 +19,7 @@ type Task struct {
 	ProjectId int64 `json:"project_id"`
 	Version   int64 `json:"version"`
 	CompanyId int64 `json:"company_id"`
+	Rating    int64 `json:"rating"`
 }
 
 func NewTask(name string, budget decimal.Decimal, user string, taskorder int64, projectid int64) Task {

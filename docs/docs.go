@@ -653,6 +653,9 @@ const docTemplate = `{
                 "project_id": {
                     "type": "integer"
                 },
+                "rating": {
+                    "type": "integer"
+                },
                 "task_order": {
                     "type": "integer"
                 },
