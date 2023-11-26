@@ -14,6 +14,7 @@ import (
 // @Description  create a  project
 // @Tags         projects
 // @Produce      json
+// @Param        companyId path     int true   "Company ID"
 // @Param        request body db.CreateProjectParam true "project creation parameters"
 // @Success      200  {object}  domain.Project
 // @Failure      400  {object}  error

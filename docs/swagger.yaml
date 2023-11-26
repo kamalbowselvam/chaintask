@@ -66,6 +66,13 @@ definitions:
       user_role:
         type: string
     type: object
+  db.CreateCompanyParams:
+    properties:
+      address:
+        type: string
+      company_name:
+        type: string
+    type: object
   db.CreateProjectParam:
     properties:
       address:
@@ -101,11 +108,34 @@ definitions:
     - task_name
     - task_order
     type: object
+  db.UpdateTaskParams:
+    properties:
+      budget:
+        type: number
+      done:
+        type: boolean
+      id:
+        type: integer
+      project_id:
+        type: integer
+      task_name:
+        type: string
+      task_order:
+        type: integer
+      version:
+        type: integer
+    required:
+    - budget
+    - done
+    - project_id
+    - task_name
+    - version
+    type: object
   domain.Company:
     properties:
       address:
         type: string
-      companyname:
+      company_name:
         type: string
       createdBy:
         type: string
@@ -167,10 +197,10 @@ definitions:
         type: integer
       rating:
         type: integer
+      task_name:
+        type: string
       task_order:
         type: integer
-      taskname:
-        type: string
       updatedBy:
         type: string
       updatedOn:
@@ -224,7 +254,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.Company'
+          $ref: '#/definitions/db.CreateCompanyParams'
       produces:
       - application/json
       responses:
@@ -246,101 +276,15 @@ paths:
       summary: Create a company
       tags:
       - company
-  /company/{companyID}/projects/{projectId}/tasks/:
-    post:
-      consumes:
-      - application/json
-      description: Create a tasks
-      parameters:
-      - description: task creation parameter
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/db.CreateTaskParams'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.Task'
-        "400":
-          description: Bad Request
-          schema: {}
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      security:
-      - BearerAuth: []
-      summary: Create a Task
-      tags:
-      - tasks
-  /company/{companyID}/projects/{projectId}/tasks/{id}:
-    delete:
-      description: delete a task by its ID
-      parameters:
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Accepted
-        "400":
-          description: Bad Request
-          schema: {}
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      security:
-      - BearerAuth: []
-      summary: Delete a Task by its ID
-      tags:
-      - tasks
-  /company/{companyID}/projects/{projectId}/tasks/{taskId}:
-    get:
-      description: get a task by its ID
-      parameters:
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.Task'
-        "400":
-          description: Bad Request
-          schema: {}
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      security:
-      - BearerAuth: []
-      summary: Get a Task by its ID
-      tags:
-      - tasks
   /company/{companyId}/projects/:
     post:
       description: create a  project
       parameters:
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
       - description: project creation parameters
         in: body
         name: request
@@ -368,18 +312,152 @@ paths:
       summary: Create a project
       tags:
       - projects
+  /company/{companyId}/projects/{projectId}/tasks/:
+    post:
+      consumes:
+      - application/json
+      description: Create a tasks
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
+      - description: task creation parameter
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateTaskParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Create a Task
+      tags:
+      - tasks
   /company/{companyId}/projects/{projectId}/tasks/{taskId}:
+    delete:
+      description: delete a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Delete a Task by its ID
+      tags:
+      - tasks
+    get:
+      description: get a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get a Task by its ID
+      tags:
+      - tasks
     post:
       consumes:
       - application/json
       description: Updates a tasks
       parameters:
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
       - description: task update parameter
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.Task'
+          $ref: '#/definitions/db.UpdateTaskParams'
       produces:
       - application/json
       responses:
@@ -466,6 +544,6 @@ paths:
 securityDefinitions:
   BearerAuth:
     in: header
-    name: Authorization
+    name: authorization
     type: apiKey
 swagger: "2.0"

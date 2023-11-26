@@ -33,7 +33,7 @@ import (
 
 // @securitydefinitions.apikey  BearerAuth
 // @in header
-// @name Authorization
+// @name authorization
 func main() {
 
 	var dbconn *sql.DB

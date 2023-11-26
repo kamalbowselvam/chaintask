@@ -1,9 +1,12 @@
 package logger
 
 import (
+	"runtime/debug"
+
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var zapLog *zap.Logger
@@ -12,34 +15,46 @@ var sugar *zap.SugaredLogger
 func init() {
 	var err error
 
-	/*
-	config := zap.NewDevelopmentConfig()
-	config.Encoding = "json"
+	stdout := zapcore.AddSync(colorable.NewColorableStdout())
 
-	enccoderConfig := zap.NewDevelopmentEncoderConfig()
+	file := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   "logs/app.log",
+		MaxSize:    5,
+		MaxBackups: 10,
+		MaxAge:     14,
+		Compress:   true,
+	})
+	productionCfg := zap.NewProductionEncoderConfig()
+	productionCfg.TimeKey = "timestamp"
+	productionCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+	fileEncoder := zapcore.NewJSONEncoder(productionCfg)
+	consoleEncoderConfig := zap.NewDevelopmentEncoderConfig()
+	consoleEncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	var gitRevision string
 
-	zapcore.TimeEncoderOfLayout("Jan _2 15:04:05.000000000")
-	zapcore.AddSync(colorable.NewColorableStdout())
-	zapcore.NewConsoleEncoder(enccoderConfig)
+	buildInfo, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, v := range buildInfo.Settings {
+			if v.Key == "vcs.revision" {
+				gitRevision = v.Value
+				break
+			}
+		}
+	}
+	// log to multiple destinations (console and file)
+	// extra fields are added to the JSON output alone
+	core := zapcore.NewTee(
+		zapcore.NewCore(zapcore.NewConsoleEncoder(consoleEncoderConfig), stdout, zapcore.DebugLevel),
+		zapcore.NewCore(fileEncoder, file, zapcore.DebugLevel).
+			With(
+				[]zapcore.Field{
+					zap.String("git_revision", gitRevision),
+					zap.String("go_version", buildInfo.GoVersion),
+				},
+			),
+	)
 
-	//enccoderConfig.StacktraceKey = "" // to hide stacktrace info
-	config.EncoderConfig = enccoderConfig
-	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	zapLog, err = config.Build(zap.AddCallerSkip(1))
-	*/
-	//zapLog = zap.New(zapcore.NewCore(
-	//	zapcore.NewConsoleEncoder(enccoderConfig),
-	//	zapcore.AddSync(colorable.NewColorableStdout()),
-	//	zapcore.DebugLevel,
-	//))
-
-	aa := zap.NewDevelopmentEncoderConfig()
-	aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	zapLog = zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(aa),
-		zapcore.AddSync(colorable.NewColorableStdout()),
-		zapcore.DebugLevel,
-	))
+	zapLog = zap.New(core)
 
 	sugar = zapLog.Sugar()
 
