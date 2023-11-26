@@ -161,7 +161,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					ProjectId: task.ProjectId,
+					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -192,7 +192,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: admin.Username,
-					ProjectId: task.ProjectId,
+					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -223,7 +223,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: client.Username,
-					ProjectId: task.ProjectId,
+					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -254,7 +254,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: responsible.Username,
-					ProjectId: task.ProjectId,
+					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 

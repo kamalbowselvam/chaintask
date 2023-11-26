@@ -16,12 +16,13 @@ import (
 func generateRandomTask(t *testing.T) domain.Task {
 
 	project := generateRandomProject(t)
+	taskOrder := util.RandomInt(0, 100)
 	arg := CreateTaskParams{
 		TaskName:  util.RandomName(),
 		Budget:    util.RandomBudget(),
 		CreatedBy: project.Client,
-		TaskOrder: util.RandomInt(0, 100),
-		ProjectId: project.Id,
+		TaskOrder: taskOrder,
+		ProjectId: &project.Id,
 	}
 
 	task, err := testStore.CreateTask(context.Background(), arg)
@@ -33,7 +34,7 @@ func generateRandomTask(t *testing.T) domain.Task {
 	require.Equal(t, val1, val2)
 	require.Equal(t, arg.CreatedBy, task.CreatedBy)
 	require.Equal(t, arg.TaskOrder, task.TaskOrder)
-	require.Equal(t, arg.ProjectId, task.ProjectId)
+	require.Equal(t, arg.ProjectId, &task.ProjectId)
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -95,17 +96,20 @@ func TestDeleteTask(t *testing.T) {
 func TestUpdateTaskHelper(t *testing.T) {
 	task1 := generateRandomTask(t)
 	require.NotEmpty(t, task1)
+	version := int64(0)
+	rating := int64(0)
 	update := UpdateTaskParams{}
 	update.Budget = task1.Budget
 	update.Done = task1.Done
-	update.ProjectId = task1.ProjectId
+	update.ProjectId = &task1.ProjectId
 	update.TaskOrder = task1.TaskOrder
-	update.Version = 0
+	update.Version = &version
 	update.Id = task1.Id
 	update.UpdatedBy = task1.CreatedBy;
 	update.UpdatedOn = time.Now()
 	update.TaskName = "test"
 	update.Done = true
+	update.Rating = &rating
 	task2, err := testStore.UpdateTask(context.Background(), update)
 	require.NoError(t, err)
 	require.NotEmpty(t, task2)
@@ -144,7 +148,7 @@ func save(ctx context.Context, taskName string, task domain.Task, userName strin
 	sem <- struct{}{}
 	// Logging here seems important, otherwise the go routine go in timeout. There is something shaddy to explore a bit further
 	log.Println("Trying to update tasks")
-	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: task.ProjectId, UpdatedBy: userName})
+	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: &task.ProjectId, UpdatedBy: userName})
 	if err != nil {
 		log.Printf("Error %s", err.Error())
 	}
