@@ -1,2 +1,4 @@
 ./migrate
 logs/*
+api/logs/*
+db/logs/*

@@ -760,6 +760,7 @@
 
                 "rating": {
                     "type": "integer"
+                },
                 "task_name": {
                     "type": "string"
                 },
