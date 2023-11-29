@@ -73,7 +73,7 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/company/:companyId/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/company/:companyId/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
-	authRoutes.POST("/company/:companyId/projects/:projectId/pay/:taskId", authorizeMid, server.PayForATask)
+	authRoutes.POST("/company/:companyId/projects/:projectId/payments/:taskId", authorizeMid, server.PayForATask)
 	authRoutes.GET("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
 	authRoutes.PUT("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
 	authRoutes.DELETE("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)

@@ -25,7 +25,7 @@ import (
 // @Failure      400  {object} error
 // @Failure      404  {object} error
 // @Failure      500  {object} error
-// @Router       /payment/{paymentId}/projects/{projectId}/pay/{taskId} [post]
+// @Router       /payment/{paymentId}/projects/{projectId}/payment/{taskId} [post]
 // @Security BearerAuth
 func (s *Server) PayForATask(c *gin.Context){
 
