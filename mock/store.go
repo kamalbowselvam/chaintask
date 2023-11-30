@@ -304,6 +304,21 @@ func (mr *MockGlobalRepositoryMockRecorder) GetUser(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockGlobalRepository)(nil).GetUser), arg0, arg1)
 }
 
+// PayForATask mocks base method.
+func (m *MockGlobalRepository) PayForATask(arg0 context.Context, arg1 db.CreateTaskPaymentParams) (domain.TaskPayment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PayForATask", arg0, arg1)
+	ret0, _ := ret[0].(domain.TaskPayment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PayForATask indicates an expected call of PayForATask.
+func (mr *MockGlobalRepositoryMockRecorder) PayForATask(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PayForATask", reflect.TypeOf((*MockGlobalRepository)(nil).PayForATask), arg0, arg1)
+}
+
 // UpdateTask mocks base method.
 func (m *MockGlobalRepository) UpdateTask(arg0 context.Context, arg1 db.UpdateTaskParams) (domain.Task, error) {
 	m.ctrl.T.Helper()
