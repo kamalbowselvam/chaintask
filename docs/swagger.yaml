@@ -118,6 +118,9 @@ definitions:
         type: integer
       project_id:
         type: integer
+      rating:
+        maximum: 5
+        type: integer
       task_name:
         type: string
       task_order:
@@ -128,6 +131,7 @@ definitions:
     - budget
     - done
     - project_id
+    - rating
     - task_name
     - version
     type: object

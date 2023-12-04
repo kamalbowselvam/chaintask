@@ -633,6 +633,7 @@
                 "budget",
                 "done",
                 "project_id",
+                "rating",
                 "task_name",
                 "version"
             ],
@@ -648,6 +649,10 @@
                 },
                 "project_id": {
                     "type": "integer"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5
                 },
                 "task_name": {
                     "type": "string"
@@ -757,7 +762,6 @@
                 "project_id": {
                     "type": "integer"
                 },
-
                 "rating": {
                     "type": "integer"
                 },

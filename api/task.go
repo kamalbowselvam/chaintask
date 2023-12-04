@@ -159,7 +159,9 @@ func (s *Server) CreateTask(c *gin.Context) {
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}
 	c.BindJSON(&taskparam)
-	//s.logger.Sugar().Info(taskparam)
+	logger := logger.FromCtx(c)
+	logger.Info("toto")
+	logger.Debug("Update tasks with", zap.Any("taskparam", taskparam))
 
 	task, err := s.service.UpdateTask(c, taskparam)
 

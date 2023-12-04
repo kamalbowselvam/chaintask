@@ -639,6 +639,7 @@ const docTemplate = `{
                 "budget",
                 "done",
                 "project_id",
+                "rating",
                 "task_name",
                 "version"
             ],
@@ -654,6 +655,10 @@ const docTemplate = `{
                 },
                 "project_id": {
                     "type": "integer"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5
                 },
                 "task_name": {
                     "type": "string"
@@ -765,6 +770,7 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "integer"
+                },
                 "task_name": {
                     "type": "string"
                 },

@@ -60,11 +60,10 @@ func (server *Server) setupRouter() {
 	if host != ""{
 		docs.SwaggerInfo.Host = host
 	}
-	router.POST("/users/login", server.LoginUser)
-	router.POST("/tokens/renew_access", server.renewAccessToken)
-	// FIXME
-	router.POST("/users", server.CreateUser)
-	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
+	globalGroup := router.Group("/").Use(requestLogger())
+	globalGroup.POST("/users/login", server.LoginUser)
+	globalGroup.POST("/tokens/renew_access", server.renewAccessToken)
+	authRoutes := globalGroup.Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
 		func(ctx *gin.Context) {
@@ -72,7 +71,7 @@ func (server *Server) setupRouter() {
 		},
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
-	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/company/:companyId/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/company/:companyId/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
 	authRoutes.GET("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
