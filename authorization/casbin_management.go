@@ -77,8 +77,13 @@ func (management *CasbinManagement) CreateUserPolicies(username string, role str
 }
 func (management *CasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string, companyId int64) error {
 	resource := fmt.Sprintf("/company/%d/projects/%d/tasks/", companyId, projectId)
-	return errors.Join(management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
-	management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)))
+	payment_resource := fmt.Sprintf("/company/%d/projects/%d/payments/*", companyId, projectId)
+	return errors.Join(
+		management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+		management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+		management.AddPolicies(payment_resource, responsible, util.GenerateRoleString(http.MethodGet)),
+		management.AddPolicies(payment_resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+)
 
 }
 func (management *CasbinManagement) RemovePolicies(resource string, username string) error {

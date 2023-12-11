@@ -62,8 +62,6 @@ func (server *Server) setupRouter() {
 	}
 	router.POST("/users/login", server.LoginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
-	// FIXME
-	router.POST("/users", server.CreateUser)
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
@@ -72,9 +70,10 @@ func (server *Server) setupRouter() {
 		},
 	)
 	authorizeMid := AuthorizeMiddleware(server.authorize)
-	//authRoutes.POST("/users", authorizeMid, server.CreateUser)
+	authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/company/:companyId/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/company/:companyId/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
+	authRoutes.POST("/company/:companyId/projects/:projectId/payments/:taskId", authorizeMid, server.PayForATask)
 	authRoutes.GET("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
 	authRoutes.PUT("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
 	authRoutes.DELETE("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
