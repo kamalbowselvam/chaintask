@@ -757,7 +757,6 @@
                 "project_id": {
                     "type": "integer"
                 },
-
                 "rating": {
                     "type": "integer"
                 },
