@@ -137,9 +137,9 @@ func TestAuthorizationMiddleware(t *testing.T) {
 	client, _ := randomUser(t, util.ROLES[1])
 	user, _ := randomUser(t, util.ROLES[1])
 	responsible, _ := randomUser(t, util.ROLES[2])
-	project := randomProject(client.Username, responsible.Username)
+	project := randomProject(t)
 	companyId := project.CompanyId
-	task := randomTask(client.Username, project.Id)
+	task := randomTask(client.Username, project.Id, project.CompanyId)
 
 	testCases := []struct {
 		name          string

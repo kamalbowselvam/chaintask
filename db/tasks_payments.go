@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
 const createTaskPayment = `INSERT INTO tasks_payments (
 	task_id,
 	amount,
@@ -21,14 +20,12 @@ const createTaskPayment = `INSERT INTO tasks_payments (
   )
   RETURNING id, task_id, amount, source, created_by, created_at, updated_by, updated_at`
 
-
 type CreateTaskPaymentParams struct {
-	TaskId  *int64          `json:"taskIf" binding:"required,number"`
+	TaskId    int64           `json:"taskIf" binding:"required,number"`
 	Amount    decimal.Decimal `json:"amount" binding:"required,number"`
-	Source string           `json:"source" binding:"required"`
+	Source    string          `json:"source" binding:"required"`
 	CreatedBy string
 }
-
 
 func (q *Queries) PayForATask(ctx context.Context, arg CreateTaskPaymentParams) (domain.TaskPayment, error) {
 
@@ -58,7 +55,7 @@ func (q *Queries) PayForATask(ctx context.Context, arg CreateTaskPaymentParams) 
 const getPaymentsByTasks = `
 SELECT id, task_id, amount, source FROM tasks_payments WHERE task_id=$1 ORDER BY amount ASC`
 
-func (q *Queries) getTaksPaymentsByTask(ctx context.Context, task_id int64) ([]domain.TaskPayment, error){
+func (q *Queries) getTaksPaymentsByTask(ctx context.Context, task_id int64) ([]domain.TaskPayment, error) {
 	rows, err := q.db.QueryContext(ctx, getPaymentsByTasks, task_id)
 	res := []domain.TaskPayment{}
 	if err != nil {

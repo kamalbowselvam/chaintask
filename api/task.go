@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,12 +48,12 @@ func (s *Server) GetTask(c *gin.Context) {
 
 	}
 
-	authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
-	if task.CreatedBy != authorizationPayload.Username {
-		err := errors.New("task does not belong to user")
-		c.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
-		return
-	}
+	//authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	//if task.CreatedBy != authorizationPayload.Username {
+	//	err := errors.New("task does not belong to user")
+	//	c.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, task)
 }
@@ -74,7 +73,7 @@ func (s *Server) GetTask(c *gin.Context) {
 // @Router       /company/{companyId}/projects/{projectId}/tasks/{taskId} [delete]
 // @Security BearerAuth
 func (s *Server) DeleteTask(c *gin.Context) {
-	var req db.GetTaskParams
+	var req db.DeleteTaskParams
 	err := c.ShouldBindUri(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))

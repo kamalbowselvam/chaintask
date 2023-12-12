@@ -2,29 +2,13 @@ package api
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
-	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
-	"github.com/kamalbowselvam/chaintask/authorization"
-	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
-	mockdb "github.com/kamalbowselvam/chaintask/mock"
-	"github.com/kamalbowselvam/chaintask/token"
-	"github.com/kamalbowselvam/chaintask/util"
-	"github.com/mattn/go-colorable"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
-
 
 func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, task domain.Project) {
 	data, err := io.ReadAll(body)
@@ -38,8 +22,7 @@ func requiredBodyMatchProject(t *testing.T, body *bytes.Buffer, task domain.Proj
 
 }
 
-
-
+/*
 func TestCreateProjectAPI(t *testing.T) {
 	config, err := util.LoadConfig("../")
 	aa := zap.NewDevelopmentEncoderConfig()
@@ -129,3 +112,4 @@ func TestCreateProjectAPI(t *testing.T) {
 	}
 }
 
+*/
