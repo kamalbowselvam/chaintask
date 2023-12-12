@@ -33,5 +33,18 @@ swagger:
 mock:
 	mockgen -package mockdb --build_flags=--mod=mod -destination mock/store.go github.com/kamalbowselvam/chaintask/db GlobalRepository
 
+kind: cluster docker upload deploy 
 
-.PHONY: server network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown swagger
+cluster:
+	kind create cluster --config=./kind/clusterconfig.yaml && chmod 777 ./kind/registry.sh && ./kind/registry.sh
+
+upload: 
+	docker tag chaintask:latest localhost:5001/chaintask:latest && 	docker push localhost:5001/chaintask:latest
+
+deploy:
+	kubectl apply -f ./kind/postgres.yaml && sleep 10 && kubectl apply -f ./kind/chaintask.yaml
+
+undeploy:
+	kind delete cluster 
+
+.PHONY: server network postgres createdb dropdb migrateup migratedown test mock migrateawsup migrateawsdown swagger cluster upload deploy undeploy
