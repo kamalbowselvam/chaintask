@@ -85,20 +85,22 @@ func TestCreateTaskAPI(t *testing.T) {
 
 	project := randomProject(t)
 	task := randomTask(project.Client, project.Id, project.CompanyId)
-	//config := loadConfig()
-	//authorizationLoaders := generateLoader(*config)
-
+	
 	testCases := []struct {
-		name          string
-		body          gin.H
-		gtask         domain.Task
-		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
-		buildStubs    func(store *mockdb.MockGlobalRepository)
-		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+		name           string
+		body           gin.H
+		testTask       domain.Task
+		testProject    domain.Project
+		setupAuth      func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		setupPolicies  func(t *testing.T, server *Server)
+		removePolicies func(t *testing.T, server *Server)
+		buildStubs     func(store *mockdb.MockGlobalRepository)
+		checkResponse  func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:  "OK - Client",
-			gtask: task,
+			name:        "OK - Client",
+			testTask:    task,
+			testProject: project,
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
@@ -108,6 +110,17 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -132,8 +145,10 @@ func TestCreateTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:  "OK - Reponsible",
-			gtask: task,
+			name:        "OK - Reponsible",
+			testTask:    task,
+			testProject: project,
+
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
@@ -143,6 +158,17 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Responsible, util.ROLES[2], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -167,8 +193,10 @@ func TestCreateTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:  "UnauthorizedUser",
-			gtask: task,
+			name:        "UnauthorizedUser",
+			testTask:    task,
+			testProject: project,
+
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
@@ -178,6 +206,17 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "Random", "unknown", time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
@@ -202,8 +241,10 @@ func TestCreateTaskAPI(t *testing.T) {
 		},
 
 		{
-			name:  "NoAuthorization",
-			gtask: task,
+			name:        "NoAuthorization",
+			testTask:    task,
+			testProject: project,
+
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
@@ -213,6 +254,18 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
@@ -232,10 +285,11 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 		},
 
-
 		{
-			name:  "InternalError",
-			gtask: task,
+			name:        "InternalError",
+			testTask:    task,
+			testProject: project,
+
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
@@ -246,6 +300,18 @@ func TestCreateTaskAPI(t *testing.T) {
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
 			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
@@ -264,6 +330,54 @@ func TestCreateTaskAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
+
+		{
+			name:        "InvalidData",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task":       task.TaskName,
+				"budget":     task.Budget,
+				"project_id": task.ProjectId,
+				"task_order": task.TaskOrder,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				/*
+					arg := db.CreateTaskParams{
+						TaskName:  task.TaskName,
+						Budget:    task.Budget,
+						CreatedBy: task.CreatedBy,
+						ProjectId: &task.ProjectId,
+						TaskOrder: task.TaskOrder,
+					}
+				*/
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), gomock.Any()).
+					Times(0).
+					Return(domain.Task{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
 	}
 
 	for i := range testCases {
@@ -280,25 +394,24 @@ func TestCreateTaskAPI(t *testing.T) {
 			server := newTestServerWithEnforcer(t, store, true)
 			recorder := httptest.NewRecorder()
 
-			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", task.CompanyId, tc.gtask.ProjectId)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", tc.testTask.CompanyId, tc.testTask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
+			tc.setupPolicies(t, server)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
+			tc.removePolicies(t, server)
 
 		})
 
 	}
 
 }
-
-
 
 func randomProject(t *testing.T) domain.Project {
 

@@ -110,18 +110,22 @@ func (s *Server) DeleteTask(c *gin.Context) {
 func (s *Server) CreateTask(c *gin.Context) {
 	logger_ := logger.FromCtx(c)
 	taskparam := db.CreateTaskParams{}
-	c.ShouldBindBodyWith(&taskparam, binding.JSON)
-
-	createdBy, existed := c.Get(authorizationPayloadKey)
-	if !existed {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
+	err := c.ShouldBindBodyWith(&taskparam, binding.JSON)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
 	}
-	taskparam.CreatedBy = createdBy.(*token.Payload).Username;
+
+	token_payload, _ := c.Get(authorizationPayloadKey)
+	//if !existed {
+	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
+	//}
+	taskparam.CreatedBy = token_payload.(*token.Payload).Username
 
 	logger.Debug("Creating a task",
 		zap.String("package", "api"),
 		zap.String("function", "CreateTask"),
-		zap.Any("param",taskparam),
+		zap.Any("param", taskparam),
 	)
 
 	task, err := s.service.CreateTask(c, taskparam)
@@ -131,7 +135,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 		logger_.Error("Creating a task",
 			zap.String("package", "api"),
 			zap.String("function", "CreateTask"),
-			zap.Any("param",taskparam),
+			zap.Any("param", taskparam),
 		)
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
