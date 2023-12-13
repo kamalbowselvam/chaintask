@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 
 	"fmt"
@@ -228,6 +229,39 @@ func TestCreateTaskAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+
+
+		{
+			name:  "InternalError",
+			gtask: task,
+			body: gin.H{
+				"task_name":  task.TaskName,
+				"budget":     task.Budget,
+				"project_id": task.ProjectId,
+				"task_order": task.TaskOrder,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
+			},
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.CreateTaskParams{
+					TaskName:  task.TaskName,
+					Budget:    task.Budget,
+					CreatedBy: task.CreatedBy,
+					ProjectId: &task.ProjectId,
+					TaskOrder: task.TaskOrder,
+				}
+
+				store.EXPECT().
+					CreateTask(gomock.Any(), EqCreateTaskParams(arg)).
+					Times(1).
+					Return(domain.Task{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 	}
