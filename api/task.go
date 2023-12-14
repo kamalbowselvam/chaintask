@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -121,6 +122,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	//}
 	taskparam.CreatedBy = token_payload.(*token.Payload).Username
+	
 
 	logger.Debug("Creating a task",
 		zap.String("package", "api"),
@@ -162,9 +164,20 @@ func (s *Server) CreateTask(c *gin.Context) {
 // @Security BearerAuth
 func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}
-	c.BindJSON(&taskparam)
-	logger := logger.FromCtx(c)
-	logger.Debug("Update tasks with", zap.Any("taskparam", taskparam))
+	logger_ := logger.FromCtx(c)
+	logger_.Debug("Update tasks with", zap.Any("taskparam", taskparam))
+	err := c.ShouldBindBodyWith(&taskparam, binding.JSON)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+	//s.logger.Sugar().Info(taskparam)
+	token_payload, _ := c.Get(authorizationPayloadKey)
+	//if !existed {
+	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
+	//}
+	taskparam.UpdatedBy = token_payload.(*token.Payload).Username
+	taskparam.UpdatedOn = time.Now()
 
 	task, err := s.service.UpdateTask(c, taskparam)
 

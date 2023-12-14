@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type taskParams struct {
+type createTaskParams struct {
 	TaskName  string `json:"task_name" binding:"required"`
 	CreatedBy string `swaggerignore:"true"`
 	TaskOrder int64  `json:"task_order" binding:"required,number"`
@@ -45,9 +45,9 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	//if e.arg.CreatedBy != arg.CreatedBy {
-	//	return false
-	//}
+	if e.arg.CreatedBy != arg.CreatedBy {
+		return false
+	}
 
 	if e.arg.TaskName != arg.TaskName {
 		return false
@@ -60,12 +60,12 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 	// Request param is unmarshalled as Decimal(4730,0) --> Which is also 4730
 	// but deepequal throws error for the object
 
-	eparam := taskParams{TaskName: e.arg.TaskName,
+	eparam := createTaskParams{TaskName: e.arg.TaskName,
 		CreatedBy: e.arg.CreatedBy,
 		ProjectId: *e.arg.ProjectId,
 		TaskOrder: e.arg.TaskOrder}
 
-	argparam := taskParams{TaskName: arg.TaskName,
+	argparam := createTaskParams{TaskName: arg.TaskName,
 		CreatedBy: arg.CreatedBy,
 		ProjectId: *arg.ProjectId,
 		TaskOrder: arg.TaskOrder}
@@ -85,7 +85,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 	project := randomProject(t)
 	task := randomTask(project.Client, project.Id, project.CompanyId)
-	
+
 	testCases := []struct {
 		name           string
 		body           gin.H
@@ -450,9 +450,13 @@ func randomTask(username string, projectId int64, companyId int64) domain.Task {
 		TaskName:  name,
 		Budget:    budget,
 		CreatedBy: username,
+		UpdatedBy: username,
 		ProjectId: projectId,
 		TaskOrder: util.RandomInt(1, 10),
 		CompanyId: companyId,
+		Rating:    util.RandomInt(1, 5),
+		Version:   util.RandomInt(1, 10),
+		Done:      true,
 	}
 }
 
