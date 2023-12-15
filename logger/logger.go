@@ -61,7 +61,7 @@ func init() {
 			),
 	)
 
-	zapLog = zap.New(core, zap.AddCallerSkip(1))
+	zapLog = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 
 	sugar = zapLog.Sugar()
 

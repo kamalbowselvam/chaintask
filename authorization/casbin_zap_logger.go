@@ -28,7 +28,7 @@ func (matrix stringMatrix) MarshalLogArray(enc zapcore.ArrayEncoder) error {
 	return nil
 }
 
-func NewCasbinLogger(enabled bool, logger zap.Logger) *CasbinLogger {
+func NewCasbinLogger(enabled bool, logger *zap.Logger) *CasbinLogger {
 	var enable int32;
 	if enabled{
 		enable = 1
@@ -37,7 +37,7 @@ func NewCasbinLogger(enabled bool, logger zap.Logger) *CasbinLogger {
 	}
 	return &CasbinLogger{
 		enabled: enable,
-		logger:  logger,
+		logger:  *logger,
 	}
 }
 
@@ -87,14 +87,15 @@ func (l *CasbinLogger) LogPolicy(policy map[string][][]string) {
 		return
 	}
 
-	l.logger.Info("LogPolicy", zap.Object("policy", zapcore.ObjectMarshalerFunc(func(enc zapcore.ObjectEncoder) error {
+	
+	/*l.logger.Info("LogPolicy", zap.Object("policy", zapcore.ObjectMarshalerFunc(func(enc zapcore.ObjectEncoder) error {
 		for k, v := range policy {
 			if err := enc.AddArray(k, stringMatrix(v)); err != nil {
 				return err
 			}
 		}
 		return nil
-	})))
+	})))*/
 }
 
 func (l *CasbinLogger) LogRole(roles []string) {

@@ -49,8 +49,8 @@ func Load(source string, conf string) (*Loaders, error) {
 		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.KeyMatch)
 		enforcer.AddNamedMatchingFunc("g", "KeyMatch2", util.RegexMatch)
 		enforcer.EnableLog(true)
-		//casbin_logger := NewCasbinLogger(true)
-		//enforcer.SetLogger(casbin_logger)
+		casbin_logger := NewCasbinLogger(true, logger.Get())
+		enforcer.SetLogger(casbin_logger)
 
 		singleInstance = &Loaders{
 			Adapter:  adapter,
