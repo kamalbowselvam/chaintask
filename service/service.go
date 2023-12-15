@@ -29,4 +29,5 @@ type TaskService interface {
 	//UpdateProject(context.Context, domain.Project) (domain.Project, error)
 
 	CreateCompany(context.Context, db.CreateCompanyParams) (domain.Company, error)
+	PayForATask(context.Context, db.CreateTaskPaymentParams) (domain.TaskPayment, error)
 }

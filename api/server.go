@@ -60,6 +60,7 @@ func (server *Server) setupRouter() {
 	if host != ""{
 		docs.SwaggerInfo.Host = host
 	}
+
 	globalGroup := router.Group("/").Use(requestLogger())
 	globalGroup.POST("/users/login", server.LoginUser)
 	globalGroup.POST("/tokens/renew_access", server.renewAccessToken)
@@ -74,6 +75,7 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/users", authorizeMid, server.CreateUser)
 	authRoutes.POST("/company/:companyId/projects/", authorizeMid, server.CreateProject)
 	authRoutes.POST("/company/:companyId/projects/:projectId/tasks/", authorizeMid, server.CreateTask)
+	authRoutes.POST("/company/:companyId/projects/:projectId/payments/:taskId", authorizeMid, server.PayForATask)
 	authRoutes.GET("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.GetTask)
 	authRoutes.PUT("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.UpdateTask)
 	authRoutes.DELETE("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)

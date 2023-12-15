@@ -14,6 +14,7 @@ type GlobalRepository interface {
 	CompanyRepository
 	ResourceRepository
 	PayeeRepository
+	TaskPaymentRepository
 }
 
 type UserRepository interface {
@@ -54,4 +55,8 @@ type PayeeRepository interface {
 	CreatePayee(context.Context, CreatePayeeParams) (domain.Payee, error)
 }
 
+
+type TaskPaymentRepository interface {
+	PayForATask(context.Context, CreateTaskPaymentParams) (domain.TaskPayment, error)
+}
 var _ GlobalRepository = (*Queries)(nil)

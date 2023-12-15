@@ -380,6 +380,78 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/{paymentId}/projects/{projectId}/pay/{taskId}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a payment source and a payment amout for a task",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Pay for a task",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Company ID",
+                        "name": "companyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "payment source",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.CreateTaskPaymentParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.TaskPayment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/users/": {
             "post": {
                 "description": "Create a user",
@@ -633,6 +705,28 @@ const docTemplate = `{
                 }
             }
         },
+        "db.CreateTaskPaymentParams": {
+            "type": "object",
+            "required": [
+                "amount",
+                "source",
+                "taskIf"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "taskIf": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.UpdateTaskParams": {
             "type": "object",
             "required": [
@@ -765,6 +859,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "paid_amount": {
+                    "type": "number"
+                },
                 "project_id": {
                     "type": "integer"
                 },
@@ -785,6 +882,35 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "domain.TaskPayment": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "createdOn": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "integer"
+                },
+                "updatedBy": {
+                    "type": "string"
+                },
+                "updatedOn": {
+                    "type": "string"
                 }
             }
         },

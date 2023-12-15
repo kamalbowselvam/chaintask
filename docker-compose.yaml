@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  postgres:
+  postgresdb:
     image: postgres:14-alpine
     ports:
       - '5432:5432'
@@ -16,13 +16,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/chain_task?sslmode=disable
+      - DB_SOURCE=postgresql://root:secret@postgresdb:5432/chain_task?sslmode=disable
     depends_on:
-      - postgres
+      - postgresdb
     entrypoint:
       [
         "/app/wait-for.sh",
-        "postgres:5432",
+        "postgresdb:5432",
         "--",
         "/app/start.sh"
       ]
