@@ -131,7 +131,7 @@ func FromGinCtx(ctx *gin.Context) *zap.Logger {
 // is associated, the default logger is returned, unless it is nil
 // in which case a disabled logger is returned.
 func FromCtx(ctx context.Context) *zap.Logger {
-	if l, ok := ctx.Value(ctxKey{}).(*zap.Logger); ok {
+	if l, ok := ctx.Value(ginCtxKey).(*zap.Logger); ok {
 		return l
 	} else if l := zapLog; l != nil {
 		return l
@@ -142,12 +142,12 @@ func FromCtx(ctx context.Context) *zap.Logger {
 
 // WithCtx returns a copy of ctx with the Logger attached.
 func WithCtx(ctx context.Context, l *zap.Logger) context.Context {
-	if lp, ok := ctx.Value(ctxKey{}).(*zap.Logger); ok {
+	if lp, ok := ctx.Value(ginCtxKey).(*zap.Logger); ok {
 		if lp == l {
 			// Do not store same logger.
 			return ctx
 		}
 	}
 
-	return context.WithValue(ctx, ctxKey{}, l)
+	return context.WithValue(ctx, ginCtxKey, l)
 }

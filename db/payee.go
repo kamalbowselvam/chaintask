@@ -21,7 +21,8 @@ type CreatePayeeParams struct {
 
 func (q *Queries) CreatePayee(ctx context.Context, arg CreatePayeeParams) (domain.Payee, error) {
 
-	logger.Debug("Argument to Create a resource", zap.String("company_name", arg.PayeeName),
+	logger_ := logger.FromCtx(ctx)
+	logger_.Debug("Argument to Create a resource", zap.String("company_name", arg.PayeeName),
 		zap.String("address", arg.Address),
 	)
 

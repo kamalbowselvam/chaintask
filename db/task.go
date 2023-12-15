@@ -48,7 +48,8 @@ type UpdateTaskParams struct {
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
 
-	logger.Debug("Creating a task",
+	logger_ := logger.FromCtx(ctx)
+	logger_.Debug("Creating a task",
 		zap.String("package", "db"),
 		zap.String("function", "CreateTask"),
 		zap.Any("param", arg),
@@ -185,6 +186,7 @@ const updateTask = `
 `
 
 func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
+	logger_ := logger.FromCtx(ctx)
 	// Create a helper function for preparing failure results.
 	fail := func(err error) (domain.Task, error) {
 		return domain.Task{}, fmt.Errorf("could not update Task: %v", err)
@@ -201,13 +203,13 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 		}
 	}()
 	var id = task.Id
-	logger.Debug("Starting to update a task")
+	logger_.Debug("Starting to update a task")
 	row := tx.QueryRowContext(ctx, "SELECT id FROM tasks WHERE id=$1 limit 1", id)
 	var oldId int64
 	if err := row.Scan(&oldId); err != nil {
 		return fail(err)
 	}
-	logger.Debug("Starting to actually update a task")
+	logger_.Debug("Starting to actually update a task")
 	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, task.Rating, id, task.Version)
 	if err != nil {
 		return fail(err)
@@ -224,6 +226,6 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 	if err = tx.Commit(); err != nil {
 		return fail(err)
 	}
-	logger.Debug("Update Task Done")
+	logger_.Debug("Update Task Done")
 	return q.GetTask(ctx, id)
 }

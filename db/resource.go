@@ -22,7 +22,8 @@ type CreateResourceParams struct {
 
 func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (domain.Resource, error) {
 
-	logger.Debug("Argument to Create a resource", zap.String("company_name", arg.ResourceName))
+	logger_ := logger.FromCtx(ctx)
+	logger_.Debug("Argument to Create a resource", zap.String("company_name", arg.ResourceName))
 
 	row := q.db.QueryRowContext(ctx, createResource, arg.ResourceName, arg.Availed, arg.CreatedBy)
 	var i domain.Resource

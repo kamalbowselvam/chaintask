@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/db"
-	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
 )
@@ -27,7 +26,6 @@ func (s *Server) CreateCompany(c *gin.Context){
 
 	companyparams := db.CreateCompanyParams{}
 	err := c.BindJSON(&companyparams)
-	logger.Info(companyparams.CompanyName)
 	
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, util.ErrorResponse(err))

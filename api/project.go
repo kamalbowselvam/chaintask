@@ -26,7 +26,6 @@ func (s *Server) CreateProject(c *gin.Context) {
 
 	projectparam := db.CreateProjectParam{}
 	c.ShouldBindBodyWith(&projectparam, binding.JSON)
-	//logger.Info(projectparam)
 
 	createdBy, existed := c.Get(authorizationPayloadKey)
 	if !existed {

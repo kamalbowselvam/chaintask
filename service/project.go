@@ -5,11 +5,12 @@ import (
 
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
 func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam) (domain.Project, error) {
-	project, err := srv.globalRepository.CreateProject(context.Background(), arg)
+	project, err := srv.globalRepository.CreateProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), arg)
 	if err != nil {
 
 		srv.logger.Fatal("could not create project due to", zap.Error(err))
@@ -21,7 +22,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	if err == nil {
 		err = srv.policiesRepository.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 		if err != nil {
-			err = srv.DeleteProject(ctx, project.Id)
+			err = srv.DeleteProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), project.Id)
 			if err != nil {
 				srv.logger.Fatal("Could not delete project, invalid policies may be created", zap.Error(err))
 			}
@@ -32,7 +33,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 }
 
 func (srv *service) DeleteProject(ctx context.Context, id int64) error {
-	project, err := srv.GetProject(ctx, id)
+	project, err := srv.GetProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
 		return nil
 	}
@@ -40,11 +41,11 @@ func (srv *service) DeleteProject(ctx context.Context, id int64) error {
 	for _, task := range project.Tasks{
 		srv.policiesRepository.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, project.CompanyId)
 	}
-	err = srv.globalRepository.DeleteTasksLinkedToProject(ctx, id)
+	err = srv.globalRepository.DeleteTasksLinkedToProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
 		srv.logger.Fatal("could not tasks linked to project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
 	}
-	err = srv.globalRepository.DeleteProject(ctx, id)
+	err = srv.globalRepository.DeleteProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
 		srv.logger.Fatal("could not deleted project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
 		return err
@@ -57,7 +58,7 @@ func (srv *service) GetProject(ctx context.Context, id int64) (domain.Project, e
 	if err != nil {
 		return domain.Project{}, nil
 	}
-	tasks, err := srv.globalRepository.GetTaskListByProject(ctx, id)
+	tasks, err := srv.globalRepository.GetTaskListByProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
 		return domain.Project{}, nil
 	}

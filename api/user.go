@@ -136,7 +136,6 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		return
 	}
 	logger := logger.FromGinCtx(ctx)
-	logger.Info("toto")
 	logger.Debug("Login", zap.Any("login", req))
 
 	user, err := s.service.GetUser(ctx, req.Username)

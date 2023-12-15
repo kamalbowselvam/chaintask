@@ -109,6 +109,7 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Router       /company/{companyId}/projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
+	logger_ := logger.FromCtx(c)
 	taskparam := db.CreateTaskParams{}
 	c.ShouldBindBodyWith(&taskparam, binding.JSON)
 
@@ -128,7 +129,7 @@ func (s *Server) CreateTask(c *gin.Context) {
 
 	if err != nil {
 
-		logger.Error("Creating a task",
+		logger_.Error("Creating a task",
 			zap.String("package", "api"),
 			zap.String("function", "CreateTask"),
 			zap.Any("param",taskparam),
@@ -160,7 +161,6 @@ func (s *Server) UpdateTask(c *gin.Context) {
 	taskparam := db.UpdateTaskParams{}
 	c.BindJSON(&taskparam)
 	logger := logger.FromCtx(c)
-	logger.Info("toto")
 	logger.Debug("Update tasks with", zap.Any("taskparam", taskparam))
 
 	task, err := s.service.UpdateTask(c, taskparam)

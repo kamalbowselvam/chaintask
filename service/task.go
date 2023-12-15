@@ -7,6 +7,7 @@ import (
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"go.uber.org/zap"
 )
 
@@ -24,12 +25,12 @@ func NewTaskService(globalRepository db.GlobalRepository, policiesRepository aut
 }
 
 func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) {
-	task, err := srv.globalRepository.GetTask(context.Background(), id)
+	task, err := srv.globalRepository.GetTask(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	return task, err
 }
 
 func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error) {
-	task, err := srv.globalRepository.CreateTask(context.Background(), arg)
+	task, err := srv.globalRepository.CreateTask(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), arg)
 	if err != nil {
 		srv.logger.Fatal("Could not save the task in repository", zap.Error(err))
 		return task, err
@@ -48,11 +49,11 @@ func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (do
 }
 
 func (srv *service) DeleteTask(ctx context.Context, id int64) error {
-	task, err := srv.globalRepository.GetTask(context.Background(), id)
+	task, err := srv.globalRepository.GetTask(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil{
 		return fmt.Errorf("trying to delete a task that does not exists %d", id)
 	}
-	err = srv.globalRepository.DeleteTask(context.Background(), id)
+	err = srv.globalRepository.DeleteTask(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
 		srv.logger.Fatal("could not delete task in repository", zap.Error(err))
 	}
@@ -65,7 +66,7 @@ func (srv *service) DeleteTask(ctx context.Context, id int64) error {
 }
 
 func (srv *service) UpdateTask(ctx context.Context, task db.UpdateTaskParams) (domain.Task, error) {
-	full_task, err := srv.globalRepository.UpdateTask(context.Background(), task)
+	full_task, err := srv.globalRepository.UpdateTask(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), task)
 	if err != nil {
 		srv.logger.Fatal("could not update task in repository", zap.Error(err))
 
