@@ -30,7 +30,7 @@ type CreateTaskParams struct {
 	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
 	CreatedBy string          `swaggerignore:"true"`
 	TaskOrder int64           `json:"task_order" binding:"required,number"`
-	ProjectId *int64           `json:"project_id" binding:"required,number"`
+	ProjectId *int64          `json:"project_id" binding:"required,number"`
 }
 
 type UpdateTaskParams struct {
@@ -41,9 +41,17 @@ type UpdateTaskParams struct {
 	UpdatedBy string          `swaggerignore:"true"`
 	Done      bool            `json:"done" binding:"required,boolean"`
 	TaskOrder int64           `json:"task_order"`
-	ProjectId *int64           `json:"project_id" binding:"required,number"`
-	Version   *int64           `json:"version" binding:"required,number"`
-	Rating    *int64           `json:"rating" binding:"required,number,gt=0,lte=5"`
+	ProjectId *int64          `json:"project_id" binding:"required,number"`
+	Version   *int64          `json:"version" binding:"required,number"`
+	Rating    *int64          `json:"rating" binding:"required,number,gt=0,lte=5"`
+}
+
+type GetTaskParams struct {
+	Id int64 `uri:"taskId" binding:"required,min=1"`
+}
+
+type DeleteTaskParams struct {
+	Id int64 `uri:"taskId" binding:"required,min=1"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
@@ -74,12 +82,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 }
 
 const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id, rating FROM tasks
-	WHERE id = $1 LIMIT 1
-	`
-
-type GetTaskParams struct {
-	Id int64 `uri:"taskId" binding:"required,min=1"`
-}
+	WHERE id = $1 LIMIT 1;`
 
 func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 	row := q.db.QueryRowContext(ctx, getTask, id)

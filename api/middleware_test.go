@@ -134,12 +134,9 @@ func TestAuthMiddleware(t *testing.T) {
 
 func TestAuthorizationMiddleware(t *testing.T) {
 	admin, _ := randomUser(t, util.ROLES[3])
-	client, _ := randomUser(t, util.ROLES[1])
 	user, _ := randomUser(t, util.ROLES[1])
-	responsible, _ := randomUser(t, util.ROLES[2])
-	project := randomProject(client.Username, responsible.Username)
-	companyId := project.CompanyId
-	task := randomTask(client.Username, project.Id)
+	project := randomProject(t)
+	task := randomTask(project.Client, project.Id, project.CompanyId)
 
 	testCases := []struct {
 		name          string
@@ -213,7 +210,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, client.Username, client.UserRole, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -222,7 +219,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: client.Username,
+					CreatedBy: project.Client,
 					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -244,7 +241,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, responsible.Username, responsible.UserRole, time.Minute)
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Responsible, util.ROLES[2], time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -253,7 +250,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				arg := db.CreateTaskParams{
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
-					CreatedBy: responsible.Username,
+					CreatedBy: project.Responsible,
 					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
@@ -284,14 +281,14 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			tc.buildStubs(store)
 
 			server := newTestServerWithEnforcer(t, store, true)
-			server.policies.CreateAdminPolicies(admin.Username, admin.CompanyId)
+			server.policies.CreateAdminPolicies(admin.Username, project.CompanyId)
 			server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 			recorder := httptest.NewRecorder()
 			data, err := json.Marshal(tc.body)
 
 			require.NoError(t, err)
 
-			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", companyId, tc.gtask.ProjectId)
+			url := fmt.Sprintf("/company/%d/projects/%d/tasks/", project.CompanyId, tc.gtask.ProjectId)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 

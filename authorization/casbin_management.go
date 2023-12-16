@@ -62,8 +62,16 @@ func (management *CasbinManagement) RemoveUserPolicies(username string) error {
 	return err
 }
 func (management *CasbinManagement) RemoveProjectPolicies(projectId int64, client string, responsible string, companyId int64) error {
-	resource := fmt.Sprintf("/company/%d/projects/%d*", companyId, projectId)
-	return errors.Join(management.RemovePolicies(resource, client), management.RemovePolicies(resource, responsible))
+	task_resource := fmt.Sprintf("/company/%d/projects/%d/tasks/*", companyId, projectId)
+	payement_resource := fmt.Sprintf("/company/%d/projects/%d/payments/*", companyId, projectId)
+
+
+	return errors.Join(
+		management.RemovePolicies(task_resource, client), 
+		management.RemovePolicies(task_resource, responsible),
+		management.RemovePolicies(payement_resource, client), 
+		management.RemovePolicies(payement_resource, responsible),
+	)
 }
 func (management *CasbinManagement) CreateUserPolicies(username string, role string, companyId int64) error {
 	var err error
@@ -76,21 +84,21 @@ func (management *CasbinManagement) CreateUserPolicies(username string, role str
 	return err
 }
 func (management *CasbinManagement) CreateProjectPolicies(projectId int64, client string, responsible string, companyId int64) error {
-	resource := fmt.Sprintf("/company/%d/projects/%d/tasks/", companyId, projectId)
+	task_read_resource := fmt.Sprintf("/company/%d/projects/%d/tasks/*", companyId, projectId)
 	payment_resource := fmt.Sprintf("/company/%d/projects/%d/payments/*", companyId, projectId)
 	return errors.Join(
-		management.AddPolicies(resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
-		management.AddPolicies(resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+		management.AddPolicies(task_read_resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
+		management.AddPolicies(task_read_resource, responsible, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
 		management.AddPolicies(payment_resource, responsible, util.GenerateRoleString(http.MethodGet)),
 		management.AddPolicies(payment_resource, client, util.GenerateRoleString(http.MethodGet, http.MethodPost)),
-)
+	)
 
 }
 func (management *CasbinManagement) RemovePolicies(resource string, username string) error {
 	policies := management.Enforcer.GetPermissionsForUser(username)
 	policiesToRemove := [][]string{}
 	for _, policy := range policies {
-		if policy[2] == resource {
+		if policy[1] == resource {
 			policiesToRemove = append(policiesToRemove, policy)
 		}
 	}
