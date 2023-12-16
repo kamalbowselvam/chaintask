@@ -12,13 +12,13 @@ import (
 const createTaskPayment = `INSERT INTO tasks_payments (
 	task_id,
 	amount,
-	source,
+	payee,
 	created_by,
 	updated_by
   ) VALUES (
 	$1, $2, $3, $4, $4
   )
-  RETURNING id, task_id, amount, source, created_by, created_at, updated_by, updated_at`
+  RETURNING id, task_id, amount, payee, created_by, created_at, updated_by, updated_at`
 
 type CreateTaskPaymentParams struct {
 	TaskId    int64           `json:"taskIf" binding:"required,number"`
@@ -53,7 +53,7 @@ func (q *Queries) PayForATask(ctx context.Context, arg CreateTaskPaymentParams) 
 }
 
 const getPaymentsByTasks = `
-SELECT id, task_id, amount, source FROM tasks_payments WHERE task_id=$1 ORDER BY amount ASC`
+SELECT id, task_id, amount, payee FROM tasks_payments WHERE task_id=$1 ORDER BY amount ASC`
 
 func (q *Queries) getTaksPaymentsByTask(ctx context.Context, task_id int64) ([]domain.TaskPayment, error) {
 	rows, err := q.db.QueryContext(ctx, getPaymentsByTasks, task_id)
