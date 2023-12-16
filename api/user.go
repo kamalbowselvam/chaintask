@@ -10,8 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/domain"
+	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/util"
 	"github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 type createUserRequest struct {
@@ -133,6 +135,8 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
+	logger := logger.FromGinCtx(ctx)
+	logger.Debug("Login", zap.Any("login", req))
 
 	user, err := s.service.GetUser(ctx, req.Username)
 

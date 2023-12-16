@@ -20,9 +20,10 @@ type CreateCompanyParams struct {
 }
 
 func (q *Queries) CreateCompany(ctx context.Context, arg CreateCompanyParams) (domain.Company, error){
-	logger.Info("saving comapny")
+	logger_ := logger.FromCtx(ctx)
+	logger_.Info("saving comapny")
 	
-	logger.Debug("Argument to Create a company", zap.String("company_name",arg.CompanyName),
+	logger_.Debug("Argument to Create a company", zap.String("company_name",arg.CompanyName),
 	zap.String("address",arg.Address),
 	)
 	

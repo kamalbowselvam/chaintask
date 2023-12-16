@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kamalbowselvam/chaintask/authorization"
 	"github.com/kamalbowselvam/chaintask/logger"
 	"github.com/kamalbowselvam/chaintask/token"
 	"github.com/kamalbowselvam/chaintask/util"
+	"github.com/rs/xid"
 	"go.uber.org/zap"
 )
 
@@ -18,6 +20,7 @@ const (
 	authorizationHeaderKey  = "authorization"
 	authorizationTypeBearer = "bearer"
 	authorizationPayloadKey = "author"
+	requestUUIDKey          = "requestUUID"
 )
 
 func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
@@ -78,4 +81,68 @@ func AuthorizeMiddleware(authorize authorization.AuthorizationService) gin.Handl
 		}
 		c.Next()
 	}
+}
+
+
+// add logger middleware
+// Inspired from https://betterstack.com/community/guides/logging/go/zap/#adding-context-to-your-logs
+// and https://github.com/betterstack-community/go-logging/blob/zap/middleware.go
+
+type loggingResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+	return &loggingResponseWriter{w, http.StatusOK}
+}
+
+func (lrw *loggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
+}
+
+func requestLogger() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        // retrieve the standard logger instance
+        l := logger.Get()
+
+        // create a correlation ID for the request
+        correlationID := xid.New().String()
+
+        c.Set(requestUUIDKey, correlationID)
+
+        // create a child logger containing the correlation ID
+        // so that it appears in all subsequent logs
+        l = l.With(zap.String(string(requestUUIDKey), correlationID))
+
+        c.Writer.Header().Add("X-Correlation-ID", correlationID)
+
+        lrw := newLoggingResponseWriter(c.Writer)
+
+        // the logger is associated with the request context here
+        // so that it may be retrieved in subsequent `http.Handlers`
+
+		r := c.Request
+
+		logger.WithGinCtx(c, l)
+        
+		defer func(start time.Time) {
+			l.Info(
+				fmt.Sprintf(
+					"%s request to %s completed",
+					r.Method,
+					r.RequestURI,
+				),
+				zap.String("method", r.Method),
+				zap.String("url", r.RequestURI),
+				zap.String("user_agent", r.UserAgent()),
+				zap.Int("status_code", lrw.statusCode),
+				zap.Duration("elapsed_ms", time.Since(start)),
+			)
+		}(time.Now())
+
+
+        c.Next()
+    }
 }

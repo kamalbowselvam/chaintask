@@ -60,9 +60,11 @@ func (server *Server) setupRouter() {
 	if host != ""{
 		docs.SwaggerInfo.Host = host
 	}
-	router.POST("/users/login", server.LoginUser)
-	router.POST("/tokens/renew_access", server.renewAccessToken)
-	authRoutes := router.Group("/").Use(AuthMiddleware(server.tokenMaker))
+
+	globalGroup := router.Group("/").Use(requestLogger())
+	globalGroup.POST("/users/login", server.LoginUser)
+	globalGroup.POST("/tokens/renew_access", server.renewAccessToken)
+	authRoutes := globalGroup.Use(AuthMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/auth", AuthMiddleware(server.tokenMaker),
 		func(ctx *gin.Context) {

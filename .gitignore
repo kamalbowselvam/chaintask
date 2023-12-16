@@ -2,3 +2,4 @@
 logs/*
 api/logs/*
 db/logs/*
+authorization/logs/*

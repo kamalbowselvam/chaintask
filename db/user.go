@@ -32,7 +32,8 @@ type CreateUserParams struct {
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (domain.User, error) {
 
-	logger.Debug("Arguments to create user",
+	logger_ := logger.FromCtx(ctx)
+	logger_.Debug("Arguments to create user",
 		zap.String("user_name", arg.Username),
 		zap.String("hashed_password", arg.HashedPassword),
 		zap.String("full_name", arg.FullName),

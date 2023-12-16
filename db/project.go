@@ -5,6 +5,7 @@ import (
 
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/logger"
+	"go.uber.org/zap"
 )
 
 const createProject = `INSERT INTO projects (
@@ -31,7 +32,8 @@ type CreateProjectParam struct {
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
-	logger.Info("saving projects")
+	logger_ := logger.FromCtx(ctx)
+	logger_.Info("saving projects", zap.Any("projects", arg))
 
 	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, arg.Longitude, arg.Latitude, arg.Address, arg.Responsible, arg.Client)
 	var i domain.Project

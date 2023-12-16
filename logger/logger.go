@@ -1,8 +1,10 @@
 package logger
 
 import (
+	"context"
 	"runtime/debug"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -11,6 +13,11 @@ import (
 
 var zapLog *zap.Logger
 var sugar *zap.SugaredLogger
+
+
+type ctxKey struct{}
+
+const ginCtxKey = "logger"
 
 func init() {
 	var err error
@@ -54,13 +61,17 @@ func init() {
 			),
 	)
 
-	zapLog = zap.New(core)
+	zapLog = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 
 	sugar = zapLog.Sugar()
 
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Get() *zap.Logger{
+	return zapLog
 }
 
 func Info(message string, fields ...zap.Field) {
@@ -93,4 +104,50 @@ func DPanic(message string, fields ...zap.Field) {
 
 func Warnf(message string, args ...interface{}) {
 	sugar.Warnf(message, args)
+}
+
+func WithGinCtx(ctx *gin.Context, l *zap.Logger) {
+    if l == FromGinCtx(ctx){
+		return;
+	}
+	ctx.Set(ginCtxKey, l)
+}
+
+
+func FromGinCtx(ctx *gin.Context) *zap.Logger {
+	if value, ok := ctx.Get(ginCtxKey); ok {
+		if l, ok := value.(*zap.Logger); ok {
+			return l
+		} else if l := zapLog; l != nil {
+			return l
+		}
+	}
+
+	return zap.NewNop()
+}
+
+
+// FromCtx returns the Logger associated with the ctx. If no logger
+// is associated, the default logger is returned, unless it is nil
+// in which case a disabled logger is returned.
+func FromCtx(ctx context.Context) *zap.Logger {
+	if l, ok := ctx.Value(ginCtxKey).(*zap.Logger); ok {
+		return l
+	} else if l := zapLog; l != nil {
+		return l
+	}
+
+	return zap.NewNop()
+}
+
+// WithCtx returns a copy of ctx with the Logger attached.
+func WithCtx(ctx context.Context, l *zap.Logger) context.Context {
+	if lp, ok := ctx.Value(ginCtxKey).(*zap.Logger); ok {
+		if lp == l {
+			// Do not store same logger.
+			return ctx
+		}
+	}
+
+	return context.WithValue(ctx, ginCtxKey, l)
 }
