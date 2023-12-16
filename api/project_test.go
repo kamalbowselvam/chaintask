@@ -106,7 +106,7 @@ func TestCreateProjectAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}

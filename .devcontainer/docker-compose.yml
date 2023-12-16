@@ -2,6 +2,7 @@ version: '3.8'
 
 volumes:
   postgres-data:
+  grafana-data:
 
 services:
   app:
@@ -38,3 +39,21 @@ services:
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - '9000:90000'

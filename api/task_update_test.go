@@ -123,18 +123,18 @@ func TestUpdateTaskAPI(t *testing.T) {
 			},
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
-				
-					arg := db.UpdateTaskParams{
-						TaskName:  task.TaskName,
-						UpdatedBy: task.CreatedBy,
-						Budget:    task.Budget,
-						ProjectId: &task.ProjectId,
-						TaskOrder: task.TaskOrder,
-						Done:      task.Done,
-						Version:   &task.Version,
-						Rating:    &task.Rating,
-					}
-				
+
+				arg := db.UpdateTaskParams{
+					TaskName:  task.TaskName,
+					UpdatedBy: task.CreatedBy,
+					Budget:    task.Budget,
+					ProjectId: &task.ProjectId,
+					TaskOrder: task.TaskOrder,
+					Done:      task.Done,
+					Version:   &task.Version,
+					Rating:    &task.Rating,
+				}
+
 				store.EXPECT().
 					UpdateTask(gomock.Any(), EqUpdateTaskParams(arg)).
 					Times(1).
@@ -171,7 +171,7 @@ func TestUpdateTaskAPI(t *testing.T) {
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			tc.setupPolicies(t, server)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 			tc.removePolicies(t, server)
 

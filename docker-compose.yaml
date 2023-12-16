@@ -40,6 +40,13 @@ services:
     environment:
       GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - '9000:90000'
+
 
 volumes:
   grafana_data: {}
