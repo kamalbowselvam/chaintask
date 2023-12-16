@@ -32,7 +32,8 @@ type CreateTaskPaymentParams struct {
 
 func (q *Queries) PayForATask(ctx context.Context, arg CreateTaskPaymentParams) (domain.TaskPayment, error) {
 
-	logger.Debug("Creating a task",
+	logger_ := logger.FromCtx(ctx)
+	logger_.Debug("Creating a task",
 		zap.String("package", "db"),
 		zap.String("function", "CreateTaskPayment"),
 		zap.Any("param", arg),
