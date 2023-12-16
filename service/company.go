@@ -10,9 +10,10 @@ import (
 )
 
 func (srv *service) CreateCompany(ctx context.Context, arg db.CreateCompanyParams) (domain.Company, error) {
+	logger_ := logger.FromCtx(ctx)
 	company, err := srv.globalRepository.CreateCompany(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), arg)
 	if err != nil {
-		srv.logger.Error("Could not save the task in repository", zap.Error(err))
+		logger_.Error("Could not save the task in repository", zap.Error(err))
 		return company, err
 	}
 	return company, nil
