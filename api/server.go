@@ -74,6 +74,11 @@ func (server *Server) setupRouter() {
 
 	p.Use(router)
 
+	prometheus_push_url := server.config.PushGateway;
+	if(prometheus_push_url != ""){
+		p.SetPushGateway(prometheus_push_url, p.MetricsPath, server.config.PushGatewayRefreshDuration)
+	}
+
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
 	host := (os.Getenv("HOST_URL"))
