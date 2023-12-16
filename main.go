@@ -14,6 +14,9 @@ import (
 	"github.com/kamalbowselvam/chaintask/service"
 	"github.com/kamalbowselvam/chaintask/util"
 	_ "github.com/lib/pq"
+	healthcheck "github.com/tavsec/gin-healthcheck"
+	"github.com/tavsec/gin-healthcheck/checks"
+	healthconfig "github.com/tavsec/gin-healthcheck/config"
 )
 
 // @title           Swagger ChainTasks API
@@ -80,15 +83,18 @@ func main() {
 	taskService := service.NewTaskService(taskRepository, policyManagementService)
 	logger.Info("Starting Chain Task SaaS Application")
 
-
 	server, _ := api.NewServer(config, taskService, authorizationService, policyManagementService)
 
+	sqlCheck := checks.SqlCheck{Sql: dbconn}
+	health_config := healthconfig.DefaultConfig()
+	health_config.HealthPath = "health"
+	healthcheck.New(server.Router, health_config, []checks.Check{sqlCheck})
 
 	port := os.Getenv("PORT")
 	if port == "" {
-    	port = "8080" // Default port if not specified
+		port = "8080" // Default port if not specified
 	}
-	server.Start(":"+ port)
+	server.Start(":" + port)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {

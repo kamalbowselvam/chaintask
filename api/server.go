@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 
 	"github.com/kamalbowselvam/chaintask/authorization"
 	docs "github.com/kamalbowselvam/chaintask/docs"
@@ -24,7 +26,7 @@ type Server struct {
 	config     util.Config
 	service    service.TaskService
 	tokenMaker token.Maker
-	router     *gin.Engine
+	Router     *gin.Engine
 }
 
 // NewServer creates a new HTTP server and set up routing.
@@ -33,7 +35,6 @@ func NewServer(config util.Config, service service.TaskService, authorize author
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
-	
 
 	server := &Server{
 		authorize:  authorize,
@@ -54,10 +55,29 @@ func NewServer(config util.Config, service service.TaskService, authorize author
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
+	// Prometheus part
+	p := ginprometheus.NewPrometheus("chaintask")
+
+	p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {
+		url := c.Request.URL.Path
+		params := [3]string{"companyId", "projectId", "taskId"}
+		for _, par := range params {
+			for _, p := range c.Params {
+				if p.Key == par {
+					url = strings.Replace(url, p.Value, par, 1)
+					break
+				}
+			}
+		}
+		return url
+	}
+
+	p.Use(router)
+
 	// FIXME api should be versioned
 	docs.SwaggerInfo.BasePath = "/"
 	host := (os.Getenv("HOST_URL"))
-	if host != ""{
+	if host != "" {
 		docs.SwaggerInfo.Host = host
 	}
 
@@ -81,12 +101,12 @@ func (server *Server) setupRouter() {
 	authRoutes.DELETE("/company/:companyId/projects/:projectId/tasks/:taskId", authorizeMid, server.DeleteTask)
 	authRoutes.POST("/companies/", authorizeMid, server.CreateCompany)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	server.router = router
+	server.Router = router
 }
 
 // Start runs the HTTP server on a specific address.
 func (server *Server) Start(address string) error {
-	return server.router.Run(address)
+	return server.Router.Run(address)
 }
 
 func errorResponse(err error) map[string]interface{} {

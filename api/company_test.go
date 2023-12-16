@@ -23,18 +23,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func randomCompany(t *testing.T) domain.Company{
+func randomCompany(t *testing.T) domain.Company {
 	return domain.Company{
 		CompanyName: util.RandomString(10),
-		Address: util.RandomAddress(),
+		Address:     util.RandomAddress(),
 	}
 }
 
 func generateRandomCompany(t *testing.T) domain.Company {
 	arg := db.CreateCompanyParams{
 		CompanyName: util.RandomName(),
-		Address: util.RandomAddress(),
-		CreatedBy: util.RandomName(),
+		Address:     util.RandomAddress(),
+		CreatedBy:   util.RandomName(),
 	}
 
 	company, err := testStore.CreateCompany(context.Background(), arg)
@@ -80,7 +80,6 @@ func requiredBodyMatchCompany(t *testing.T, body *bytes.Buffer, Company domain.C
 
 }
 
-
 func TestCreateCompanyAPI(t *testing.T) {
 	admin, _ := randomUser(t, util.ROLES[3])
 	config := loadConfig()
@@ -89,33 +88,33 @@ func TestCreateCompanyAPI(t *testing.T) {
 	authorizationLoaders := generateLoader(*config)
 
 	testCases := []struct {
-		name          string
-		body          gin.H
-		gtask         domain.Company
-		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		name               string
+		body               gin.H
+		gtask              domain.Company
+		setupAuth          func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		setupAuthorization func(t *testing.T, authorizationLoaders *authorization.Loaders)
-		buildStubs    func(store *mockdb.MockGlobalRepository)
-		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+		buildStubs         func(store *mockdb.MockGlobalRepository)
+		checkResponse      func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:  "OK",
 			gtask: company,
 			body: gin.H{
-				"company_name":  company.CompanyName,
-				"address" : company.Address,
+				"company_name": company.CompanyName,
+				"address":      company.Address,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, admin.Username, admin.UserRole, time.Minute)
 			},
-			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders){
+			setupAuthorization: func(t *testing.T, authorizationLoaders *authorization.Loaders) {
 				AddAuthorization(t, *authorizationLoaders, admin.Username, "/companies*", http.MethodPost)
 			},
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				arg := db.CreateCompanyParams{
-					CompanyName:  company.CompanyName,
-					Address:    company.Address,
-					CreatedBy: company.CreatedBy,
+					CompanyName: company.CompanyName,
+					Address:     company.Address,
+					CreatedBy:   company.CreatedBy,
 				}
 
 				store.EXPECT().
@@ -154,7 +153,7 @@ func TestCreateCompanyAPI(t *testing.T) {
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			tc.setupAuthorization(t, authorizationLoaders)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 
 		})

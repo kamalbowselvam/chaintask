@@ -403,7 +403,7 @@ func TestCreateTaskAPI(t *testing.T) {
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			tc.setupPolicies(t, server)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 			tc.removePolicies(t, server)
 

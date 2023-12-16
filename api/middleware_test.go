@@ -44,19 +44,19 @@ func AddAuthorization(
 	username string,
 	resource string,
 	rights string,
-){
+) {
 	authorizationLoaders.Enforcer.EnableEnforce(true)
 	// Beware, wipes all entries from casbin DB
 	// this line should actually be _, err := authorizationLoaders.Enforcer.RemoveFilteredNamedPolicy("p", 0, "");
 	// but see with Kamal if it affects his workflow
 	_, err := authorizationLoaders.Enforcer.RemovePolicies([][]string{{"*"}})
-	if err!= nil{
+	if err != nil {
 		logger.Warn(err.Error())
 	}
 	rules := [][]string{
 		{username, resource, rights},
 	}
-	_, err  = authorizationLoaders.Enforcer.AddPoliciesEx(rules)
+	_, err = authorizationLoaders.Enforcer.AddPoliciesEx(rules)
 	require.NoError(t, err)
 }
 
@@ -126,7 +126,7 @@ func TestAuthMiddleware(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, "/auth", nil)
 			require.NoError(t, err)
 			tc.setupAuth(t, request, server.tokenMaker)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}
@@ -170,7 +170,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			},
 			body: gin.H{
 				"task_name":  task.TaskName,
-				"budget":    task.Budget,
+				"budget":     task.Budget,
 				"task_order": task.TaskOrder,
 				"project_id": task.ProjectId,
 			},
@@ -201,7 +201,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			},
 			body: gin.H{
 				"task_name":  task.TaskName,
-				"budget":    task.Budget,
+				"budget":     task.Budget,
 				"task_order": task.TaskOrder,
 				"project_id": task.ProjectId,
 			},
@@ -232,7 +232,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			},
 			body: gin.H{
 				"task_name":  task.TaskName,
-				"budget":    task.Budget,
+				"budget":     task.Budget,
 				"task_order": task.TaskOrder,
 				"project_id": task.ProjectId,
 			},
@@ -263,7 +263,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			},
 			body: gin.H{
 				"task_name":  task.TaskName,
-				"budget":    task.Budget,
+				"budget":     task.Budget,
 				"task_order": task.TaskOrder,
 				"project_id": task.ProjectId,
 			},
@@ -293,7 +293,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 			require.NoError(t, err)
 
 			tc.setupAuth(t, request, server.tokenMaker)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
 	}

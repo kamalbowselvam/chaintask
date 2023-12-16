@@ -53,7 +53,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
-
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), task.Id).
@@ -88,7 +87,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
-
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), task.Id).
@@ -101,7 +99,6 @@ func TestGetTaskAPI(t *testing.T) {
 				requiredBodyMatchTask(t, recorder.Body, task)
 			},
 		},
-
 
 		{
 			name:      "NoPolicy",
@@ -123,7 +120,6 @@ func TestGetTaskAPI(t *testing.T) {
 				//server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 				//server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
-
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -162,7 +158,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
-
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), gomock.Eq(task.Id)).
@@ -181,7 +176,6 @@ func TestGetTaskAPI(t *testing.T) {
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 			},
 
-
 			setupPolicies: func(t *testing.T, server *Server) {
 				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
@@ -192,7 +186,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
-
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -225,7 +218,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
-
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), gomock.Eq(task.Id)).
@@ -255,7 +247,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
 				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
-
 
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
@@ -287,7 +278,6 @@ func TestGetTaskAPI(t *testing.T) {
 				server.policies.RemoveTaskPolicies(0, task.ProjectId, task.CreatedBy, task.CompanyId)
 			},
 
-
 			buildStubs: func(store *mockdb.MockGlobalRepository) {
 				store.EXPECT().
 					GetTask(gomock.Any(), gomock.Any()).
@@ -309,7 +299,7 @@ func TestGetTaskAPI(t *testing.T) {
 			tc.buildStubs(store)
 
 			server := newTestServerWithEnforcer(t, store, true)
-			
+
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/company/%d/projects/%d/tasks/%d", tc.companyID, tc.projectID, tc.taskID)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
@@ -317,9 +307,9 @@ func TestGetTaskAPI(t *testing.T) {
 
 			tc.setupAuth(t, request, server.tokenMaker)
 			tc.setupPolicies(t, server)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
-			tc.removePolicies(t,server)
+			tc.removePolicies(t, server)
 		})
 
 	}
