@@ -13,7 +13,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 	project, err := srv.globalRepository.CreateProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), arg)
 	if err != nil {
 
-		srv.logger.Fatal("could not create project due to", zap.Error(err))
+		srv.logger.Error("could not create project due to", zap.Error(err))
 
 		return domain.Project{}, err
 	}
@@ -24,7 +24,7 @@ func (srv *service) CreateProject(ctx context.Context, arg db.CreateProjectParam
 		if err != nil {
 			err = srv.DeleteProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), project.Id)
 			if err != nil {
-				srv.logger.Fatal("Could not delete project, invalid policies may be created", zap.Error(err))
+				srv.logger.Error("Could not delete project, invalid policies may be created", zap.Error(err))
 			}
 			return domain.Project{}, err
 		}
@@ -38,16 +38,16 @@ func (srv *service) DeleteProject(ctx context.Context, id int64) error {
 		return nil
 	}
 	srv.policiesRepository.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
-	for _, task := range project.Tasks{
+	for _, task := range project.Tasks {
 		srv.policiesRepository.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, project.CompanyId)
 	}
 	err = srv.globalRepository.DeleteTasksLinkedToProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
-		srv.logger.Fatal("could not tasks linked to project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
+		srv.logger.Error("could not tasks linked to project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
 	}
 	err = srv.globalRepository.DeleteProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
 	if err != nil {
-		srv.logger.Fatal("could not deleted project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
+		srv.logger.Error("could not deleted project ", zap.Int64(" id ", id), zap.String("due to ", err.Error()))
 		return err
 	}
 	return nil

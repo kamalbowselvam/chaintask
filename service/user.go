@@ -18,7 +18,7 @@ func (srv *service) CreateUser(ctx context.Context, arg db.CreateUserParams) (do
 		if err != nil {
 			err = srv.DeleteUser(logger.WithCtx(context.Background(), logger_), arg.Username)
 			if err != nil {
-				logger.Fatal("could not delete user ", zap.String("usernmae", arg.Username))
+				logger.Error("could not delete user ", zap.String("usernmae", arg.Username))
 			}
 			return domain.User{}, err
 		}
