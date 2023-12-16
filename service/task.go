@@ -14,7 +14,6 @@ import (
 type service struct {
 	globalRepository   db.GlobalRepository
 	policiesRepository authorization.PolicyManagementService
-	logger             *zap.Logger
 }
 
 func NewTaskService(globalRepository db.GlobalRepository, policiesRepository authorization.PolicyManagementService) *service {
