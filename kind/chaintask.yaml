@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chain-task-api-deployment
+  labels:
+    app: chain-task-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chain-task-api
+  template:
+    metadata:
+      labels:
+        app: chain-task-api
+    spec:
+      containers:
+      - name: chain-task-api
+        image: localhost:5001/chaintask:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chain-task-api-service
+spec:
+  selector:
+    app: chain-task-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30001
+  type: NodePort
+
