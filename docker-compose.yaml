@@ -46,6 +46,18 @@ services:
     restart: unless-stopped
     ports:
       - '9090:9090'
+  loki:
+    image: grafana/loki:1.4.1
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:1.4.1
+    volumes:
+      -  ./logs/app.log:/var/log
+      - ./promtail-config.yml:/etc/promtail/docker-config.yml
+    command: -config.file=/etc/promtail/docker-config.yml
 
 
 volumes:
