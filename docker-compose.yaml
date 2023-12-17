@@ -19,6 +19,8 @@ services:
       - DB_SOURCE=postgresql://root:secret@postgresdb:5432/chain_task?sslmode=disable
     depends_on:
       - postgresdb
+    volumes:
+      - ./logs:/app/logs
     entrypoint:
       [
         "/app/wait-for.sh",
@@ -28,10 +30,9 @@ services:
       ]
     command: [ "/app/main" ]
 
-  
+
   grafana:
     image: grafana/grafana-enterprise
-    container_name: grafana
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -47,17 +48,17 @@ services:
     ports:
       - '9090:9090'
   loki:
-    image: grafana/loki:1.4.1
+    image: grafana/loki
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
-    image: grafana/promtail:1.4.1
+    image: grafana/promtail
     volumes:
-      -  ./logs/app.log:/var/log
-      - ./promtail-config.yml:/etc/promtail/docker-config.yml
-    command: -config.file=/etc/promtail/docker-config.yml
+      -  ./logs:/var/log
+      - ./promtail-config.yaml:/etc/promtail/promtail-config.yaml
+    command: -config.file=/etc/promtail/promtail-config.yaml
 
 
 volumes:
