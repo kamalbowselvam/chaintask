@@ -41,7 +41,7 @@ func generateRandomTask(t *testing.T) domain.Task {
 	require.Equal(t, arg.ProjectId, task.ProjectId)
 	require.Equal(t, task.CompanyId, project.CompanyId)
 	paid_amount, _ := task.PaidAmount.Float64()
-	require.Equal(t,paid_amount, float64(0))
+	require.Equal(t, paid_amount, float64(0))
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -127,7 +127,6 @@ func TestUpdateTask(t *testing.T) {
 
 }
 
-
 func TestUpdateTaskPaidAmount(t *testing.T) {
 	task1 := generateRandomTask(t)
 	id := task1.Id
@@ -136,7 +135,7 @@ func TestUpdateTaskPaidAmount(t *testing.T) {
 
 	task2 := domain.Task{}
 	for i := 0; i < 10; i++ {
-		task1, err := testStore.GetTask(context.Background(),id)
+		task1, err := testStore.GetTask(context.Background(), id)
 		update := UpdateTaskParams{}
 		update.Budget = task1.Budget
 		update.Done = task1.Done
@@ -154,7 +153,7 @@ func TestUpdateTaskPaidAmount(t *testing.T) {
 		require.NotEmpty(t, task2)
 		require.Equal(t, task2.Done, true)
 	}
-	
+
 	require.Equal(t, task1.PaidAmount.Add(decimal.NewFromFloat(value)).StringFixedBank(2), task2.PaidAmount.StringFixedBank(2))
 
 }

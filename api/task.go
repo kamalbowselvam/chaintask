@@ -182,6 +182,8 @@ func (s *Server) UpdateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
+
+	taskparam.Budget.RoundBank(2)
 	//s.logger.Sugar().Info(taskparam)
 	token_payload, _ := c.Get(authorizationPayloadKey)
 	//if !existed {
