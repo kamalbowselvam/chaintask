@@ -20,7 +20,7 @@ func loadConfig() *util.Config {
 	return &config
 }
 
-func generateLoader(config util.Config) *authorization.Loaders{
+func generateLoader(config util.Config) *authorization.Loaders {
 	//aa := zap.NewDevelopmentEncoderConfig()
 	//aa.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
@@ -36,7 +36,7 @@ func generateLoader(config util.Config) *authorization.Loaders{
 	return loaders
 }
 
-func newTestServerWithEnforcerAndLoaders(t *testing.T, service service.TaskService, enforce bool, loaders authorization.Loaders, config util.Config) *Server{
+func newTestServerWithEnforcerAndLoaders(t *testing.T, service service.TaskService, enforce bool, loaders authorization.Loaders, config util.Config) *Server {
 	loaders.Enforcer.EnableEnforce(enforce)
 	authorizationService, err := authorization.NewCasbinAuthorization(loaders)
 	policyManagementService, _ := authorization.NewCasbinManagement(loaders)

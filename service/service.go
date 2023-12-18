@@ -10,6 +10,7 @@ import (
 
 type TaskService interface {
 	GetTask(context.Context, int64) (domain.Task, error)
+	GetTaskListByProject(context.Context, int64) ([]domain.Task, error)
 	CreateTask(context.Context, db.CreateTaskParams) (domain.Task, error)
 	DeleteTask(context.Context, int64) error
 	UpdateTask(context.Context, db.UpdateTaskParams) (domain.Task, error)

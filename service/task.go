@@ -28,6 +28,11 @@ func (srv *service) GetTask(ctx context.Context, id int64) (domain.Task, error) 
 	return task, err
 }
 
+func (srv *service) GetTaskListByProject(ctx context.Context, id int64) ([]domain.Task, error) {
+	tasks, err := srv.globalRepository.GetTaskListByProject(logger.WithCtx(context.Background(), logger.FromCtx(ctx)), id)
+	return tasks, err
+}
+
 func (srv *service) CreateTask(ctx context.Context, arg db.CreateTaskParams) (domain.Task, error) {
 	logger_ := logger.FromCtx(ctx)
 	task, err := srv.globalRepository.CreateTask(logger.WithCtx(context.Background(), logger_), arg)

@@ -131,6 +131,60 @@ const docTemplate = `{
             }
         },
         "/company/{companyId}/projects/{projectId}/tasks/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get aall tasks by its Project ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Get all Tasks by its Project ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Company ID",
+                        "name": "companyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Task"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -380,7 +434,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment/{paymentId}/projects/{projectId}/pay/{taskId}": {
+        "/payment/{paymentId}/projects/{projectId}/payment/{taskId}": {
             "post": {
                 "security": [
                     {
@@ -645,6 +699,10 @@ const docTemplate = `{
         },
         "db.CreateCompanyParams": {
             "type": "object",
+            "required": [
+                "address",
+                "company_name"
+            ],
             "properties": {
                 "address": {
                     "type": "string"
@@ -658,6 +716,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "client",
+                "company_id",
                 "project_name",
                 "responsible"
             ],
@@ -667,6 +726,9 @@ const docTemplate = `{
                 },
                 "client": {
                     "type": "string"
+                },
+                "company_id": {
+                    "type": "integer"
                 },
                 "latitude": {
                     "type": "number"
@@ -732,7 +794,7 @@ const docTemplate = `{
             "required": [
                 "budget",
                 "done",
-                "project_id",
+                "paid_amount",
                 "rating",
                 "task_name",
                 "version"
@@ -747,8 +809,8 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "project_id": {
-                    "type": "integer"
+                "paid_amount": {
+                    "type": "number"
                 },
                 "rating": {
                     "type": "integer",

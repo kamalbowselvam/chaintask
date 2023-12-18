@@ -72,6 +72,9 @@ definitions:
         type: string
       company_name:
         type: string
+    required:
+    - address
+    - company_name
     type: object
   db.CreateProjectParam:
     properties:
@@ -79,6 +82,8 @@ definitions:
         type: string
       client:
         type: string
+      company_id:
+        type: integer
       latitude:
         type: number
       longitude:
@@ -89,6 +94,7 @@ definitions:
         type: string
     required:
     - client
+    - company_id
     - project_name
     - responsible
     type: object
@@ -131,8 +137,8 @@ definitions:
         type: boolean
       id:
         type: integer
-      project_id:
-        type: integer
+      paid_amount:
+        type: number
       rating:
         maximum: 5
         type: integer
@@ -145,7 +151,7 @@ definitions:
     required:
     - budget
     - done
-    - project_id
+    - paid_amount
     - rating
     - task_name
     - version
@@ -353,6 +359,42 @@ paths:
       tags:
       - projects
   /company/{companyId}/projects/{projectId}/tasks/:
+    get:
+      description: get aall tasks by its Project ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Company ID
+        in: path
+        name: companyId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Task'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get all Tasks by its Project ID
+      tags:
+      - tasks
     post:
       consumes:
       - application/json
@@ -519,7 +561,7 @@ paths:
       summary: Update a Task
       tags:
       - tasks
-  /payment/{paymentId}/projects/{projectId}/pay/{taskId}:
+  /payment/{paymentId}/projects/{projectId}/payment/{taskId}:
     post:
       consumes:
       - application/json

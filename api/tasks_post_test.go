@@ -50,7 +50,6 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-
 	if e.arg.TaskName != arg.TaskName {
 		return false
 	}
@@ -59,8 +58,6 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 	if e.arg.ProjectId != arg.ProjectId {
 		return false
 	}
-
-
 
 	val1 := e.arg.Budget.StringFixedBank(2)
 	val2 := arg.Budget.StringFixedBank(2)
@@ -464,17 +461,17 @@ func randomTask(username string, projectId int64, companyId int64) domain.Task {
 	budget := util.RandomBudget()
 
 	return domain.Task{
-		Id:        util.RandomInt(1, 1000),
-		TaskName:  name,
-		Budget:    budget,
-		CreatedBy: username,
-		UpdatedBy: username,
-		ProjectId: projectId,
-		TaskOrder: util.RandomInt(1, 10),
-		CompanyId: companyId,
-		Rating:    util.RandomInt(1, 5),
-		Version:   util.RandomInt(1, 10),
-		Done:      true,
+		Id:         util.RandomInt(1, 1000),
+		TaskName:   name,
+		Budget:     budget,
+		CreatedBy:  username,
+		UpdatedBy:  username,
+		ProjectId:  projectId,
+		TaskOrder:  util.RandomInt(1, 10),
+		CompanyId:  companyId,
+		Rating:     util.RandomInt(1, 5),
+		Version:    util.RandomInt(1, 10),
+		Done:       true,
 		PaidAmount: util.RandomBudget(),
 	}
 }

@@ -50,6 +50,12 @@ type GetTaskParams struct {
 	Id int64 `uri:"taskId" binding:"required,min=1"`
 }
 
+
+type GetTaskByProjectParams struct {
+	Id int64 `uri:"projectId" binding:"required,min=1"`
+}
+
+
 type DeleteTaskParams struct {
 	Id int64 `uri:"taskId" binding:"required,min=1"`
 }

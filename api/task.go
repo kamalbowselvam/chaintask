@@ -59,6 +59,50 @@ func (s *Server) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// GetTaskList godoc
+// @Summary      Get all Tasks by its Project ID
+// @Description  get aall tasks by its Project ID
+// @Tags         tasks
+// @Produce      json
+// @Param        projectId path     int true   "Project ID"
+// @Param        companyId path     int true   "Company ID"
+// @Success      200  {object}  []domain.Task
+// @Failure      400  {object}  error
+// @Failure      404  {object}  error
+// @Failure      500  {object}  error
+// @Router       /company/{companyId}/projects/{projectId}/tasks/ [get]
+// @Security BearerAuth
+func (s *Server) GetTaskListByProject(c *gin.Context) {
+	var req db.GetTaskByProjectParams
+	err := c.ShouldBindUri(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+	tasks, err := s.service.GetTaskListByProject(c, req.Id)
+
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.ErrorResponse(err))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+
+	}
+
+	//authorizationPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	//if task.CreatedBy != authorizationPayload.Username {
+	//	err := errors.New("task does not belong to user")
+	//	c.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
+	//	return
+	//}
+
+	c.JSON(http.StatusOK, tasks)
+}
+
 // DeleteTask godoc
 // @Summary      Delete a Task by its ID
 // @Description  delete a task by its ID
@@ -126,14 +170,13 @@ func (s *Server) CreateTask(c *gin.Context) {
 	}
 
 	taskparam.Budget.RoundBank(2)
-	
+
 	token_payload, _ := c.Get(authorizationPayloadKey)
 	//if !existed {
 	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	//}
 	taskparam.ProjectId = req.ProjectId
 	taskparam.CreatedBy = token_payload.(*token.Payload).Username
-	
 
 	logger.Debug("Creating a task",
 		zap.String("package", "api"),
