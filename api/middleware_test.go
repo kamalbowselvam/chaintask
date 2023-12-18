@@ -262,6 +262,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				"budget":     task.Budget,
 				"task_order": task.TaskOrder,
 				"project_id": task.ProjectId,
+				"company_id": task.CompanyId,
 			},
 			gtask: task,
 		},

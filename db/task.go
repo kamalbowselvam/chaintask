@@ -19,11 +19,11 @@ const createTask = `INSERT INTO tasks (
 	created_by,
 	updated_by,
 	task_order,
-	project_id 
+	project_id
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id, company_id;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id, company_id, paid_amount;`
 
 type CreateTaskParams struct {
 	TaskName  string          `json:"task_name" binding:"required"`
@@ -34,16 +34,16 @@ type CreateTaskParams struct {
 }
 
 type UpdateTaskParams struct {
-	Id        int64           `json:"id"`
-	TaskName  string          `json:"task_name" binding:"required"`
-	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
-	UpdatedOn time.Time       `swaggerignore:"true"`
-	UpdatedBy string          `swaggerignore:"true"`
-	Done      bool            `json:"done" binding:"required,boolean"`
-	TaskOrder int64           `json:"task_order"`
-	ProjectId *int64          `json:"project_id" binding:"required,number"`
-	Version   *int64          `json:"version" binding:"required,number"`
-	Rating    *int64          `json:"rating" binding:"required,number,gt=0,lte=5"`
+	Id         int64           `json:"id"`
+	TaskName   string          `json:"task_name" binding:"required"`
+	Budget     decimal.Decimal `json:"budget" binding:"required,number"`
+	UpdatedOn  time.Time       `swaggerignore:"true"`
+	UpdatedBy  string          `swaggerignore:"true"`
+	Done       bool            `json:"done" binding:"required,boolean"`
+	TaskOrder  int64           `json:"task_order"`
+	Version    *int64          `json:"version" binding:"required,number"`
+	Rating     *int64          `json:"rating" binding:"required,number,gt=0,lte=5"`
+	PaidAmount decimal.Decimal `json:"paid_amount" binding:"required,number"`
 }
 
 type GetTaskParams struct {
@@ -82,12 +82,13 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 		&i.TaskOrder,
 		&i.ProjectId,
 		&i.CompanyId,
+		&i.PaidAmount,
 	)
 	return i, err
 
 }
 
-const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id, rating FROM tasks
+const getTask = `SELECT id, taskname, budget, created_on, created_by, updated_on, updated_by, done, task_order, project_id, company_id, version, rating, paid_amount FROM tasks
 	WHERE id = $1 LIMIT 1;`
 
 func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
@@ -105,7 +106,9 @@ func (q *Queries) GetTask(ctx context.Context, id int64) (domain.Task, error) {
 		&t.TaskOrder,
 		&t.ProjectId,
 		&t.CompanyId,
+		&t.Version,
 		&t.Rating,
+		&t.PaidAmount,
 	)
 	return t, err
 }
@@ -191,7 +194,7 @@ func (q *Queries) DeleteTasksLinkedToProject(ctx context.Context, id int64) erro
 }
 
 const updateTask = `
- UPDATE tasks set taskname = $1, budget = $2, updated_on = $3, updated_by = $4, done = $5, task_order=$6, project_id=$7, rating=$8, version=$10 + 1 where id = $9 and version = $10
+ UPDATE tasks set taskname = $1, budget = $2, updated_on = $3, updated_by = $4, done = $5, task_order=$6, rating=$7, paid_amount=$8, version=$10 + 1 where id = $9 and version = $10
 `
 
 func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain.Task, error) {
@@ -219,7 +222,7 @@ func (q *Queries) UpdateTask(ctx context.Context, task UpdateTaskParams) (domain
 		return fail(err)
 	}
 	logger_.Debug("Starting to actually update a task")
-	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.ProjectId, task.Rating, id, task.Version)
+	result, err := tx.ExecContext(ctx, updateTask, task.TaskName, task.Budget, task.UpdatedOn, task.UpdatedBy, task.Done, task.TaskOrder, task.Rating, task.PaidAmount, id, task.Version)
 	if err != nil {
 		return fail(err)
 	}

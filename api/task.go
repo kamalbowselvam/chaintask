@@ -109,6 +109,7 @@ func (s *Server) DeleteTask(c *gin.Context) {
 // @Router       /company/{companyId}/projects/{projectId}/tasks/ [post]
 // @Security BearerAuth
 func (s *Server) CreateTask(c *gin.Context) {
+
 	logger_ := logger.FromCtx(c)
 	taskparam := db.CreateTaskParams{}
 	err := c.ShouldBindBodyWith(&taskparam, binding.JSON)
@@ -124,6 +125,8 @@ func (s *Server) CreateTask(c *gin.Context) {
 		return
 	}
 
+	taskparam.Budget.RoundBank(2)
+	
 	token_payload, _ := c.Get(authorizationPayloadKey)
 	//if !existed {
 	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})

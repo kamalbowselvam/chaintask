@@ -49,7 +49,11 @@ func RandomRoleString() string {
 }
 
 func RandomBudget() decimal.Decimal {
-	return decimal.NewFromFloat(float64(RandomInt(0, 100000)/RandomInt(1, 10)))
+	min := float64(1000)
+	max := float64(100000)
+	budget := decimal.NewFromFloat(min + rand.Float64()*(max-min)).Round(int32(2))
+	//fmt.Println("Subtotal:", budget)
+	return budget
 }
 
 func RandomEmail() string {

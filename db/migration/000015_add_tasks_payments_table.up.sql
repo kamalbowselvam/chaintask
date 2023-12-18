@@ -8,4 +8,4 @@ CREATE TABLE "tasks_payments" (
     "updated_on" timestamptz NOT NULL DEFAULT (now()),
     "updated_by" VARCHAR NOT NULL
 );
-ALTER TABLE "tasks" ADD COLUMN "paid_amount" NUMERIC;
+ALTER TABLE "tasks" ADD COLUMN "paid_amount" NUMERIC DEFAULT (0);
