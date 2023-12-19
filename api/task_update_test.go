@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -58,12 +59,10 @@ func (e eqUpdateTaskParamsMatcher) Matches(x interface{}) bool {
 
 	eparam := updateTaskParams{TaskName: e.arg.TaskName,
 		UpdatedBy: e.arg.UpdatedBy,
-		ProjectId: *e.arg.ProjectId,
 		TaskOrder: e.arg.TaskOrder}
 
 	argparam := updateTaskParams{TaskName: arg.TaskName,
 		UpdatedBy: arg.UpdatedBy,
-		ProjectId: *arg.ProjectId,
 		TaskOrder: arg.TaskOrder}
 
 	return reflect.DeepEqual(eparam, argparam)
@@ -98,13 +97,13 @@ func TestUpdateTaskAPI(t *testing.T) {
 			testTask:    task,
 			testProject: project,
 			body: gin.H{
-				"task_name":  task.TaskName,
-				"budget":     task.Budget,
-				"done":       task.Done,
-				"project_id": task.ProjectId,
-				"task_order": task.TaskOrder,
-				"version":    task.Version,
-				"rating":     task.Rating,
+				"task_name":   task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -128,7 +127,6 @@ func TestUpdateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					UpdatedBy: task.CreatedBy,
 					Budget:    task.Budget,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 					Done:      task.Done,
 					Version:   &task.Version,
@@ -144,6 +142,266 @@ func TestUpdateTaskAPI(t *testing.T) {
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				//				requiredBodyMatchTask(t, recorder.Body, task)
 				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+
+		{
+			name:        "KO - Reponsible",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task_name":   task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Responsible, util.ROLES[2], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+
+				arg := db.UpdateTaskParams{
+					TaskName:  task.TaskName,
+					UpdatedBy: task.CreatedBy,
+					Budget:    task.Budget,
+					TaskOrder: task.TaskOrder,
+					Done:      task.Done,
+					Version:   &task.Version,
+					Rating:    &task.Rating,
+				}
+
+				store.EXPECT().
+					UpdateTask(gomock.Any(), EqUpdateTaskParams(arg)).
+					Times(0).
+					Return(task, nil)
+
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				//requiredBodyMatchTask(t, recorder.Body, task)
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+			},
+		},
+
+		{
+			name:        "UnauthorizedUser",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task_name":   task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, "Random", "unknown", time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.UpdateTaskParams{
+					TaskName:  task.TaskName,
+					UpdatedBy: task.CreatedBy,
+					Budget:    task.Budget,
+					TaskOrder: task.TaskOrder,
+					Done:      task.Done,
+					Version:   &task.Version,
+					Rating:    &task.Rating,
+				}
+
+				store.EXPECT().
+					UpdateTask(gomock.Any(), EqUpdateTaskParams(arg)).
+					Times(0).
+					Return(task, nil)
+
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				requiredBodyMatchTask(t, recorder.Body, task)
+				require.Equal(t, http.StatusForbidden, recorder.Code)
+			},
+		},
+
+		{
+			name:        "NoAuthorization",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task_name":   task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.UpdateTaskParams{
+					TaskName:  task.TaskName,
+					UpdatedBy: task.CreatedBy,
+					Budget:    task.Budget,
+					TaskOrder: task.TaskOrder,
+					Done:      task.Done,
+					Version:   &task.Version,
+					Rating:    &task.Rating,
+				}
+
+				store.EXPECT().
+					UpdateTask(gomock.Any(), EqUpdateTaskParams(arg)).
+					Times(0).
+					Return(task, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+
+		{
+			name:        "InternalError",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task_name":   task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				arg := db.UpdateTaskParams{
+					TaskName:  task.TaskName,
+					UpdatedBy: task.CreatedBy,
+					Budget:    task.Budget,
+					TaskOrder: task.TaskOrder,
+					Done:      task.Done,
+					Version:   &task.Version,
+					Rating:    &task.Rating,
+				}
+
+				store.EXPECT().
+					UpdateTask(gomock.Any(), EqUpdateTaskParams(arg)).
+					Times(1).
+					Return(domain.Task{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+
+		{
+			name:        "InvalidData",
+			testTask:    task,
+			testProject: project,
+
+			body: gin.H{
+				"task":        task.TaskName,
+				"budget":      task.Budget,
+				"done":        task.Done,
+				"task_order":  task.TaskOrder,
+				"version":     task.Version,
+				"rating":      task.Rating,
+				"paid_amount": task.PaidAmount,
+			},
+
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthentification(t, request, tokenMaker, authorizationTypeBearer, project.Client, util.ROLES[1], time.Minute)
+			},
+
+			setupPolicies: func(t *testing.T, server *Server) {
+				server.policies.CreateProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.CreateTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+
+			},
+
+			removePolicies: func(t *testing.T, server *Server) {
+				server.policies.RemoveProjectPolicies(project.Id, project.Client, project.Responsible, project.CompanyId)
+				server.policies.RemoveTaskPolicies(task.Id, task.ProjectId, task.CreatedBy, task.CompanyId)
+			},
+
+			buildStubs: func(store *mockdb.MockGlobalRepository) {
+				/*
+					arg := db.CreateTaskParams{
+						TaskName:  task.TaskName,
+						Budget:    task.Budget,
+						CreatedBy: task.CreatedBy,
+						ProjectId: &task.ProjectId,
+						TaskOrder: task.TaskOrder,
+						CompanyId: &task.CompanyId,
+					}
+				*/
+
+				store.EXPECT().
+					UpdateTask(gomock.Any(), gomock.Any()).
+					Times(0).
+					Return(domain.Task{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}

@@ -22,7 +22,6 @@ $put_company_id_for_tasks$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER put_company_id_for_tasks BEFORE INSERT ON tasks
     FOR EACH ROW EXECUTE FUNCTION put_company_id_for_tasks();
 
-    
 /*
 CREATE OR REPLACE FUNCTION put_company_id_for_projects() RETURNS trigger AS $put_company_id_for_projects$
   DECLARE

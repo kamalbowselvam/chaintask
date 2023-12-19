@@ -29,6 +29,7 @@ type createTaskParams struct {
 	CreatedBy string `swaggerignore:"true"`
 	TaskOrder int64  `json:"task_order" binding:"required,number"`
 	ProjectId int64  `json:"project_id" binding:"required,number"`
+	CompanyId int64  `json:"company_id" binding:"required,number"`
 }
 
 type eqCreateTaskParamsMatcher struct {
@@ -49,7 +50,22 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
+
 	if e.arg.TaskName != arg.TaskName {
+		return false
+	}
+
+
+	if e.arg.ProjectId != arg.ProjectId {
+		return false
+	}
+
+
+
+	val1 := e.arg.Budget.StringFixedBank(2)
+	val2 := arg.Budget.StringFixedBank(2)
+
+	if val1 != val2 {
 		return false
 	}
 
@@ -102,8 +118,8 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -127,6 +143,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Client,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -149,8 +166,8 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -174,6 +191,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Responsible,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -196,8 +214,8 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -221,6 +239,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -243,8 +262,9 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
+				"company_id": task.CompanyId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -267,6 +287,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -287,8 +308,9 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task_name":  task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
+				"company_id": task.CompanyId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -312,6 +334,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -332,8 +355,9 @@ func TestCreateTaskAPI(t *testing.T) {
 			body: gin.H{
 				"task":       task.TaskName,
 				"budget":     task.Budget,
-				"project_id": task.ProjectId,
 				"task_order": task.TaskOrder,
+				"project_id": task.ProjectId,
+				"company_id": task.CompanyId,
 			},
 
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
@@ -359,6 +383,7 @@ func TestCreateTaskAPI(t *testing.T) {
 						CreatedBy: task.CreatedBy,
 						ProjectId: &task.ProjectId,
 						TaskOrder: task.TaskOrder,
+						CompanyId: &task.CompanyId,
 					}
 				*/
 
@@ -450,6 +475,7 @@ func randomTask(username string, projectId int64, companyId int64) domain.Task {
 		Rating:    util.RandomInt(1, 5),
 		Version:   util.RandomInt(1, 10),
 		Done:      true,
+		PaidAmount: util.RandomBudget(),
 	}
 }
 

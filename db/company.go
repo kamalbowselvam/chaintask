@@ -14,8 +14,8 @@ const createCompany = `
 `
 
 type CreateCompanyParams struct {
-	CompanyName string  `json:"company_name"`
-	Address     string  `json:"address"`
+	CompanyName string  `json:"company_name" binding:"required"`
+	Address     string  `json:"address" binding:"required"`
 	CreatedBy   string  `swaggerignore:"true"`
 }
 

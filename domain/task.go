@@ -7,23 +7,23 @@ import (
 )
 
 type Task struct {
-	Id        int64           `json:"id"`
-	TaskName  string          `json:"task_name"`
-	Budget    decimal.Decimal `json:"budget"`
-	CreatedOn time.Time
-	CreatedBy string
-	UpdatedOn time.Time
-	UpdatedBy string
-	Done      bool  `json:"done"`
-	TaskOrder int64 `json:"task_order"`
-	ProjectId int64 `json:"project_id"`
-	Version   int64 `json:"version"`
-	CompanyId int64 `json:"company_id"`
-	Rating    int64 `json:"rating"`
+	Id         int64           `json:"id"`
+	TaskName   string          `json:"task_name"`
+	Budget     decimal.Decimal `json:"budget"`
+	CreatedOn  time.Time
+	CreatedBy  string
+	UpdatedOn  time.Time
+	UpdatedBy  string
+	Done       bool            `json:"done"`
+	TaskOrder  int64           `json:"task_order"`
+	ProjectId  int64           `json:"project_id"`
+	Version    int64           `json:"version"`
+	CompanyId  int64           `json:"company_id"`
+	Rating     int64           `json:"rating"`
 	PaidAmount decimal.Decimal `json:"paid_amount"`
 }
 
-func NewTask(name string, budget decimal.Decimal, user string, taskorder int64, projectid int64) Task {
+func NewTask(name string, budget decimal.Decimal, user string, taskorder int64, projectid int64, company_id int64) Task {
 
 	t := Task{
 		TaskName:  name,
@@ -35,6 +35,7 @@ func NewTask(name string, budget decimal.Decimal, user string, taskorder int64, 
 		Done:      false,
 		TaskOrder: taskorder,
 		ProjectId: projectid,
+		CompanyId: company_id,
 	}
 	return t
 }

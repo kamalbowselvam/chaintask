@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"log"
+
 	"github.com/kamalbowselvam/chaintask/domain"
 	"github.com/kamalbowselvam/chaintask/util"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,17 +27,21 @@ func generateRandomTask(t *testing.T) domain.Task {
 		ProjectId: project.Id,
 	}
 
+	arg.Budget.RoundBank(2)
+
 	task, err := testStore.CreateTask(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, task)
 	require.Equal(t, arg.TaskName, task.TaskName)
-	val1 ,_ := arg.Budget.Float64()
+	val1, _ := arg.Budget.Float64()
 	val2, _ := arg.Budget.Float64()
 	require.Equal(t, val1, val2)
 	require.Equal(t, arg.CreatedBy, task.CreatedBy)
 	require.Equal(t, arg.TaskOrder, task.TaskOrder)
 	require.Equal(t, arg.ProjectId, task.ProjectId)
 	require.Equal(t, task.CompanyId, project.CompanyId)
+	paid_amount, _ := task.PaidAmount.Float64()
+	require.Equal(t, paid_amount, float64(0))
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
@@ -54,11 +60,14 @@ func TestGetTask(t *testing.T) {
 	require.NotEmpty(t, task2)
 	require.Equal(t, task1.TaskName, task2.TaskName)
 	require.Equal(t, task1.Budget, task2.Budget)
-	val1 ,_ := task1.Budget.Float64()
+	val1, _ := task1.Budget.Float64()
 	val2, _ := task2.Budget.Float64()
 	require.Equal(t, val1, val2)
 	require.Equal(t, task1.TaskOrder, task2.TaskOrder)
 	require.Equal(t, task1.ProjectId, task2.ProjectId)
+	require.Equal(t, task1.Version, task2.Version)
+	require.Equal(t, task1.Rating, task2.Rating)
+	require.Equal(t, task1.PaidAmount, task2.PaidAmount)
 	require.WithinDuration(t, task1.CreatedOn, task2.CreatedOn, time.Second)
 
 }
@@ -94,7 +103,7 @@ func TestDeleteTask(t *testing.T) {
 
 }
 
-func TestUpdateTaskHelper(t *testing.T) {
+func TestUpdateTask(t *testing.T) {
 	task1 := generateRandomTask(t)
 	require.NotEmpty(t, task1)
 	version := int64(0)
@@ -102,11 +111,10 @@ func TestUpdateTaskHelper(t *testing.T) {
 	update := UpdateTaskParams{}
 	update.Budget = task1.Budget
 	update.Done = task1.Done
-	update.ProjectId = &task1.ProjectId
 	update.TaskOrder = task1.TaskOrder
 	update.Version = &version
 	update.Id = task1.Id
-	update.UpdatedBy = task1.CreatedBy;
+	update.UpdatedBy = task1.CreatedBy
 	update.UpdatedOn = time.Now()
 	update.TaskName = "test"
 	update.Done = true
@@ -119,18 +127,49 @@ func TestUpdateTaskHelper(t *testing.T) {
 
 }
 
+func TestUpdateTaskPaidAmount(t *testing.T) {
+	task1 := generateRandomTask(t)
+	id := task1.Id
+	require.NotEmpty(t, task1)
+	value := 10 * float64(100.25)
+
+	task2 := domain.Task{}
+	for i := 0; i < 10; i++ {
+		task1, err := testStore.GetTask(context.Background(), id)
+		update := UpdateTaskParams{}
+		update.Budget = task1.Budget
+		update.Done = task1.Done
+		update.TaskOrder = task1.TaskOrder
+		update.Version = &task1.Version
+		update.Id = task1.Id
+		update.UpdatedBy = task1.CreatedBy
+		update.UpdatedOn = time.Now()
+		update.TaskName = task1.TaskName
+		update.Done = true
+		update.Rating = &task1.Rating
+		update.PaidAmount = task1.PaidAmount.Add(decimal.NewFromFloat(100.25))
+		task2, err = testStore.UpdateTask(context.Background(), update)
+		require.NoError(t, err)
+		require.NotEmpty(t, task2)
+		require.Equal(t, task2.Done, true)
+	}
+
+	require.Equal(t, task1.PaidAmount.Add(decimal.NewFromFloat(value)).StringFixedBank(2), task2.PaidAmount.StringFixedBank(2))
+
+}
+
 // Taken from https://hackernoon.com/comparing-optimistic-and-pessimistic-locking-with-go-and-postgresql
-func TestOptimistic(t *testing.T){
+func TestOptimistic(t *testing.T) {
 	ctx := context.Background()
 	task := generateRandomTask(t)
 	user := generateRandomWorksManager(t)
 
 	start := time.Now()
-	if err := testSaveBulkData(ctx, task, user.Username); (err != nil){
+	if err := testSaveBulkData(ctx, task, user.Username); err != nil {
 		t.Errorf("Deposit() error = %v", err)
 	}
 	log.Println("Execution time", time.Since(start))
-	
+
 }
 
 func testSaveBulkData(ctx context.Context, task domain.Task, userName string) error {
@@ -149,7 +188,7 @@ func save(ctx context.Context, taskName string, task domain.Task, userName strin
 	sem <- struct{}{}
 	// Logging here seems important, otherwise the go routine go in timeout. There is something shaddy to explore a bit further
 	log.Println("Trying to update tasks")
-	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, ProjectId: &task.ProjectId, UpdatedBy: userName})
+	_, err := testStore.UpdateTask(ctx, UpdateTaskParams{TaskName: taskName, Id: task.Id, TaskOrder: task.TaskOrder, UpdatedBy: userName})
 	if err != nil {
 		log.Printf("Error %s", err.Error())
 	}
