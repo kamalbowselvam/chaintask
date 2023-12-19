@@ -56,7 +56,7 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 	}
 
 
-	if *e.arg.ProjectId != *arg.ProjectId {
+	if e.arg.ProjectId != arg.ProjectId {
 		return false
 	}
 
