@@ -15,27 +15,33 @@ const createProject = `INSERT INTO projects (
 	latitude,
 	address,
 	responsible,
-	client
+	client,
+	company_id
   ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7
+	$1, $2, $3, $4, $5, $6, $7, $8
   )
   RETURNING id, projectname, created_at, created_by, longitude, latitude, address, responsible, client, company_id;`
 
 type CreateProjectParam struct {
-	ProjectName string          `json:"project_name" binding:"required,number"`
-	CreatedBy   string          `swaggerignore:"true"`
-	Longitude   float64         `json:"longitude"`
-	Latitude    float64         `json:"latitude"`
-	Address     string          `json:"address"`
-	Responsible string          `json:"responsible" binding:"required"`
-	Client      string          `json:"client" binding:"required"`
+	ProjectName string  `json:"project_name" binding:"required"`
+	CreatedBy   string  `swaggerignore:"true"`
+	Longitude   float64 `json:"longitude"`
+	Latitude    float64 `json:"latitude"`
+	Address     string  `json:"address"`
+	Responsible string  `json:"responsible" binding:"required"`
+	Client      string  `json:"client" binding:"required"`
+	CompanyId   int64
+}
+
+type CompanyParam struct {
+	CompanyId int64 `uri:"companyId" binding:"required,min=1"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParam) (domain.Project, error) {
 	logger_ := logger.FromCtx(ctx)
 	logger_.Info("saving projects", zap.Any("projects", arg))
 
-	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, arg.Longitude, arg.Latitude, arg.Address, arg.Responsible, arg.Client)
+	row := q.db.QueryRowContext(ctx, createProject, arg.ProjectName, arg.CreatedBy, arg.Longitude, arg.Latitude, arg.Address, arg.Responsible, arg.Client, arg.CompanyId)
 	var i domain.Project
 	err := row.Scan(
 		&i.Id,
@@ -66,14 +72,16 @@ func (q *Queries) GetClientAndResponsibleByProject(ctx context.Context, projectI
 	return client, responsible, err
 }
 
-const deleteProject =  `delete from projects where id=$1`
-func (q *Queries) DeleteProject(ctx context.Context, projectId int64) (error){
+const deleteProject = `delete from projects where id=$1`
+
+func (q *Queries) DeleteProject(ctx context.Context, projectId int64) error {
 	_, err := q.db.ExecContext(ctx, deleteProject, projectId)
 	return err
 }
 
 const getProject = `select projectname, created_at, created_by, longitude, latitude, address, responsible, client, company_id FROM projects where id = $1`
-func (q *Queries) GetProject(ctx context.Context, projectId int64) (domain.Project, error){
+
+func (q *Queries) GetProject(ctx context.Context, projectId int64) (domain.Project, error) {
 	row := q.db.QueryRowContext(ctx, getProject, projectId)
 	var i domain.Project
 	err := row.Scan(

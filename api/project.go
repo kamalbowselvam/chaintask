@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kamalbowselvam/chaintask/db"
 	"github.com/kamalbowselvam/chaintask/token"
+	"github.com/kamalbowselvam/chaintask/util"
 )
 
 // CreateProject godoc
@@ -25,12 +26,25 @@ import (
 func (s *Server) CreateProject(c *gin.Context) {
 
 	projectparam := db.CreateProjectParam{}
-	c.ShouldBindBodyWith(&projectparam, binding.JSON)
 
+	err := c.ShouldBindBodyWith(&projectparam, binding.JSON)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+
+	var req db.CompanyParam
+	err = c.ShouldBindUri(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
 	createdBy, existed := c.Get(authorizationPayloadKey)
 	if !existed {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	}
+
+	projectparam.CompanyId = req.CompanyId
 	projectparam.CreatedBy = createdBy.(*token.Payload).Username;
 	task, err := s.service.CreateProject(c, projectparam)
 

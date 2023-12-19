@@ -117,10 +117,18 @@ func (s *Server) CreateTask(c *gin.Context) {
 		return
 	}
 
+	var req db.ProjectParam
+	err = c.ShouldBindUri(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+
 	token_payload, _ := c.Get(authorizationPayloadKey)
 	//if !existed {
 	//	c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Forbidden": ""})
 	//}
+	taskparam.ProjectId = req.ProjectId
 	taskparam.CreatedBy = token_payload.(*token.Payload).Username
 	
 

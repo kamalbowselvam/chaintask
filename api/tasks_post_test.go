@@ -62,12 +62,10 @@ func (e eqCreateTaskParamsMatcher) Matches(x interface{}) bool {
 
 	eparam := createTaskParams{TaskName: e.arg.TaskName,
 		CreatedBy: e.arg.CreatedBy,
-		ProjectId: *e.arg.ProjectId,
 		TaskOrder: e.arg.TaskOrder}
 
 	argparam := createTaskParams{TaskName: arg.TaskName,
 		CreatedBy: arg.CreatedBy,
-		ProjectId: *arg.ProjectId,
 		TaskOrder: arg.TaskOrder}
 
 	return reflect.DeepEqual(eparam, argparam)
@@ -128,7 +126,6 @@ func TestCreateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: project.Client,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -176,7 +173,6 @@ func TestCreateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: project.Responsible,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -224,7 +220,6 @@ func TestCreateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -271,7 +266,6 @@ func TestCreateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 
@@ -317,7 +311,6 @@ func TestCreateTaskAPI(t *testing.T) {
 					TaskName:  task.TaskName,
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
-					ProjectId: &task.ProjectId,
 					TaskOrder: task.TaskOrder,
 				}
 

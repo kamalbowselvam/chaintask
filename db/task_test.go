@@ -16,13 +16,13 @@ import (
 func generateRandomTask(t *testing.T) domain.Task {
 
 	project := generateRandomProject(t)
-	taskOrder := util.RandomInt(0, 100)
+	taskOrder := util.RandomInt(1, 100)
 	arg := CreateTaskParams{
 		TaskName:  util.RandomName(),
 		Budget:    util.RandomBudget(),
 		CreatedBy: project.Client,
 		TaskOrder: taskOrder,
-		ProjectId: &project.Id,
+		ProjectId: project.Id,
 	}
 
 	task, err := testStore.CreateTask(context.Background(), arg)
@@ -34,7 +34,8 @@ func generateRandomTask(t *testing.T) domain.Task {
 	require.Equal(t, val1, val2)
 	require.Equal(t, arg.CreatedBy, task.CreatedBy)
 	require.Equal(t, arg.TaskOrder, task.TaskOrder)
-	require.Equal(t, arg.ProjectId, &task.ProjectId)
+	require.Equal(t, arg.ProjectId, task.ProjectId)
+	require.Equal(t, task.CompanyId, project.CompanyId)
 
 	require.NotZero(t, task.Id)
 	require.NotZero(t, task.CreatedOn)
