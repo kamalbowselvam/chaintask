@@ -143,6 +143,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Client,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -190,6 +191,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Responsible,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -237,6 +239,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -284,6 +287,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -330,6 +334,7 @@ func TestCreateTaskAPI(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: task.CreatedBy,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
