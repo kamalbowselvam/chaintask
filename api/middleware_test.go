@@ -189,6 +189,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: admin.Username,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -219,6 +220,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Client,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
@@ -249,6 +251,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					Budget:    task.Budget,
 					CreatedBy: project.Responsible,
 					TaskOrder: task.TaskOrder,
+					ProjectId: project.Id,
 				}
 
 				store.EXPECT().
