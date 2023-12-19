@@ -23,14 +23,14 @@ const createTask = `INSERT INTO tasks (
   ) VALUES (
 	$1, $2, $3, $4, $5, $6
   )
-  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id;`
+  RETURNING id, taskname, budget, created_by, created_on, updated_by, updated_on, done, task_order, project_id, company_id;`
 
 type CreateTaskParams struct {
 	TaskName  string          `json:"task_name" binding:"required"`
 	Budget    decimal.Decimal `json:"budget" binding:"required,number"`
 	CreatedBy string          `swaggerignore:"true"`
 	TaskOrder int64           `json:"task_order" binding:"required,number"`
-	ProjectId *int64          `json:"project_id" binding:"required,number"`
+	ProjectId int64
 }
 
 type UpdateTaskParams struct {
@@ -52,6 +52,11 @@ type GetTaskParams struct {
 
 type DeleteTaskParams struct {
 	Id int64 `uri:"taskId" binding:"required,min=1"`
+}
+
+
+type ProjectParam struct {
+	ProjectId int64 `uri:"projectId" binding:"required,min=1"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.Task, error) {
@@ -76,6 +81,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (domain.
 		&i.Done,
 		&i.TaskOrder,
 		&i.ProjectId,
+		&i.CompanyId,
 	)
 	return i, err
 
