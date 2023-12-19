@@ -18,101 +18,14 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 1,
+    "id": 2,
     "links": [],
     "liveNow": false,
     "panels": [
       {
         "datasource": {
-          "type": "loki",
-          "uid": "P8E80F9AEF21F6940"
-        },
-        "description": "",
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "center",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 0
-        },
-        "id": 1,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
-          },
-          "showHeader": true,
-          "sortBy": [
-            {
-              "desc": true,
-              "displayName": "Time"
-            }
-          ]
-        },
-        "pluginVersion": "10.1.1",
-        "targets": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "P8E80F9AEF21F6940"
-            },
-            "editorMode": "builder",
-            "expr": "{filename=\"/var/log/app.log\"} |= `error` |= `api`",
-            "hide": false,
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "Error Message",
-        "transformations": [
-          {
-            "id": "filterFieldsByName",
-            "options": {
-              "include": {
-                "names": [
-                  "Line",
-                  "Time"
-                ]
-              }
-            }
-          }
-        ],
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "loki",
-          "uid": "P8E80F9AEF21F6940"
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
         },
         "fieldConfig": {
           "defaults": {
@@ -125,8 +38,8 @@
               "axisLabel": "",
               "axisPlacement": "auto",
               "barAlignment": 0,
-              "drawStyle": "bars",
-              "fillOpacity": 14,
+              "drawStyle": "line",
+              "fillOpacity": 25,
               "gradientMode": "none",
               "hideFrom": {
                 "legend": false,
@@ -134,8 +47,8 @@
                 "viz": false
               },
               "insertNulls": false,
-              "lineInterpolation": "linear",
-              "lineWidth": 2,
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
               "pointSize": 5,
               "scaleDistribution": {
                 "type": "linear"
@@ -160,12 +73,230 @@
                 },
                 {
                   "color": "red",
-                  "value": 10
+                  "value": 80
                 }
               ]
             }
           },
-          "overrides": []
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"200\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).LoginUser-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/users/login\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "LoginUser"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"200\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateCompany-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/companies/\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "CreateCompany"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"200\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateProject-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/company/companyId/projects/\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "CreateProject"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 1,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "disableTextWrap": false,
+            "editorMode": "builder",
+            "expr": "rate(chaintask_requests_total{url=\"/users/login\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).LoginUser-fm\", code=\"200\"}[$__rate_interval])",
+            "fullMetaSearch": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A",
+            "useBackend": false
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "disableTextWrap": false,
+            "editorMode": "builder",
+            "expr": "rate(chaintask_requests_total{url=\"/companies/\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateCompany-fm\", code=\"200\"}[$__rate_interval])",
+            "fullMetaSearch": false,
+            "hide": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "C",
+            "useBackend": false
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "disableTextWrap": false,
+            "editorMode": "builder",
+            "expr": "rate(chaintask_requests_total{url=\"/company/companyId/projects/\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateProject-fm\", code=\"200\"}[$__rate_interval])",
+            "fullMetaSearch": false,
+            "hide": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "{{label_name}}",
+            "range": true,
+            "refId": "D",
+            "useBackend": false
+          }
+        ],
+        "title": "Health",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 25,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"401\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).LoginUser-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/users/login\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "UserUnauthorized"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"404\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).LoginUser-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/users/login\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "UserNotFound"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"401\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateCompany-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/companies/\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "CreateCompany-404"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "{code=\"400\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateCompany-fm\", host=\"localhost:8080\", instance=\"api:8080\", job=\"chaintask\", method=\"POST\", url=\"/companies/\"}"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "CreateCompany-400"
+                }
+              ]
+            }
+          ]
         },
         "gridPos": {
           "h": 8,
@@ -189,16 +320,39 @@
         "targets": [
           {
             "datasource": {
-              "type": "loki",
-              "uid": "P8E80F9AEF21F6940"
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
             },
+            "disableTextWrap": false,
             "editorMode": "builder",
-            "expr": "sum(count_over_time({filename=\"/var/log/app.log\"} |= `error` [$__interval]))",
-            "queryType": "range",
-            "refId": "A"
+            "expr": "rate(chaintask_requests_total{url=\"/users/login\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).LoginUser-fm\", code!=\"200\"}[$__rate_interval])",
+            "fullMetaSearch": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "A",
+            "useBackend": false
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "disableTextWrap": false,
+            "editorMode": "builder",
+            "expr": "rate(chaintask_requests_total{url=\"/companies/\", handler=\"github.com/kamalbowselvam/chaintask/api.(*Server).CreateCompany-fm\", code!=\"200\"}[$__rate_interval])",
+            "fullMetaSearch": false,
+            "hide": false,
+            "includeNullMetadata": true,
+            "instant": false,
+            "legendFormat": "__auto",
+            "range": true,
+            "refId": "B",
+            "useBackend": false
           }
         ],
-        "title": "Panel Title",
+        "title": "Trouble",
         "type": "timeseries"
       },
       {
@@ -211,41 +365,100 @@
             "color": {
               "mode": "thresholds"
             },
-            "mappings": [],
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false
+            },
+            "mappings": [
+              {
+                "options": {
+                  "error": {
+                    "color": "red",
+                    "index": 1,
+                    "text": "ERROR"
+                  },
+                  "warn": {
+                    "color": "yellow",
+                    "index": 0,
+                    "text": "WARN"
+                  }
+                },
+                "type": "value"
+              }
+            ],
             "thresholds": {
               "mode": "absolute",
               "steps": [
                 {
                   "color": "green",
                   "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
                 }
               ]
             }
           },
-          "overrides": []
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 200
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "requestUUID"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": null
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "msg"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 298
+                }
+              ]
+            }
+          ]
         },
         "gridPos": {
-          "h": 8,
-          "w": 6,
+          "h": 17,
+          "w": 15,
           "x": 0,
           "y": 8
         },
         "id": 3,
         "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
+          "cellHeight": "sm",
+          "footer": {
+            "countRows": false,
+            "enablePagination": true,
             "fields": "",
-            "values": false
+            "reducer": [
+              "sum"
+            ],
+            "show": false
           },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
+          "frameIndex": 0,
+          "showHeader": true,
+          "sortBy": []
         },
         "pluginVersion": "10.1.1",
         "targets": [
@@ -254,14 +467,51 @@
               "type": "loki",
               "uid": "P8E80F9AEF21F6940"
             },
-            "editorMode": "builder",
-            "expr": "sum(count_over_time({filename=\"/var/log/app.log\"} |= `200` [$__interval]))",
+            "editorMode": "code",
+            "expr": "{filename=\"/var/log/app.log\"} |= `error`",
             "queryType": "range",
             "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "P8E80F9AEF21F6940"
+            },
+            "editorMode": "builder",
+            "expr": "{filename=\"/var/log/app.log\"} |= `warn`",
+            "hide": false,
+            "queryType": "range",
+            "refId": "B"
           }
         ],
         "title": "Panel Title",
-        "type": "gauge"
+        "transformations": [
+          {
+            "id": "extractFields",
+            "options": {
+              "source": "Line"
+            }
+          },
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "Time",
+                  "level",
+                  "caller",
+                  "msg",
+                  "requestUUID",
+                  "error",
+                  "package",
+                  "function",
+                  "param"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "table"
       }
     ],
     "refresh": "5s",
@@ -279,6 +529,6 @@
     "timezone": "",
     "title": "Monitor",
     "uid": "b70c8966-39a3-4446-b3bf-0f210ff4fee8",
-    "version": 2,
+    "version": 18,
     "weekStart": ""
   }

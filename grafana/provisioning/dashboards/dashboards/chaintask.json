@@ -784,7 +784,7 @@
         "type": "barchart"
       }
     ],
-    "refresh": "auto",
+    "refresh": "5s",
     "schemaVersion": 38,
     "style": "dark",
     "tags": [],
@@ -792,13 +792,13 @@
       "list": []
     },
     "time": {
-      "from": "now-6h",
+      "from": "now-2d",
       "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "ChainTask",
     "uid": "ea2d94df-4953-4423-ba46-0cb43814e04b",
-    "version": 14,
+    "version": 1,
     "weekStart": ""
   }
