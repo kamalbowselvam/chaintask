@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	ginprometheus "github.com/zsais/go-gin-prometheus"
+	ginprometheus "github.com/menelikv/go-gin-prometheus"
 
 	"github.com/kamalbowselvam/chaintask/authorization"
 	docs "github.com/kamalbowselvam/chaintask/docs"
@@ -55,6 +55,7 @@ func NewServer(config util.Config, service service.TaskService, authorize author
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
+	
 	// Prometheus part
 	p := ginprometheus.NewPrometheus("chaintask")
 
